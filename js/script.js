@@ -186,9 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (index >= slides.length) index = 0;
             currentSlide = index;
 
-            const isRtl = document.documentElement.dir === 'rtl';
-            const direction = isRtl ? 1 : -1;
-            sliderTrack.style.transform = `translateX(${direction * currentSlide * 100}%)`;
+            sliderTrack.style.transform = `translateX(${-currentSlide * 100}%)`;
 
             // Update dots
             sliderDots.querySelectorAll('.slider-dot').forEach((dot, i) => {
@@ -231,14 +229,8 @@ document.addEventListener('DOMContentLoaded', () => {
             touchEndX = e.changedTouches[0].screenX;
             const diff = touchStartX - touchEndX;
             if (Math.abs(diff) > 50) {
-                const isRtl = document.documentElement.dir === 'rtl';
-                if (isRtl) {
-                    if (diff > 0) prevSlide();
-                    else nextSlide();
-                } else {
-                    if (diff > 0) nextSlide();
-                    else prevSlide();
-                }
+                if (diff > 0) nextSlide();
+                else prevSlide();
                 resetAutoSlide();
             }
         }, { passive: true });
