@@ -903,7 +903,9 @@
         <span id="toast-text"></span>
     </div>
 
-    <!-- Include Language & Dynamic Pricing System -->
+    <!-- Include Supabase & Language & Dynamic Pricing System -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
     <script src="js/lang.js"></script>
 
     <!-- Script for admin interactions -->
@@ -967,13 +969,76 @@
             showToast('تم تسجيل الخروج.', 'info');
         }
 
+        async function syncSettings() {
+            if (window.supabaseClient) {
+                try {
+                    const { data, error } = await window.supabaseClient
+                        .from('settings')
+                        .select('*');
+                    if (error) throw error;
+                    
+                    const priceSetting = data.find(s => s.key === 'room_prices');
+                    if (priceSetting && priceSetting.value) {
+                        localStorage.setItem('ataa-room-prices', JSON.stringify(priceSetting.value));
+                        console.log("Synchronized room prices from Supabase cloud database! 🚀");
+                        loadPricesInForm();
+                        if (typeof applyRoomPrices === 'function') {
+                            applyRoomPrices();
+                        }
+                    }
+                } catch (err) {
+                    console.error("Supabase settings sync failed:", err);
+                }
+            }
+        }
+
+        async function syncReservations() {
+            if (window.supabaseClient) {
+                try {
+                    const { data, error } = await window.supabaseClient
+                        .from('reservations')
+                        .select('*')
+                        .order('created_at', { ascending: false });
+                    
+                    if (error) throw error;
+                    
+                    const bookings = data.map(r => ({
+                        id: r.id,
+                        name: r.name,
+                        phone: r.phone,
+                        guests: r.guests,
+                        payment: r.payment,
+                        room: r.room,
+                        checkin: r.checkin,
+                        checkout: r.checkout,
+                        nights: parseInt(r.nights) || 1,
+                        pricePerNight: parseFloat(r.price_per_night) || 0,
+                        total: parseFloat(r.total) || 0,
+                        status: r.status || 'pending',
+                        date: r.created_at
+                    }));
+                    
+                    localStorage.setItem('ataa-reservations', JSON.stringify(bookings));
+                    console.log("Synchronized reservations from Supabase cloud database! 🚀");
+                    return bookings;
+                } catch (err) {
+                    console.error("Supabase reservations sync failed, using localStorage backup:", err);
+                }
+            }
+            return getReservations();
+        }
+
         function showDashboard() {
             document.getElementById('login-card').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
             document.body.style.alignItems = 'flex-start';
             document.body.style.paddingTop = '40px';
             document.body.style.paddingBottom = '40px';
-            refreshDashboard();
+            
+            // Asynchronously sync cloud database and refresh
+            syncSettings().then(() => {
+                refreshDashboard();
+            });
             loadPricesInForm(); // Load current room prices in inputs
         }
 
@@ -994,7 +1059,7 @@
             }
         }
 
-        function handleSavePrices(e) {
+        async function handleSavePrices(e) {
             e.preventDefault();
             const single = parseInt(document.getElementById('price-single').value) || 25000;
             const double = parseInt(document.getElementById('price-double').value) || 35000;
@@ -1005,12 +1070,24 @@
             const prices = { single, double, triple, quad, family };
             localStorage.setItem('ataa-room-prices', JSON.stringify(prices));
 
+            if (window.supabaseClient) {
+                try {
+                    const { error } = await window.supabaseClient
+                        .from('settings')
+                        .upsert({ key: 'room_prices', value: prices }, { onConflict: 'key' });
+                    if (error) throw error;
+                    console.log("Prices updated in Supabase cloud! 🚀");
+                } catch (err) {
+                    console.error("Failed to update prices in Supabase:", err);
+                }
+            }
+
             // Refresh dynamic pricing on this page if present
             if (typeof applyRoomPrices === 'function') {
                 applyRoomPrices();
             }
 
-            showToast('تم تحديث أسعار الغرف بنجاح وحفظها!', 'success');
+            showToast('تم تحديث أسعار الغرف وحفظها سحابياً بنجاح!', 'success');
         }
 
         function getReservations() {
@@ -1053,8 +1130,8 @@
             });
         }
 
-        function refreshDashboard(playSound = false) {
-            const bookings = getReservations();
+        async function refreshDashboard(playSound = false) {
+            const bookings = await syncReservations();
             
             // Only play sound if playSound is true and bookings list has grown (new booking arrived)
             if (playSound && bookings.length > lastBookingsCount) {
@@ -1168,13 +1245,28 @@
             }).join('');
         }
 
-        function updateStatus(id, newStatus) {
+        async function updateStatus(id, newStatus) {
             const bookings = getReservations();
             const b = bookings.find(x => x.id === id);
             if (b) {
                 b.status = newStatus;
                 saveReservations(bookings);
-                refreshDashboard();
+
+                if (window.supabaseClient) {
+                    try {
+                        const { error } = await window.supabaseClient
+                            .from('reservations')
+                            .update({ status: newStatus })
+                            .eq('id', id);
+                        if (error) throw error;
+                        console.log(`Reservation ${id} status updated to ${newStatus} in Supabase!`);
+                    } catch (err) {
+                        console.error("Failed to update status in Supabase:", err);
+                    }
+                }
+
+                renderStats(bookings);
+                renderBookings(bookings);
                 showToast(`تم ${newStatus === 'accepted' ? 'الموافقة على' : 'رفض'} الحجز ${id} بنجاح.`, 'success');
 
                 // Auto open WhatsApp to notify the client
@@ -1187,12 +1279,27 @@
             }
         }
 
-        function deleteBooking(id) {
+        async function deleteBooking(id) {
             if (confirm(`هل أنت متأكد من رغبتك في حذف طلب الحجز ${id} نهائياً؟`)) {
                 let bookings = getReservations();
                 bookings = bookings.filter(x => x.id !== id);
                 saveReservations(bookings);
-                refreshDashboard();
+
+                if (window.supabaseClient) {
+                    try {
+                        const { error } = await window.supabaseClient
+                            .from('reservations')
+                            .delete()
+                            .eq('id', id);
+                        if (error) throw error;
+                        console.log(`Reservation ${id} deleted from Supabase!`);
+                    } catch (err) {
+                        console.error("Failed to delete from Supabase:", err);
+                    }
+                }
+
+                renderStats(bookings);
+                renderBookings(bookings);
                 showToast(`تم حذف طلب الحجز ${id} بنجاح.`, 'info');
             }
         }
