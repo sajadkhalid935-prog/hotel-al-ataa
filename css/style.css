@@ -1257,6 +1257,7 @@ body.dark-mode .map-info-item a {
   position: relative;
   max-width: 1000px;
   margin: 0 auto;
+  direction: ltr !important;
 }
 
 .slider-track-wrap {
@@ -1265,23 +1266,24 @@ body.dark-mode .map-info-item a {
   box-shadow: var(--shadow-2xl);
   position: relative;
   width: 100%;
+  direction: ltr !important;
 }
 
 .slider-track {
   display: flex;
-  direction: ltr;
+  direction: ltr !important;
   transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   will-change: transform;
   width: 100%;
 }
 
 .slide {
-  min-width: 100%;
-  width: 100%;
-  max-width: 100%;
+  flex: 0 0 100% !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 100% !important;
   position: relative;
-  flex-shrink: 0;
-  direction: rtl;
+  direction: ltr !important;
   box-sizing: border-box;
 }
 
@@ -1300,6 +1302,13 @@ body.dark-mode .map-info-item a {
   padding: var(--space-3xl) var(--space-xl) var(--space-xl);
   background: linear-gradient(to top, rgba(11, 19, 43, 0.9) 0%, rgba(11, 19, 43, 0.4) 50%, transparent 100%);
   color: var(--color-white);
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="ltr"] .slide-caption {
+  direction: ltr;
+  text-align: left;
 }
 
 .slide-caption h3 {
@@ -3511,22 +3520,26 @@ body.dark-mode *::after {
   .facility-slider {
     max-width: 100%;
     overflow: hidden;
+    direction: ltr !important;
   }
 
   .slider-track-wrap {
     overflow: hidden;
     width: 100%;
+    direction: ltr !important;
   }
 
   .slider-track {
     width: 100%;
+    direction: ltr !important;
   }
 
   .slide {
-    min-width: 100% !important;
+    flex: 0 0 100% !important;
     width: 100% !important;
     max-width: 100% !important;
-    flex-shrink: 0 !important;
+    min-width: 100% !important;
+    direction: ltr !important;
   }
 
   .slide img {
