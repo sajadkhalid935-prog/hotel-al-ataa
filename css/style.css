@@ -1264,6 +1264,7 @@ body.dark-mode .map-info-item a {
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-2xl);
   position: relative;
+  width: 100%;
 }
 
 .slider-track {
@@ -1271,13 +1272,17 @@ body.dark-mode .map-info-item a {
   direction: ltr;
   transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   will-change: transform;
+  width: 100%;
 }
 
 .slide {
   min-width: 100%;
+  width: 100%;
+  max-width: 100%;
   position: relative;
   flex-shrink: 0;
   direction: rtl;
+  box-sizing: border-box;
 }
 
 .slide img {
@@ -3500,6 +3505,34 @@ body.dark-mode *::after {
 
   .slider-btn {
     display: none !important;
+  }
+
+  /* Fix slider to show one image at a time on mobile */
+  .facility-slider {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .slider-track-wrap {
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .slider-track {
+    width: 100%;
+  }
+
+  .slide {
+    min-width: 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    flex-shrink: 0 !important;
+  }
+
+  .slide img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
   }
 
   .nav-links .btn {
