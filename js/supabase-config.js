@@ -4,7 +4,7 @@
 // يرجى ملء الرابط أدناه بعد نشر كود Google Apps Script كتطبيق ويب (Web App).
 // إذا تركت الرابط فارغاً، سيعمل الموقع تلقائياً على الذاكرة المحلية (localStorage) دون أي مشاكل.
 
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzZLXk6B5UKl3lkawwKln-tmi_pxCDRQUEEHmSK1MiC-9BvvYSguuRJ2ZYu6pXQ9dwgdQ/exec"; // ضع هنا رابط ويب تطبيق Apps Script الخاص بك
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8oopbYE509F45UywoH8Ve3Cm4HuIn4xxAc3CQkdjxvollPX58mSktPX5XpPSz-6lq/exec"; // ضع هنا رابط ويب تطبيق Apps Script الخاص بك
 
 const googleSheetsClient = {
     // التحقق من تفعيل الاتصال بـ Google Sheets
