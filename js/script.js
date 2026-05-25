@@ -636,30 +636,13 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('ataa-reservations', JSON.stringify(reservations));
         renderReservations();
 
-        // Save to Supabase Cloud Database if configured
-        if (window.supabaseClient) {
+        // Save to Google Sheets if configured
+        if (window.googleSheetsClient && window.googleSheetsClient.isEnabled()) {
             try {
-                const { error } = await window.supabaseClient
-                    .from('reservations')
-                    .insert([{
-                        id: data.id,
-                        name: data.name,
-                        phone: data.phone,
-                        guests: data.guests,
-                        payment: data.payment,
-                        room: data.room,
-                        checkin: data.checkin,
-                        checkout: data.checkout,
-                        nights: parseInt(data.nights),
-                        price_per_night: parseFloat(data.pricePerNight),
-                        total: parseFloat(data.total),
-                        status: data.status,
-                        created_at: data.date
-                    }]);
-                if (error) throw error;
-                console.log("Saved successfully to Supabase cloud database! 🚀");
+                await window.googleSheetsClient.saveReservation(data);
+                console.log("Saved successfully to Google Sheets! 🚀");
             } catch (err) {
-                console.error("Failed to save to Supabase cloud:", err);
+                console.error("Failed to save to Google Sheets:", err);
                 showNotification("تنبيه: تم الحفظ محلياً على جهازك، وتعذر الحفظ السحابي المؤقت.", "error");
             }
         }
@@ -674,17 +657,13 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('ataa-reservations', JSON.stringify(reservations));
         renderReservations();
 
-        // Delete from Supabase Cloud if configured
-        if (window.supabaseClient) {
+        // Delete from Google Sheets if configured
+        if (window.googleSheetsClient && window.googleSheetsClient.isEnabled()) {
             try {
-                const { error } = await window.supabaseClient
-                    .from('reservations')
-                    .delete()
-                    .eq('id', id);
-                if (error) throw error;
-                console.log(`Deleted reservation ${id} from Supabase cloud database!`);
+                await window.googleSheetsClient.deleteReservation(id);
+                console.log(`Deleted reservation ${id} from Google Sheets!`);
             } catch (err) {
-                console.error("Failed to delete from Supabase:", err);
+                console.error("Failed to delete from Google Sheets:", err);
             }
         }
     }
@@ -693,17 +672,13 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('ataa-reservations');
         renderReservations();
 
-        // Delete all from Supabase Cloud if configured
-        if (window.supabaseClient) {
+        // Delete all from Google Sheets if configured
+        if (window.googleSheetsClient && window.googleSheetsClient.isEnabled()) {
             try {
-                const { error } = await window.supabaseClient
-                    .from('reservations')
-                    .delete()
-                    .neq('id', ''); // Delete all rows
-                if (error) throw error;
-                console.log("Cleared all reservations from Supabase cloud database!");
+                await window.googleSheetsClient.clearAllReservations();
+                console.log("Cleared all reservations from Google Sheets!");
             } catch (err) {
-                console.error("Failed to clear all from Supabase:", err);
+                console.error("Failed to clear all from Google Sheets:", err);
             }
         }
     }
@@ -1017,16 +992,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Make renderReservations accessible for language switch
     window.renderReservations = renderReservations;
 
-    // Sync room prices from Supabase Cloud on load if configured
-    if (window.supabaseClient) {
-        window.supabaseClient
-            .from('settings')
-            .select('value')
-            .eq('key', 'room_prices')
-            .single()
-            .then(({ data }) => {
-                if (data && data.value) {
-                    localStorage.setItem('ataa-room-prices', JSON.stringify(data.value));
+    // Sync room prices from Google Sheets on load if configured
+    if (window.googleSheetsClient && window.googleSheetsClient.isEnabled()) {
+        window.googleSheetsClient.getSettings()
+            .then((data) => {
+                const priceSetting = data.find(s => s.key === 'room_prices');
+                if (priceSetting && priceSetting.value) {
+                    localStorage.setItem('ataa-room-prices', JSON.stringify(priceSetting.value));
                     if (typeof applyRoomPrices === 'function') {
                         applyRoomPrices();
                         if (typeof updateBookingSummary === 'function') {
@@ -1035,7 +1007,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             })
-            .catch(err => console.log("Supabase pricing sync ignored:", err));
+            .catch(err => console.log("Google Sheets pricing sync ignored:", err));
     }
 
     // Real-time synchronization when database changes in another tab

@@ -912,6 +912,164 @@
     <script>
         const AUTH_KEY = 'ataa-admin-logged';
 
+        // ===================================================
+        // 🔔 نظام الإشعارات الفورية (Browser Push Notifications)
+        // ===================================================
+        const NotificationSystem = {
+            POLL_INTERVAL: 10000, // 10 ثوانٍ
+            KNOWN_IDS_KEY: 'ataa-known-booking-ids',
+            _pollTimer: null,
+            _isRunning: false,
+
+            init: function() {
+                console.log('🔔 جاري تهيئة نظام الإشعارات...');
+                if (!('Notification' in window)) {
+                    console.warn('⚠️ هذا المتصفح لا يدعم الإشعارات.');
+                    return;
+                }
+
+                if (Notification.permission === 'default') {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === 'granted') {
+                            console.log('✅ تم السماح بالإشعارات!');
+                            this._sendTestNotification();
+                            this.startPolling();
+                        } else {
+                            console.warn('❌ تم رفض صلاحية الإشعارات.');
+                        }
+                    });
+                } else if (Notification.permission === 'granted') {
+                    console.log('✅ صلاحية الإشعارات ممنوحة مسبقاً.');
+                    this.startPolling();
+                } else {
+                    console.warn('❌ صلاحية الإشعارات مرفوضة.');
+                }
+            },
+
+            _sendTestNotification: function() {
+                new Notification('✅ تم تفعيل الإشعارات', {
+                    body: 'ستصلك إشعارات فورية عند وصول حجز جديد في الفندق.',
+                    icon: 'images/gemini.png',
+                    tag: 'ataa-test-notification'
+                });
+            },
+
+            startPolling: function() {
+                if (this._isRunning) return;
+                this._isRunning = true;
+                this._initKnownIds();
+                console.log(`🔄 بدء الفحص الدوري كل ${this.POLL_INTERVAL / 1000} ثوانٍ...`);
+
+                // أول فحص لحفظ الحجوزات الحالية كمعروفة وتجنب إشعارات قديمة مكررة
+                this._checkForNewBookings(true);
+
+                this._pollTimer = setInterval(() => {
+                    this._checkForNewBookings(false);
+                }, this.POLL_INTERVAL);
+            },
+
+            stopPolling: function() {
+                if (this._pollTimer) {
+                    clearInterval(this._pollTimer);
+                    this._pollTimer = null;
+                }
+                this._isRunning = false;
+                console.log('⏹️ تم إيقاف الفحص الدوري.');
+            },
+
+            _initKnownIds: function() {
+                try {
+                    const stored = localStorage.getItem(this.KNOWN_IDS_KEY);
+                    if (!stored) {
+                        const currentBookings = this._getLocalBookings();
+                        const ids = currentBookings.map(b => b.id);
+                        localStorage.setItem(this.KNOWN_IDS_KEY, JSON.stringify(ids));
+                    }
+                } catch (e) {
+                    localStorage.setItem(this.KNOWN_IDS_KEY, JSON.stringify([]));
+                }
+            },
+
+            _getLocalBookings: function() {
+                try {
+                    return JSON.parse(localStorage.getItem('ataa-reservations')) || [];
+                } catch (e) {
+                    return [];
+                }
+            },
+
+            _getKnownIds: function() {
+                try {
+                    return JSON.parse(localStorage.getItem(this.KNOWN_IDS_KEY)) || [];
+                } catch (e) {
+                    return [];
+                }
+            },
+
+            _saveKnownIds: function(ids) {
+                localStorage.setItem(this.KNOWN_IDS_KEY, JSON.stringify(ids));
+            },
+
+            _checkForNewBookings: async function(isFirstCheck) {
+                try {
+                    if (typeof syncReservations === 'function') {
+                        const knownIds = this._getKnownIds();
+                        const bookings = await syncReservations();
+                        
+                        // تصفية الحجوزات الجديدة غير الموجودة بالمعرفات المعروفة
+                        const newBookings = bookings.filter(b => !knownIds.includes(b.id));
+
+                        if (newBookings.length > 0) {
+                            const allIds = bookings.map(b => b.id);
+                            this._saveKnownIds(allIds);
+
+                            if (!isFirstCheck) {
+                                // تشغيل صوت التنبيه المدمج
+                                if (typeof playIncomingOrderSound === 'function') {
+                                    playIncomingOrderSound();
+                                }
+
+                                // إرسال الإشعارات لكل حجز جديد
+                                newBookings.forEach(booking => {
+                                    this._sendBookingNotification(booking);
+                                });
+
+                                // تحديث واجهة لوحة التحكم
+                                if (typeof renderStats === 'function' && typeof renderBookings === 'function') {
+                                    renderStats(bookings);
+                                    renderBookings(bookings);
+                                }
+                            }
+                        } else if (isFirstCheck && bookings.length > 0) {
+                            const allIds = bookings.map(b => b.id);
+                            this._saveKnownIds(allIds);
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ خطأ في فحص الإشعارات:', error);
+                }
+            },
+
+            _sendBookingNotification: function(booking) {
+                if (Notification.permission !== 'granted') return;
+
+                const formattedTotal = new Intl.NumberFormat('ar-IQ').format(booking.total);
+
+                const notification = new Notification('🔔 حجز جديد في الفندق', {
+                    body: `👤 الاسم: ${booking.name}\n🏨 الغرفة: ${booking.room}\n📅 الدخول: ${booking.checkin}\n💰 المجموع: ${formattedTotal} د.ع`,
+                    icon: 'images/gemini.png',
+                    tag: `ataa-booking-${booking.id}`,
+                    requireInteraction: true,
+                    vibrate: [200, 100, 200]
+                });
+
+                notification.onclick = function() {
+                    window.focus();
+                    notification.close();
+                };
+            }
+        };
+
         // Check authentication on load
         document.addEventListener('DOMContentLoaded', () => {
             const isLogged = sessionStorage.getItem(AUTH_KEY);
@@ -962,6 +1120,9 @@
         }
 
         function handleLogout() {
+            if (typeof NotificationSystem !== 'undefined') {
+                NotificationSystem.stopPolling();
+            }
             sessionStorage.removeItem(AUTH_KEY);
             document.getElementById('dashboard').style.display = 'none';
             document.getElementById('login-card').style.display = 'block';
@@ -970,38 +1131,28 @@
         }
 
         async function syncSettings() {
-            if (window.supabaseClient) {
+            if (window.googleSheetsClient && window.googleSheetsClient.isEnabled()) {
                 try {
-                    const { data, error } = await window.supabaseClient
-                        .from('settings')
-                        .select('*');
-                    if (error) throw error;
-                    
+                    const data = await window.googleSheetsClient.getSettings();
                     const priceSetting = data.find(s => s.key === 'room_prices');
                     if (priceSetting && priceSetting.value) {
                         localStorage.setItem('ataa-room-prices', JSON.stringify(priceSetting.value));
-                        console.log("Synchronized room prices from Supabase cloud database! 🚀");
+                        console.log("Synchronized room prices from Google Sheets! 🚀");
                         loadPricesInForm();
                         if (typeof applyRoomPrices === 'function') {
                             applyRoomPrices();
                         }
                     }
                 } catch (err) {
-                    console.error("Supabase settings sync failed:", err);
+                    console.error("Google Sheets settings sync failed:", err);
                 }
             }
         }
 
         async function syncReservations() {
-            if (window.supabaseClient) {
+            if (window.googleSheetsClient && window.googleSheetsClient.isEnabled()) {
                 try {
-                    const { data, error } = await window.supabaseClient
-                        .from('reservations')
-                        .select('*')
-                        .order('created_at', { ascending: false });
-                    
-                    if (error) throw error;
-                    
+                    const data = await window.googleSheetsClient.getReservations();
                     const bookings = data.map(r => ({
                         id: r.id,
                         name: r.name,
@@ -1012,17 +1163,17 @@
                         checkin: r.checkin,
                         checkout: r.checkout,
                         nights: parseInt(r.nights) || 1,
-                        pricePerNight: parseFloat(r.price_per_night) || 0,
+                        pricePerNight: parseFloat(r.price_per_night || r.pricePerNight) || 0,
                         total: parseFloat(r.total) || 0,
                         status: r.status || 'pending',
-                        date: r.created_at
+                        date: r.created_at || r.date
                     }));
                     
                     localStorage.setItem('ataa-reservations', JSON.stringify(bookings));
-                    console.log("Synchronized reservations from Supabase cloud database! 🚀");
+                    console.log("Synchronized reservations from Google Sheets! 🚀");
                     return bookings;
                 } catch (err) {
-                    console.error("Supabase reservations sync failed, using localStorage backup:", err);
+                    console.error("Google Sheets reservations sync failed, using localStorage backup:", err);
                 }
             }
             return getReservations();
@@ -1040,6 +1191,11 @@
                 refreshDashboard();
             });
             loadPricesInForm(); // Load current room prices in inputs
+
+            // تفعيل نظام الإشعارات الفورية
+            if (typeof NotificationSystem !== 'undefined') {
+                NotificationSystem.init();
+            }
         }
 
         function loadPricesInForm() {
@@ -1070,15 +1226,12 @@
             const prices = { single, double, triple, quad, family };
             localStorage.setItem('ataa-room-prices', JSON.stringify(prices));
 
-            if (window.supabaseClient) {
+            if (window.googleSheetsClient && window.googleSheetsClient.isEnabled()) {
                 try {
-                    const { error } = await window.supabaseClient
-                        .from('settings')
-                        .upsert({ key: 'room_prices', value: prices }, { onConflict: 'key' });
-                    if (error) throw error;
-                    console.log("Prices updated in Supabase cloud! 🚀");
+                    await window.googleSheetsClient.savePrices(prices);
+                    console.log("Prices updated in Google Sheets! 🚀");
                 } catch (err) {
-                    console.error("Failed to update prices in Supabase:", err);
+                    console.error("Failed to update prices in Google Sheets:", err);
                 }
             }
 
@@ -1252,16 +1405,12 @@
                 b.status = newStatus;
                 saveReservations(bookings);
 
-                if (window.supabaseClient) {
+                if (window.googleSheetsClient && window.googleSheetsClient.isEnabled()) {
                     try {
-                        const { error } = await window.supabaseClient
-                            .from('reservations')
-                            .update({ status: newStatus })
-                            .eq('id', id);
-                        if (error) throw error;
-                        console.log(`Reservation ${id} status updated to ${newStatus} in Supabase!`);
+                        await window.googleSheetsClient.updateStatus(id, newStatus);
+                        console.log(`Reservation ${id} status updated to ${newStatus} in Google Sheets!`);
                     } catch (err) {
-                        console.error("Failed to update status in Supabase:", err);
+                        console.error("Failed to update status in Google Sheets:", err);
                     }
                 }
 
@@ -1285,16 +1434,12 @@
                 bookings = bookings.filter(x => x.id !== id);
                 saveReservations(bookings);
 
-                if (window.supabaseClient) {
+                if (window.googleSheetsClient && window.googleSheetsClient.isEnabled()) {
                     try {
-                        const { error } = await window.supabaseClient
-                            .from('reservations')
-                            .delete()
-                            .eq('id', id);
-                        if (error) throw error;
-                        console.log(`Reservation ${id} deleted from Supabase!`);
+                        await window.googleSheetsClient.deleteReservation(id);
+                        console.log(`Reservation ${id} deleted from Google Sheets!`);
                     } catch (err) {
-                        console.error("Failed to delete from Supabase:", err);
+                        console.error("Failed to delete from Google Sheets:", err);
                     }
                 }
 
