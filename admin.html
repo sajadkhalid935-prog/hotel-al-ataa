@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - فندق مدينة العطاء السياحي</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS for Admin Panel -->
+    <style>
+        :root {
+            --color-primary: #0B132B;
+            --color-secondary: #1C2541;
+            --color-accent: #D4AF37;
+            --color-accent-hover: #F9A03F;
+            --color-white: #FFFFFF;
+            --color-bg: #0D1117;
+            --color-card: #161B22;
+            --color-border: rgba(255, 255, 255, 0.08);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --color-success: #2ea44f;
+            --color-danger: #da3637;
+            --color-warning: #e3b341;
+            --color-text: #E0E0E0;
+            --color-text-muted: #A0A0A0;
+            --font-primary: 'Cairo', 'Tajawal', sans-serif;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            direction: rtl;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ==================== LOGIN SCREEN ==================== */
+        .login-card {
+            background: var(--color-card);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            backdrop-filter: blur(20px);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .login-logo {
+            font-size: 3rem;
+            color: var(--color-accent);
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.3));
+        }
+
+        .login-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--color-white);
+            margin-bottom: 10px;
+        }
+
+        .login-subtitle {
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: right;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--color-text);
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i.fa-lock {
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            color: var(--color-text-muted);
+        }
+
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translateY(-50%);
+            color: var(--color-text-muted);
+            cursor: pointer;
+            transition: color var(--transition-base);
+            z-index: 10;
+        }
+
+        .toggle-password:hover {
+            color: var(--color-accent);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 45px;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            color: var(--color-white);
+            font-size: 1rem;
+            transition: all var(--transition-base);
+        }
+
+        .form-control:focus {
+            border-color: var(--color-accent);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+            outline: none;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-accent), var(--color-accent-hover));
+            color: var(--color-primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            color: var(--color-danger);
+            font-size: 0.85rem;
+            margin-top: 15px;
+            display: none;
+        }
+
+        /* ==================== DASHBOARD SCREEN ==================== */
+        .dashboard-wrapper {
+            display: none;
+            width: 100%;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: var(--color-card);
+            padding: 20px 30px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+        }
+
+        .dashboard-title-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .dashboard-title-icon {
+            font-size: 2rem;
+            color: var(--color-accent);
+        }
+
+        .dashboard-title h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-white);
+        }
+
+        .dashboard-title p {
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--color-white);
+            border: 1px solid var(--color-border);
+            padding: 10px 20px;
+            width: auto;
+            font-size: 0.9rem;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--color-text-muted);
+        }
+
+        .btn-danger-outline {
+            background: transparent;
+            color: var(--color-danger);
+            border: 1px solid rgba(218, 54, 55, 0.3);
+            padding: 10px 20px;
+            width: auto;
+            font-size: 0.9rem;
+        }
+
+        .btn-danger-outline:hover {
+            background: rgba(218, 54, 55, 0.1);
+            border-color: var(--color-danger);
+        }
+
+        /* ── Statistics Grid ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--color-card);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .icon-blue { background: rgba(54, 162, 235, 0.15); color: #36a2eb; }
+        .icon-yellow { background: rgba(227, 179, 65, 0.15); color: #e3b341; }
+        .icon-green { background: rgba(46, 164, 79, 0.15); color: #2ea44f; }
+        .icon-red { background: rgba(218, 54, 55, 0.15); color: #da3637; }
+
+        .stat-card-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-card-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--color-white);
+            line-height: 1.2;
+        }
+
+        .stat-card-label {
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+            font-weight: 500;
+        }
+
+        /* ── Bookings Section ── */
+        .bookings-card {
+            background: var(--color-card);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .bookings-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: 15px;
+        }
+
+        .bookings-card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--color-white);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--color-text-muted);
+        }
+
+        .empty-state i {
+            font-size: 3.5rem;
+            color: var(--color-border);
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            color: var(--color-white);
+            margin-bottom: 8px;
+            font-size: 1.2rem;
+        }
+
+        /* ── Bookings List / Grid ── */
+        .bookings-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .booking-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all var(--transition-base);
+        }
+
+        .booking-item:hover {
+            border-color: rgba(212, 175, 55, 0.25);
+            background: rgba(255, 255, 255, 0.04);
+            transform: translateY(-2px);
+        }
+
+        .booking-main-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .booking-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .booking-id {
+            font-family: monospace;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: var(--color-accent);
+            font-weight: bold;
+        }
+
+        .booking-guest-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--color-white);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .status-pending { background: rgba(227, 179, 65, 0.15); color: #e3b341; border: 1px solid rgba(227, 179, 65, 0.3); }
+        .status-accepted { background: rgba(46, 164, 79, 0.15); color: #2ea44f; border: 1px solid rgba(46, 164, 79, 0.3); }
+        .status-rejected { background: rgba(218, 54, 55, 0.15); color: #da3637; border: 1px solid rgba(218, 54, 55, 0.3); }
+        .status-past { background: rgba(54, 162, 235, 0.15); color: #36a2eb; border: 1px solid rgba(54, 162, 235, 0.3); }
+
+        .booking-details-grid {
+            display: grid;
+            grid-template-columns: repeat(3, auto);
+            gap: 15px 30px;
+            margin-top: 5px;
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+        }
+
+        .detail-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detail-cell i {
+            color: var(--color-accent);
+            width: 15px;
+            text-align: center;
+        }
+
+        .detail-cell strong {
+            color: var(--color-text);
+        }
+
+        /* ── Actions ── */
+        .booking-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: var(--radius-md);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: var(--color-white);
+            border: 1px solid var(--color-border);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .btn-accept {
+            background: rgba(46, 164, 79, 0.1);
+            color: #2ea44f;
+            border-color: rgba(46, 164, 79, 0.3);
+        }
+
+        .btn-accept:hover {
+            background: #2ea44f;
+            color: var(--color-white);
+            box-shadow: 0 4px 12px rgba(46, 164, 79, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-reject {
+            background: rgba(218, 54, 55, 0.1);
+            color: #da3637;
+            border-color: rgba(218, 54, 55, 0.3);
+        }
+
+        .btn-reject:hover {
+            background: #da3637;
+            color: var(--color-white);
+            box-shadow: 0 4px 12px rgba(218, 54, 55, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-whatsapp-chat {
+            background: rgba(37, 211, 102, 0.1);
+            color: #25D366;
+            border-color: rgba(37, 211, 102, 0.3);
+        }
+
+        .btn-whatsapp-chat:hover {
+            background: #25D366;
+            color: var(--color-white);
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-del {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--color-text-muted);
+        }
+
+        .btn-del:hover {
+            background: var(--color-danger);
+            color: var(--color-white);
+            border-color: var(--color-danger);
+            box-shadow: 0 4px 12px rgba(218, 54, 55, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Toast Notification */
+        .toast-notify {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: var(--color-card);
+            border: 1px solid var(--color-border);
+            border-right: 4px solid var(--color-accent);
+            padding: 15px 25px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .toast-notify.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-notify.success { border-right-color: var(--color-success); }
+        .toast-notify.error { border-right-color: var(--color-danger); }
+
+        .toast-notify i {
+            font-size: 1.25rem;
+        }
+
+        .toast-notify.success i { color: var(--color-success); }
+        .toast-notify.error i { color: var(--color-danger); }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 20px;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .header-actions .btn {
+                flex: 1;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .booking-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .booking-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .booking-details-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+
+        /* ── Dashboard Content Grid Layout ── */
+        .dashboard-content-grid {
+            display: grid;
+            grid-template-columns: 2.2fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+            align-items: start;
+        }
+
+        .prices-card {
+            background: var(--color-card);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 40px;
+        }
+
+        .prices-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: 15px;
+        }
+
+        .prices-card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--color-white);
+            display: flex;
+            align-items: center;
+        }
+
+        .price-input-group {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .price-input-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--color-text);
+        }
+
+        .price-input-group label i {
+            color: var(--color-accent);
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .price-control {
+            padding: 12px 15px !important;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            color: var(--color-white);
+            font-size: 1.05rem;
+            font-weight: 700;
+            transition: all var(--transition-base);
+        }
+
+        .price-control:focus {
+            border-color: var(--color-accent);
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+        }
+
+        .btn-save-prices {
+            margin-top: 10px;
+            background: linear-gradient(135deg, var(--color-accent), var(--color-accent-hover));
+            color: var(--color-primary);
+            font-weight: 700;
+        }
+
+        .btn-save-prices:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-content-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .prices-card {
+                position: static;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <!-- ==================== LOGIN SCREEN ==================== -->
+        <div class="login-card" id="login-card">
+            <div class="login-logo">
+                <i class="fa-solid fa-hotel"></i>
+            </div>
+            <h1 class="login-title">لوحة تحكّم الإدارة</h1>
+            <p class="login-subtitle">فندق ومطعم مدينة العطاء السياحي</p>
+
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="password">كلمة مرور الإدارة</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-lock fa-lock"></i>
+                        <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+                        <i class="fa-solid fa-eye toggle-password" id="togglePassword" onclick="togglePasswordVisibility()"></i>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-right-to-bracket"></i> دخول اللوحة
+                </button>
+                <div class="error-message" id="login-error">كلمة المرور غير صحيحة! يرجى المحاولة مجدداً.</div>
+            </form>
+        </div>
+
+        <!-- ==================== DASHBOARD SCREEN ==================== -->
+        <div class="dashboard-wrapper" id="dashboard">
+            <div class="dashboard-header">
+                <div class="dashboard-title-area">
+                    <div class="dashboard-title-icon">
+                        <i class="fa-solid fa-sliders"></i>
+                    </div>
+                    <div class="dashboard-title">
+                        <h2>لوحة إدارة الحجوزات</h2>
+                        <p>إدارة طلبات النزلاء والموافقة عليها أو رفضها</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <a href="index.html" class="btn btn-secondary" target="_blank">
+                        <i class="fa-solid fa-globe"></i> زيارة الموقع
+                    </a>
+                    <button class="btn btn-danger-outline" onclick="handleLogout()">
+                        <i class="fa-solid fa-right-from-bracket"></i> خروج
+                    </button>
+                </div>
+            </div>
+
+            <!-- Statistics Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card-icon icon-blue">
+                        <i class="fa-solid fa-list-check"></i>
+                    </div>
+                    <div class="stat-card-info">
+                        <span class="stat-card-number" id="stat-total">0</span>
+                        <span class="stat-card-label">إجمالي الطلبات</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-icon icon-yellow">
+                        <i class="fa-solid fa-hourglass-half"></i>
+                    </div>
+                    <div class="stat-card-info">
+                        <span class="stat-card-number" id="stat-pending">0</span>
+                        <span class="stat-card-label">قيد الانتظار</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-icon icon-green">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div class="stat-card-info">
+                        <span class="stat-card-number" id="stat-accepted">0</span>
+                        <span class="stat-card-label">الطلبات المقبولة</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-icon icon-red">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                    </div>
+                    <div class="stat-card-info">
+                        <span class="stat-card-number" id="stat-rejected">0</span>
+                        <span class="stat-card-label">الطلبات المرفوضة</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Content Grid (Two Columns on Desktop) -->
+            <div class="dashboard-content-grid">
+                <!-- Bookings Column (Left - 2.2fr) -->
+                <div class="bookings-column">
+                    <!-- Bookings List Card -->
+                    <div class="bookings-card">
+                        <div class="bookings-card-header">
+                            <h3 class="bookings-card-title">طلبات الحجوزات الواردة</h3>
+                            <button class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.8rem;" onclick="refreshDashboard()">
+                                <i class="fa-solid fa-rotate"></i> تحديث البيانات
+                            </button>
+                        </div>
+
+                        <div id="empty-state" class="empty-state" style="display: none;">
+                            <i class="fa-solid fa-calendar-xmark"></i>
+                            <h3>لا توجد حجوزات حتى الآن</h3>
+                            <p>سيتم عرض طلبات الحجوزات المجدولة من الزوار هنا مباشرة فور حجزهم.</p>
+                        </div>
+
+                        <div class="bookings-list" id="bookings-list">
+                            <!-- Dynamic bookings will render here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manage Room Prices Column (Right - 1fr) -->
+                <div class="prices-column">
+                    <!-- Room Prices Card -->
+                    <div class="prices-card">
+                        <div class="prices-card-header">
+                            <h3 class="prices-card-title">
+                                <i class="fa-solid fa-tags" style="color: var(--color-accent); margin-left: 10px;"></i>
+                                إدارة أسعار الغرف
+                            </h3>
+                        </div>
+                        <div class="prices-card-body">
+                            <form id="prices-form" onsubmit="handleSavePrices(event)">
+                                <div class="price-input-group">
+                                    <label for="price-single">
+                                        <i class="fa-solid fa-user"></i>
+                                        غرفة فردية (د.ع)
+                                    </label>
+                                    <input type="number" id="price-single" class="form-control price-control" min="1000" step="500" required>
+                                </div>
+                                
+                                <div class="price-input-group">
+                                    <label for="price-double">
+                                        <i class="fa-solid fa-user-group"></i>
+                                        غرفة زوجية (د.ع)
+                                    </label>
+                                    <input type="number" id="price-double" class="form-control price-control" min="1000" step="500" required>
+                                </div>
+                                
+                                <div class="price-input-group">
+                                    <label for="price-triple">
+                                        <i class="fa-solid fa-users"></i>
+                                        غرفة ثلاثية (د.ع)
+                                    </label>
+                                    <input type="number" id="price-triple" class="form-control price-control" min="1000" step="500" required>
+                                </div>
+                                
+                                <div class="price-input-group">
+                                    <label for="price-quad">
+                                        <i class="fa-solid fa-people-group"></i>
+                                        غرفة رباعية (د.ع)
+                                    </label>
+                                    <input type="number" id="price-quad" class="form-control price-control" min="1000" step="500" required>
+                                </div>
+                                
+                                <div class="price-input-group">
+                                    <label for="price-family">
+                                        <i class="fa-solid fa-hotel"></i>
+                                        جناح عائلي (خماسية) (د.ع)
+                                    </label>
+                                    <input type="number" id="price-family" class="form-control price-control" min="1000" step="500" required>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary btn-save-prices">
+                                    <i class="fa-solid fa-floppy-disk"></i>
+                                    حفظ الأسعار الجديدة
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-notify" id="toast-notify">
+        <i id="toast-icon" class="fa-solid"></i>
+        <span id="toast-text"></span>
+    </div>
+
+    <!-- Include Language & Dynamic Pricing System -->
+    <script src="js/lang.js"></script>
+
+    <!-- Script for admin interactions -->
+    <script>
+        const AUTH_KEY = 'ataa-admin-logged';
+
+        // Check authentication on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const isLogged = sessionStorage.getItem(AUTH_KEY);
+            if (isLogged === 'true') {
+                showDashboard();
+            }
+
+            // Real-time synchronization when database changes in another tab
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'ataa-reservations') {
+                    refreshDashboard(true);
+                }
+                if (e.key === 'ataa-room-prices') {
+                    loadPricesInForm();
+                }
+            });
+        });
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const passInput = document.getElementById('password').value;
+            const errorMsg = document.getElementById('login-error');
+
+            if (passInput === 'خالد') {
+                sessionStorage.setItem(AUTH_KEY, 'true');
+                errorMsg.style.display = 'none';
+                document.getElementById('password').value = '';
+                showDashboard();
+                showToast('تم تسجيل الدخول بنجاح!', 'success');
+            } else {
+                errorMsg.style.display = 'block';
+                document.getElementById('password').focus();
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('togglePassword');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        function handleLogout() {
+            sessionStorage.removeItem(AUTH_KEY);
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('login-card').style.display = 'block';
+            document.body.style.alignItems = 'center';
+            showToast('تم تسجيل الخروج.', 'info');
+        }
+
+        function showDashboard() {
+            document.getElementById('login-card').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            document.body.style.alignItems = 'flex-start';
+            document.body.style.paddingTop = '40px';
+            document.body.style.paddingBottom = '40px';
+            refreshDashboard();
+            loadPricesInForm(); // Load current room prices in inputs
+        }
+
+        function loadPricesInForm() {
+            if (typeof getRoomPrices === 'function') {
+                const prices = getRoomPrices();
+                const singleInput = document.getElementById('price-single');
+                const doubleInput = document.getElementById('price-double');
+                const tripleInput = document.getElementById('price-triple');
+                const quadInput = document.getElementById('price-quad');
+                const familyInput = document.getElementById('price-family');
+
+                if (singleInput) singleInput.value = prices.single;
+                if (doubleInput) doubleInput.value = prices.double;
+                if (tripleInput) tripleInput.value = prices.triple;
+                if (quadInput) quadInput.value = prices.quad;
+                if (familyInput) familyInput.value = prices.family;
+            }
+        }
+
+        function handleSavePrices(e) {
+            e.preventDefault();
+            const single = parseInt(document.getElementById('price-single').value) || 25000;
+            const double = parseInt(document.getElementById('price-double').value) || 35000;
+            const triple = parseInt(document.getElementById('price-triple').value) || 50000;
+            const quad = parseInt(document.getElementById('price-quad').value) || 75000;
+            const family = parseInt(document.getElementById('price-family').value) || 100000;
+
+            const prices = { single, double, triple, quad, family };
+            localStorage.setItem('ataa-room-prices', JSON.stringify(prices));
+
+            // Refresh dynamic pricing on this page if present
+            if (typeof applyRoomPrices === 'function') {
+                applyRoomPrices();
+            }
+
+            showToast('تم تحديث أسعار الغرف بنجاح وحفظها!', 'success');
+        }
+
+        function getReservations() {
+            try {
+                return JSON.parse(localStorage.getItem('ataa-reservations')) || [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveReservations(reservations) {
+            localStorage.setItem('ataa-reservations', JSON.stringify(reservations));
+        }
+
+        let lastBookingsCount = 0;
+
+        function playIncomingOrderSound() {
+            const text = "وصل طلب";
+            // High-quality TTS Arabic female voice
+            const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=ar&q=${encodeURIComponent(text)}`;
+            const audio = new Audio(audioUrl);
+            
+            audio.play().catch(err => {
+                console.log("Failed to play TTS audio file, falling back to Web Speech Synthesis:", err);
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'ar-SA';
+                    
+                    const voices = window.speechSynthesis.getVoices();
+                    const femaleVoice = voices.find(v => 
+                        v.lang.includes('ar') && 
+                        (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('hudda') || v.name.toLowerCase().includes('leila') || v.name.toLowerCase().includes('salma'))
+                    );
+                    if (femaleVoice) {
+                        utterance.voice = femaleVoice;
+                    }
+                    window.speechSynthesis.speak(utterance);
+                }
+            });
+        }
+
+        function refreshDashboard(playSound = false) {
+            const bookings = getReservations();
+            
+            // Only play sound if playSound is true and bookings list has grown (new booking arrived)
+            if (playSound && bookings.length > lastBookingsCount) {
+                playIncomingOrderSound();
+            }
+            lastBookingsCount = bookings.length;
+            
+            renderStats(bookings);
+            renderBookings(bookings);
+        }
+
+        function renderStats(bookings) {
+            const total = bookings.length;
+            const pending = bookings.filter(b => b.status === 'pending' || !b.status).length;
+            const accepted = bookings.filter(b => b.status === 'accepted').length;
+            const rejected = bookings.filter(b => b.status === 'rejected').length;
+
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-pending').textContent = pending;
+            document.getElementById('stat-accepted').textContent = accepted;
+            document.getElementById('stat-rejected').textContent = rejected;
+        }
+
+        function renderBookings(bookings) {
+            const list = document.getElementById('bookings-list');
+            const empty = document.getElementById('empty-state');
+
+            if (bookings.length === 0) {
+                list.innerHTML = '';
+                empty.style.display = 'block';
+                return;
+            }
+
+            empty.style.display = 'none';
+
+            list.innerHTML = bookings.map((b) => {
+                const status = b.status || 'pending';
+                let statusLabel = 'قيد المراجعة';
+                if (status === 'accepted') statusLabel = 'مقبول';
+                if (status === 'rejected') statusLabel = 'مرفوض';
+                if (status === 'past') statusLabel = 'مكتملة';
+
+                // Format pricing
+                const formattedPrice = new Intl.NumberFormat('ar-IQ').format(b.pricePerNight || b.total / b.nights || 0);
+                const formattedTotal = new Intl.NumberFormat('ar-IQ').format(b.total);
+
+                return `
+                    <div class="booking-item">
+                        <div class="booking-main-info">
+                            <div class="booking-header">
+                                <span class="booking-id">${b.id}</span>
+                                <span class="booking-guest-name">${b.name}</span>
+                                <span class="status-badge status-${status}">
+                                    <i class="fa-solid ${status === 'pending' ? 'fa-clock' : status === 'accepted' ? 'fa-circle-check' : 'fa-circle-xmark'}"></i>
+                                    ${statusLabel}
+                                </span>
+                            </div>
+                            <div class="booking-details-grid">
+                                <div class="detail-cell">
+                                    <i class="fa-solid fa-bed"></i>
+                                    <span>نوع الغرفة: <strong>${b.room}</strong></span>
+                                </div>
+                                <div class="detail-cell">
+                                    <i class="fa-solid fa-moon"></i>
+                                    <span>عدد الليالي: <strong>${b.nights} ليلة</strong> (سعر الليلة: ${formattedPrice} د.ع)</span>
+                                </div>
+                                <div class="detail-cell">
+                                    <i class="fa-solid fa-money-bill-wave"></i>
+                                    <span>المبلغ الإجمالي: <strong>${formattedTotal} د.ع</strong></span>
+                                </div>
+                                <div class="detail-cell">
+                                    <i class="fa-solid fa-plane-arrival"></i>
+                                    <span>تاريخ الوصول: <strong>${b.checkin}</strong></span>
+                                </div>
+                                <div class="detail-cell">
+                                    <i class="fa-solid fa-plane-departure"></i>
+                                    <span>تاريخ المغادرة: <strong>${b.checkout}</strong></span>
+                                </div>
+                                <div class="detail-cell">
+                                    <i class="fa-solid fa-users"></i>
+                                    <span>عدد الأفراد: <strong>${b.guests} أشخاص</strong></span>
+                                </div>
+                                <div class="detail-cell">
+                                    <i class="fa-solid fa-phone"></i>
+                                    <span>رقم النزيل: <strong dir="ltr">${b.phone}</strong></span>
+                                </div>
+                                <div class="detail-cell">
+                                    <i class="fa-solid fa-wallet"></i>
+                                    <span>طريقة الدفع: <strong>${b.payment || 'نقداً عند الوصول'}</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="booking-actions">
+                            ${status === 'pending' ? `
+                                <button class="action-btn btn-accept" onclick="updateStatus('${b.id}', 'accepted')" title="موافقة وقبول الحجز">
+                                    <i class="fa-solid fa-check"></i>
+                                </button>
+                                <button class="action-btn btn-reject" onclick="updateStatus('${b.id}', 'rejected')" title="رفض الحجز">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            ` : ''}
+                            <button class="action-btn btn-whatsapp-chat" onclick="openWhatsApp('${b.id}')" title="تواصل مباشر عبر الواتساب">
+                                <i class="fa-brands fa-whatsapp"></i>
+                            </button>
+                            <button class="action-btn btn-del" onclick="deleteBooking('${b.id}')" title="حذف الطلب">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateStatus(id, newStatus) {
+            const bookings = getReservations();
+            const b = bookings.find(x => x.id === id);
+            if (b) {
+                b.status = newStatus;
+                saveReservations(bookings);
+                refreshDashboard();
+                showToast(`تم ${newStatus === 'accepted' ? 'الموافقة على' : 'رفض'} الحجز ${id} بنجاح.`, 'success');
+
+                // Auto open WhatsApp to notify the client
+                setTimeout(() => {
+                    const notify = confirm("هل ترغب في فتح واتساب لإرسال رسالة آلية للزبون لإعلامه بوضعية الطلب؟");
+                    if (notify) {
+                        openWhatsApp(id);
+                    }
+                }, 400);
+            }
+        }
+
+        function deleteBooking(id) {
+            if (confirm(`هل أنت متأكد من رغبتك في حذف طلب الحجز ${id} نهائياً؟`)) {
+                let bookings = getReservations();
+                bookings = bookings.filter(x => x.id !== id);
+                saveReservations(bookings);
+                refreshDashboard();
+                showToast(`تم حذف طلب الحجز ${id} بنجاح.`, 'info');
+            }
+        }
+
+        function openWhatsApp(id) {
+            const bookings = getReservations();
+            const b = bookings.find(x => x.id === id);
+            if (!b) return;
+
+            const cleanPhone = b.phone.replace(/[^0-9+]/g, ''); // Extract digits
+            const status = b.status || 'pending';
+            let message = '';
+
+            if (status === 'accepted') {
+                message = `*فندق ومطعم مدينة العطاء السياحي*\n\nأهلاً بك أخي العزيز *${b.name}*.\nيسعدنا إعلامك بأنه قد تم *الموافقة وتأكيد حجزك المبدئي* بنجاح! ✅\n\n*تفاصيل الحجز:*\n- رقم الحجز: ${b.id}\n- نوع الغرفة: ${b.room}\n- تاريخ الوصول: ${b.checkin}\n- تاريخ المغادرة: ${b.checkout}\n- عدد الليالي: ${b.nights}\n- المبلغ الإجمالي: ${new Intl.NumberFormat('ar-IQ').format(b.total)} د.ع\n\nنحن بانتظارك ونتمنى لك إقامة مباركة وطيبة في النجف الأشرف! 🌹`;
+            } else if (status === 'rejected') {
+                message = `*فندق ومطعم مدينة العطاء السياحي*\n\nأهلاً بك أخي العزيز *${b.name}*.\nنعتذر منك جداً، حيث تعذر علينا *تأكيد حجزك المبدئي* رقم ${b.id} لعدم توفر الشواغر في الفترة المطلوبة. ❌\n\nنتمنى تشريفكم لنا في فرص قادمة، ونعتذر عن أي إزعاج. شكراً لك! 🌹`;
+            } else {
+                message = `*فندق ومطعم مدينة العطاء السياحي*\n\nأهلاً بك أخي العزيز *${b.name}*.\nبخصوص طلب حجزك المبدئي رقم ${b.id}، يرجى التواصل معنا لإكمال إجراءات التأكيد. شكراً لك! 🌹`;
+            }
+
+            const url = `https://wa.me/${cleanPhone.replace('+', '')}?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast-notify');
+            const icon = document.getElementById('toast-icon');
+            const text = document.getElementById('toast-text');
+
+            text.textContent = message;
+            toast.className = `toast-notify ${type}`;
+
+            icon.className = 'fa-solid';
+            if (type === 'success') icon.classList.add('fa-circle-check');
+            else if (type === 'error') icon.classList.add('fa-circle-exclamation');
+            else icon.classList.add('fa-circle-info');
+
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+
+</html>

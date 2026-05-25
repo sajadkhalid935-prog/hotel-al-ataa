@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="title">فندق ومطعم مدينة العطاء السياحي - إقامتك المريحة في قلب النجف الأشرف</title>
+    <meta name="description"
+        content="فندق ومطعم مدينة العطاء السياحي، فندق 4 نجوم في النجف الأشرف بالقرب من مرقد الإمام علي (عليه السلام). نقدم أفضل الخدمات الفندقية والمرافق المتميزة.">
+    <meta name="keywords" content="فندق النجف, فندق العطاء, حجز فندق النجف, Najaf hotel, Ataa hotel">
+    <meta property="og:title" content="فندق ومطعم مدينة العطاء السياحي">
+    <meta property="og:description" content="إقامتك المريحة في قلب النجف الأشرف بالقرب من مرقد الإمام علي عليه السلام">
+    <meta property="og:type" content="website">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- ==================== LOADING SCREEN ==================== -->
+    <div class="loading-screen" id="loading-screen">
+        <div class="loading-content">
+            <div class="loading-logo">
+                <i class="fa-solid fa-hotel"></i>
+            </div>
+            <div class="loading-text" data-i18n="hero_title">مدينة العطاء السياحي</div>
+            <div class="loading-bar">
+                <div class="loading-bar-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== NAVBAR ==================== -->
+    <header class="navbar" id="navbar">
+        <div class="container nav-content">
+            <a href="#" class="logo">
+                <i class="fa-solid fa-hotel logo-icon"></i>
+                <div class="logo-text">
+                    <h1 data-i18n="site_name_ar">مدينة العطاء السياحي</h1>
+                    <span data-i18n="site_name_en">Ataa City Hotel</span>
+                </div>
+            </a>
+            <nav class="nav-links" id="nav-links">
+                <a href="#home" data-i18n="nav_home">الرئيسية</a>
+                <a href="#rooms" data-i18n="nav_rooms">الغرف والأسعار</a>
+                <a href="#amenities" data-i18n="nav_amenities">المرافق</a>
+                <a href="#gallery" data-i18n="nav_gallery">صور المرفق</a>
+                <a href="#booking" class="btn btn-primary" data-i18n="nav_book">احجز الآن</a>
+                <a href="#my-reservations" data-i18n="nav_reservations">حجوزاتي</a>
+
+                <div class="lang-switch">
+                    <button id="btn-lang-ar" class="lang-btn active" onclick="switchLanguage('ar')">عربي</button>
+                    <button id="btn-lang-fa" class="lang-btn" onclick="switchLanguage('fa')">فارسی</button>
+                    <button id="btn-lang-en" class="lang-btn" onclick="switchLanguage('en')">English</button>
+                </div>
+
+                <button class="dark-mode-toggle" id="dark-mode-toggle" aria-label="تبديل الوضع الداكن">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </nav>
+            <button class="mobile-menu-btn" id="menu-toggle" aria-label="القائمة">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- ==================== HERO SECTION ==================== -->
+    <section id="home" class="hero">
+        <div class="hero-bg-image"></div>
+        <div class="hero-overlay"></div>
+        <div class="container hero-content">
+            <div class="stars">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+            </div>
+            <h2 class="hero-title animate-text" data-i18n="hero_title">فندق ومطعم مدينة العطاء السياحي</h2>
+            <p class="hero-subtitle animate-text delay-1" data-i18n="hero_subtitle">إقامتك المريحة في قلب النجف الأشرف</p>
+            <p class="hero-desc animate-text delay-2" data-i18n="hero_desc">تمتع بالهدوء والروحانية بفضل موقعنا الاستراتيجي في المدينة القديمة، بالقرب من مرقد الإمام علي (عليه السلام)</p>
+            <div class="hero-actions animate-text delay-3">
+                <a href="#booking" class="btn btn-primary btn-large" data-i18n="btn_book_room">احجز غرفتك الآن</a>
+                <a href="https://wa.me/9647869347466" target="_blank" class="btn btn-outline btn-large">
+                    <i class="fa-brands fa-whatsapp"></i><span data-i18n="btn_contact"> تواصل معنا</span>
+                </a>
+            </div>
+        </div>
+        <div class="hero-scroll-indicator">
+            <div class="scroll-mouse">
+                <div class="scroll-wheel"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== VIDEO TOUR SECTION ==================== -->
+    <section id="video-tour" class="section video-tour-section">
+        <div class="container">
+            <div class="section-header text-center fade-in-up">
+                <h2 data-i18n="video_title">جولة في الفندق</h2>
+                <div class="divider"></div>
+                <p data-i18n="video_desc">شاهد جولة مصورة داخل فندق ومطعم مدينة العطاء السياحي واكتشف أجواء الراحة والضيافة.</p>
+            </div>
+            <div class="video-container fade-in-up">
+                <div class="video-wrapper" id="videoWrapper">
+                    <video id="hotelVideo" preload="metadata" playsinline>
+                        <source src="images/copy_FC96F55E-96B6-4572-BAC3-1C17B7037049.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-play-overlay" id="videoPlayOverlay">
+                        <button class="video-play-btn" id="videoPlayBtn" aria-label="تشغيل الفيديو">
+                            <i class="fa-solid fa-play"></i>
+                        </button>
+                        <span class="video-play-text" data-i18n="video_play">شاهد الفيديو</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== STATISTICS SECTION ==================== -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item fade-in-up">
+                    <div class="stat-icon"><i class="fa-solid fa-bed"></i></div>
+                    <div class="stat-number" data-count="148">148</div>
+                    <div class="stat-label" data-i18n="stat_rooms">غرفة فندقية</div>
+                </div>
+                <div class="stat-item fade-in-up">
+                    <div class="stat-icon"><i class="fa-solid fa-star"></i></div>
+                    <div class="stat-number" data-count="4">4</div>
+                    <div class="stat-label" data-i18n="stat_stars">نجوم</div>
+                </div>
+                <div class="stat-item fade-in-up">
+                    <div class="stat-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    <div class="stat-number" data-count="20">20</div>
+                    <div class="stat-label" data-i18n="stat_years">سنة خبرة</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== FACILITY GALLERY ==================== -->
+    <section id="gallery" class="section gallery-section">
+        <div class="container">
+            <div class="section-header text-center fade-in-up">
+                <h2 data-i18n="gallery_title">صور الاطلاع مرفق السياحي</h2>
+                <div class="divider"></div>
+                <p data-i18n="gallery_desc">اطلع على مرافق فندقنا الفاخرة من لوبي وغرف وممرات مجهزة بأعلى المعايير.</p>
+            </div>
+            <div class="facility-slider">
+                <button class="slider-btn slider-prev" id="sliderPrev" aria-label="السابق">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <div class="slider-track-wrap">
+                    <div class="slider-track" id="sliderTrack">
+                        <div class="slide">
+                            <img src="images/facility_1.jpg" alt="لوبي الفندق - الصالة الرئيسية" loading="lazy">
+                            <div class="slide-caption" data-i18n="slide_1">الصالة الرئيسية للفندق</div>
+                        </div>
+                        <div class="slide">
+                            <img src="images/facility_2.jpg" alt="منطقة الاستقبال والجلوس" loading="lazy">
+                            <div class="slide-caption" data-i18n="slide_2">منطقة الاستقبال والانتظار</div>
+                        </div>
+                        <div class="slide">
+                            <img src="images/facility_3.jpg" alt="ممرات الفندق" loading="lazy">
+                            <div class="slide-caption" data-i18n="slide_3">ممرات الفندق المجهزة</div>
+                        </div>
+                        <div class="slide">
+                            <img src="images/facility_4.jpg" alt="غرفة مزدوجة" loading="lazy">
+                            <div class="slide-caption" data-i18n="slide_4">غرفة مزدوجة فاخرة</div>
+                        </div>
+                        <div class="slide">
+                            <img src="images/restaurant_1.jpg" alt="مطعم الفندق" loading="lazy">
+                            <div class="slide-caption" data-i18n="slide_5">مطعم الفندق الفاخر</div>
+                        </div>
+                        <div class="slide">
+                            <img src="images/restaurant_2.jpg" alt="قاعة المطعم" loading="lazy">
+                            <div class="slide-caption" data-i18n="slide_6">قاعة الطعام الرئيسية</div>
+                        </div>
+                        <div class="slide">
+                            <img src="images/restaurant_3.jpg" alt="قاعة المطعم الداخلية" loading="lazy">
+                            <div class="slide-caption" data-i18n="slide_7">الديكور الداخلي للمطعم</div>
+                        </div>
+                        <div class="slide">
+                            <img src="images/restaurant_4.jpg" alt="الدرج الفاخر" loading="lazy">
+                            <div class="slide-caption" data-i18n="slide_8">المطعم متعدد الطوابق</div>
+                        </div>
+                        <div class="slide">
+                            <img src="images/restaurant_5.jpg" alt="بوفيه الفطور" loading="lazy">
+                            <div class="slide-caption" data-i18n="slide_9">بوفيه الفطور الصباحي المفتوح</div>
+                        </div>
+                        <div class="slide">
+                            <img src="images/facility_6.jpg" alt="ردهة الفندق" loading="lazy">
+                            <div class="slide-caption" data-i18n="slide_6">ردهة الفندق الفاخرة</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="slider-btn slider-next" id="sliderNext" aria-label="التالي">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+            </div>
+            <div class="slider-dots" id="sliderDots"></div>
+        </div>
+    </section>
+
+    <!-- ==================== ROOMS ==================== -->
+    <section id="rooms" class="section rooms-bg">
+        <div class="container">
+            <div class="section-header text-center fade-in-up">
+                <h2 data-i18n="rooms_title">الغرف والأسعار</h2>
+                <div class="divider"></div>
+                <p data-i18n="rooms_desc">نوفر خيارات إقامة مريحة ومتنوعة تناسب جميع العوائل والزوار مع خدمة 4 نجوم.</p>
+            </div>
+
+            <div class="rooms-grid">
+                <!-- Single Room -->
+                <div class="room-card fade-in-up">
+                    <div class="room-img-container">
+                        <img src="images/real_room.jpg" alt="غرفة فردية" class="room-img" loading="lazy">
+                        <div class="room-badge" data-i18n="price_single">25,000 د.ع / ليلة</div>
+                    </div>
+                    <div class="room-info">
+                        <h3 data-i18n="room_single">غرفة فردية</h3>
+                        <p class="room-desc" data-i18n="desc_single">مثالية للمسافر المفرد، توفر هدوءاً وراحة تامة وتجهيزات متكاملة.</p>
+                        <ul class="room-features">
+                            <li><i class="fa-solid fa-bed"></i><span data-i18n="bed_single"> سرير واحد</span></li>
+                            <li><i class="fa-solid fa-wifi"></i><span data-i18n="wifi"> إنترنت مجاني</span></li>
+                            <li><i class="fa-solid fa-tv"></i><span data-i18n="tv"> شاشة ذكية</span></li>
+                            <li><i class="fa-solid fa-mug-hot"></i><span data-i18n="coffee"> ضيافة مجانية</span></li>
+                        </ul>
+                        <button class="btn btn-primary btn-block select-room-btn" data-room="single" data-price="25000" data-i18n="btn_select_room">اختيار الغرفة</button>
+                    </div>
+                </div>
+
+                <!-- Double Room -->
+                <div class="room-card fade-in-up">
+                    <div class="room-img-container">
+                        <img src="images/real_room.jpg" alt="غرفة زوجية" class="room-img" loading="lazy">
+                        <div class="room-badge" data-i18n="price_double">35,000 د.ع / ليلة</div>
+                    </div>
+                    <div class="room-info">
+                        <h3 data-i18n="room_double">غرفة زوجية</h3>
+                        <p class="room-desc" data-i18n="desc_double">غرفة مريحة مزودة بسريرين مفردين أو سرير مزدوج كبير.</p>
+                        <ul class="room-features">
+                            <li><i class="fa-solid fa-bed"></i><span data-i18n="bed_double"> سرير مزدوج / 2 مفرد</span></li>
+                            <li><i class="fa-solid fa-wifi"></i><span data-i18n="wifi"> إنترنت مجاني</span></li>
+                            <li><i class="fa-solid fa-tv"></i><span data-i18n="tv"> شاشة ذكية</span></li>
+                            <li><i class="fa-solid fa-bath"></i><span data-i18n="bath"> حمام خاص</span></li>
+                        </ul>
+                        <button class="btn btn-primary btn-block select-room-btn" data-room="double" data-price="35000" data-i18n="btn_select_room">اختيار الغرفة</button>
+                    </div>
+                </div>
+
+                <!-- Triple Room -->
+                <div class="room-card fade-in-up">
+                    <div class="room-img-container">
+                        <img src="images/triple_room.jpg" alt="غرفة ثلاثية" class="room-img" loading="lazy">
+                        <div class="room-badge" data-i18n="price_triple">50,000 د.ع / ليلة</div>
+                    </div>
+                    <div class="room-info">
+                        <h3 data-i18n="room_triple">غرفة ثلاثية</h3>
+                        <p class="room-desc" data-i18n="desc_triple">مساحة واسعة تناسب العوائل الصغيرة مع أفضل الخدمات الفندقية.</p>
+                        <ul class="room-features">
+                            <li><i class="fa-solid fa-bed"></i><span data-i18n="bed_triple"> 3 أسرة مفردة</span></li>
+                            <li><i class="fa-solid fa-wifi"></i><span data-i18n="wifi"> إنترنت مجاني</span></li>
+                            <li><i class="fa-solid fa-snowflake"></i><span data-i18n="ac"> تكييف مركزي</span></li>
+                            <li><i class="fa-solid fa-vault"></i><span data-i18n="safe"> خزنة آمنة</span></li>
+                        </ul>
+                        <button class="btn btn-primary btn-block select-room-btn" data-room="triple" data-price="50000" data-i18n="btn_select_room">اختيار الغرفة</button>
+                    </div>
+                </div>
+
+                <!-- Quad Room -->
+                <div class="room-card fade-in-up">
+                    <div class="room-img-container">
+                        <img src="images/quad_room.jpg" alt="غرفة رباعية" class="room-img" loading="lazy">
+                        <div class="room-badge" data-i18n="price_quad">75,000 د.ع / ليلة</div>
+                    </div>
+                    <div class="room-info">
+                        <h3 data-i18n="room_quad">غرفة رباعية</h3>
+                        <p class="room-desc" data-i18n="desc_quad">مثالية للعوائل المتوسطة، مجهزة بأربعة أسرة مريحة وكافة وسائل الراحة.</p>
+                        <ul class="room-features">
+                            <li><i class="fa-solid fa-bed"></i><span data-i18n="bed_quad"> 4 أسرة مفردة</span></li>
+                            <li><i class="fa-solid fa-wifi"></i><span data-i18n="wifi"> إنترنت مجاني</span></li>
+                            <li><i class="fa-solid fa-snowflake"></i><span data-i18n="ac"> تكييف مركزي</span></li>
+                            <li><i class="fa-solid fa-bath"></i><span data-i18n="bath"> حمام خاص</span></li>
+                        </ul>
+                        <button class="btn btn-primary btn-block select-room-btn" data-room="quad" data-price="75000" data-i18n="btn_select_room">اختيار الغرفة</button>
+                    </div>
+                </div>
+
+                <!-- Family Room -->
+                <div class="room-card fade-in-up">
+                    <div class="room-img-container">
+                        <img src="images/family_room_real.jpg" alt="غرفة خماسية" class="room-img" loading="lazy">
+                        <div class="room-badge" data-i18n="price_family">100,000 د.ع / ليلة</div>
+                    </div>
+                    <div class="room-info">
+                        <h3 data-i18n="room_family">غرفة خماسية (جناح عائلي)</h3>
+                        <p class="room-desc" data-i18n="desc_family">جناح عائلي فاخر مصمم لتوفير راحة مطلقة للعوائل الكبيرة والمجموعات.</p>
+                        <ul class="room-features">
+                            <li><i class="fa-solid fa-bed"></i><span data-i18n="bed_family"> 5 أسرة</span></li>
+                            <li><i class="fa-solid fa-couch"></i><span data-i18n="sofa"> منطقة جلوس</span></li>
+                            <li><i class="fa-solid fa-utensils"></i><span data-i18n="fridge"> ثلاجة صغيرة</span></li>
+                            <li><i class="fa-solid fa-bath"></i><span data-i18n="bath_luxury"> حمام فاخر</span></li>
+                        </ul>
+                        <button class="btn btn-primary btn-block select-room-btn" data-room="family" data-price="100000" data-i18n="btn_select_room">اختيار الغرفة</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== AMENITIES ==================== -->
+    <section id="amenities" class="section">
+        <div class="container">
+            <div class="section-header text-center fade-in-up">
+                <h2 data-i18n="amenities_title">الخدمات والمرافق</h2>
+                <div class="divider"></div>
+                <p data-i18n="amenities_desc">نعمل على توفير كافة الخدمات لضمان إقامة لا تُنسى في فندق ومطعم مدينة العطاء السياحي.</p>
+            </div>
+
+            <div class="amenities-grid">
+                <div class="amenity-card fade-in-up">
+                    <div class="icon-wrapper"><i class="fa-solid fa-utensils"></i></div>
+                    <h3 data-i18n="rest_title">مطعم داخلي</h3>
+                    <p data-i18n="rest_desc">يقدم مطعمنا أشهى المأكولات العراقية والشرقية المعدة بأيدي أمهر الطهاة يومياً، لضمان تجربة طعام فريدة.</p>
+                    <div class="buffet-note" data-i18n="rest_buffet">* يوجد فطور صباحي بوفيه مفتوح</div>
+                    <div class="buffet-gallery">
+                        <img src="images/buffet1.jpg" alt="Breakfast Buffet 1" loading="lazy">
+                        <img src="images/buffet2.jpg" alt="Breakfast Buffet 2" loading="lazy">
+                        <img src="images/buffet3.jpg" alt="Breakfast Buffet 3" loading="lazy">
+                    </div>
+                </div>
+                <div class="amenity-card fade-in-up">
+                    <div class="icon-wrapper"><i class="fa-solid fa-wifi"></i></div>
+                    <h3 data-i18n="wifi_title">إنترنت مجاني وسريع</h3>
+                    <p data-i18n="wifi_desc">ابقَ على اتصال دائماً مع خدمة الواي فاي (High-Speed Wi-Fi) المتاحة مجاناً في جميع غرف ومرافق الفندق.</p>
+                </div>
+                <div class="amenity-card fade-in-up">
+                    <div class="icon-wrapper"><i class="fa-solid fa-mosque"></i></div>
+                    <h3 data-i18n="prox_title">موقع الفندق عن الحرم</h3>
+                    <p data-i18n="prox_desc">يقع في شارع الامام علي (ع) ويبعد مسافة 400 متر عن الحرم المطهر باتجاه السوق الكبير</p>
+                </div>
+                <div class="amenity-card warning-card fade-in-up">
+                    <div class="icon-wrapper alert-icon">
+                        <i class="fa-solid fa-car-side"></i>
+                        <i class="fa-solid fa-slash overlay-slash"></i>
+                    </div>
+                    <h3 data-i18n="warn_title">تنويه هام: لا يوجد موقف سيارات</h3>
+                    <p data-i18n="warn_desc">نظراً لموقعنا الاستراتيجي والمميز في قلب المدينة القديمة القريب جداً من المرقد الشريف، نعتذر عن توفير موقف للسيارات (No Parking).</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== BOOKING ==================== -->
+    <section id="booking" class="section booking-bg">
+        <div class="container booking-container">
+            <div class="booking-content">
+                <div class="section-header text-right fade-in-up">
+                    <h2 data-i18n="booking_title">إتمام الحجز</h2>
+                    <div class="divider text-right-divider"></div>
+                    <p data-i18n="booking_desc">يرجى تعبئة النموذج أدناه لاحتساب التكلفة الإجمالية وتأكيد حجزك.</p>
+                </div>
+
+                <div class="booking-layout">
+                    <form id="main-booking-form" class="main-form text-right">
+                        <div class="form-row">
+                            <div class="form-group-main">
+                                <label for="checkin"><span data-i18n="form_checkin">تاريخ الوصول </span><span class="req">*</span></label>
+                                <div class="date-input-wrapper">
+                                    <input type="date" id="checkin" required>
+                                    <span class="date-placeholder" data-i18n="date_placeholder">يوم / شهر / سنة</span>
+                                </div>
+                            </div>
+                            <div class="form-group-main">
+                                <label for="checkout"><span data-i18n="form_checkout">تاريخ المغادرة </span><span class="req">*</span></label>
+                                <div class="date-input-wrapper">
+                                    <input type="date" id="checkout" required>
+                                    <span class="date-placeholder" data-i18n="date_placeholder">يوم / شهر / سنة</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group-main">
+                                <label for="room-type"><span data-i18n="form_roomtype">نوع الغرفة </span><span class="req">*</span></label>
+                                <select id="room-type" required>
+                                    <option value="" disabled selected data-i18n="form_room_select">اختر الغرفة...</option>
+                                    <option value="25000" data-i18n-room="room_single" data-i18n-price="price_single">غرفة فردية - 25,000 د.ع / ليلة</option>
+                                    <option value="35000" data-i18n-room="room_double" data-i18n-price="price_double">غرفة زوجية - 35,000 د.ع / ليلة</option>
+                                    <option value="50000" data-i18n-room="room_triple" data-i18n-price="price_triple">غرفة ثلاثية - 50,000 د.ع / ليلة</option>
+                                    <option value="75000" data-i18n-room="room_quad" data-i18n-price="price_quad">غرفة رباعية - 75,000 د.ع / ليلة</option>
+                                    <option value="100000" data-i18n-room="room_family" data-i18n-price="price_family">غرفة خماسية - 100,000 د.ع / ليلة</option>
+                                </select>
+                            </div>
+                            <div class="form-group-main">
+                                <label for="guests"><span data-i18n="form_guests">عدد الأفراد </span><span class="req">*</span></label>
+                                <input type="number" id="guests" min="1" value="1" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group-main full-width">
+                            <label for="name"><span data-i18n="form_name">الاسم الكامل </span><span class="req">*</span></label>
+                            <input type="text" id="name" data-i18n-placeholder="placeholder_name" placeholder="محمد أحمد..." required>
+                        </div>
+
+                        <div class="form-group-main full-width">
+                            <label for="phone"><span data-i18n="form_phone">رقم الهاتف (واتساب) </span><span class="req">*</span></label>
+                            <div class="phone-input-group">
+                                <div class="country-select-wrap">
+                                    <select id="country-code" class="country-code-select">
+                                        <option value="+964" data-flag="🇮🇶">🇮🇶 +964</option>
+                                        <option value="+98" data-flag="🇮🇷">🇮🇷 +98</option>
+                                        <option value="+966" data-flag="🇸🇦">🇸🇦 +966</option>
+                                        <option value="+965" data-flag="🇰🇼">🇰🇼 +965</option>
+                                        <option value="+971" data-flag="🇦🇪">🇦🇪 +971</option>
+                                        <option value="+973" data-flag="🇧🇭">🇧🇭 +973</option>
+                                        <option value="+974" data-flag="🇶🇦">🇶🇦 +974</option>
+                                        <option value="+968" data-flag="🇴🇲">🇴🇲 +968</option>
+                                        <option value="+962" data-flag="🇯🇴">🇯🇴 +962</option>
+                                        <option value="+963" data-flag="🇸🇾">🇸🇾 +963</option>
+                                        <option value="+961" data-flag="🇱🇧">🇱🇧 +961</option>
+                                        <option value="+90" data-flag="🇹🇷">🇹🇷 +90</option>
+                                        <option value="+44" data-flag="🇬🇧">🇬🇧 +44</option>
+                                        <option value="+1" data-flag="🇺🇸">🇺🇸 +1</option>
+                                        <option value="+49" data-flag="🇩🇪">🇩🇪 +49</option>
+                                        <option value="+33" data-flag="🇫🇷">🇫🇷 +33</option>
+                                    </select>
+                                </div>
+                                <input type="tel" id="phone" class="phone-number-input" placeholder="07869347466" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group-main full-width payment-methods">
+                            <label><span data-i18n="form_payment">طريقة الدفع </span><span class="req">*</span></label>
+                            <div class="payment-options">
+                                <label class="payment-card">
+                                    <input type="radio" name="payment" value="cash" checked>
+                                    <div class="payment-content">
+                                        <i class="fa-solid fa-money-bill-wave"></i>
+                                        <span data-i18n="pay_cash">نقداً عند الوصول</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-large btn-block" style="margin-top:20px;" data-i18n="btn_confirm">تأكيد الحجز المبدئي</button>
+                    </form>
+
+                    <div class="booking-summary text-right">
+                        <h3 data-i18n="summary_title">ملخص الحجز</h3>
+                        <div class="summary-details">
+                            <div class="summary-item">
+                                <span data-i18n="summary_nights">عدد الليالي:</span>
+                                <span id="summary-nights">0 ليلة</span>
+                            </div>
+                            <div class="summary-item">
+                                <span data-i18n="summary_price">سعر الغرفة/الليلة:</span>
+                                <span id="summary-price">0 د.ع</span>
+                            </div>
+                            <div class="summary-divider"></div>
+                            <div class="summary-total">
+                                <span data-i18n="summary_total">الإجمالي:</span>
+                                <span id="summary-total" class="total-price">0 د.ع</span>
+                            </div>
+                        </div>
+                        <div class="contact-card mt-4">
+                            <h4 data-i18n="contact_title">هل تحتاج للمساعدة؟</h4>
+                            <p data-i18n="contact_desc">تواصل معنا مباشرة عبر الواتساب لتأكيد الحجوزات السريعة.</p>
+                            <a href="https://wa.me/9647869347466" target="_blank" class="whatsapp-btn">
+                                <i class="fa-brands fa-whatsapp"></i> <span dir="ltr">+964 786 934 7466</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== FAQ SECTION ==================== -->
+    <section id="faq" class="section faq-section">
+        <div class="container">
+            <div class="section-header text-center fade-in-up">
+                <h2 data-i18n="faq_title">الأسئلة الشائعة</h2>
+                <div class="divider"></div>
+            </div>
+            <div class="faq-container">
+                <div class="faq-item fade-in-up">
+                    <button class="faq-question">
+                        <span data-i18n="faq_q2">هل الفطور مشمول في السعر؟</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p data-i18n="faq_a2">نعم، يتضمن السعر وجبة فطور بوفيه مفتوح صباحياً. كما يمكنكم الاستمتاع بمأكولاتنا الشرقية اللذيذة في مطعم الفندق.</p>
+                    </div>
+                </div>
+                <div class="faq-item fade-in-up">
+                    <button class="faq-question">
+                        <span data-i18n="faq_q3">هل يمكنني إلغاء الحجز؟</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p data-i18n="faq_a3">نعم، يمكن إلغاء الحجز مجاناً قبل 48 ساعة من تاريخ الوصول. للإلغاء بعد ذلك قد يتم خصم قيمة الليلة الأولى.</p>
+                    </div>
+                </div>
+                <div class="faq-item fade-in-up">
+                    <button class="faq-question">
+                        <span data-i18n="faq_q4">ما هي المسافة من الفندق إلى الحرم الشريف؟</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p data-i18n="faq_a4">يقع الفندق على بُعد 400 متر فقط من مرقد الإمام علي (عليه السلام)، ويمكن الوصول إليه مشياً على الأقدام خلال 5 دقائق.</p>
+                    </div>
+                </div>
+                <div class="faq-item fade-in-up">
+                    <button class="faq-question">
+                        <span data-i18n="faq_q5">هل يتوفر موقف سيارات؟</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p data-i18n="faq_a5">نعتذر، نظراً لموقعنا الاستراتيجي في قلب المدينة القديمة بالقرب من الحرم الشريف، لا يتوفر موقف سيارات خاص. ننصح باستخدام المواقف العامة القريبة.</p>
+                    </div>
+                </div>
+                <div class="faq-item fade-in-up">
+                    <button class="faq-question">
+                        <span data-i18n="faq_q6">هل يتوفر واي فاي مجاني؟</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p data-i18n="faq_a6">نعم، يتوفر إنترنت واي فاي مجاني بسرعة عالية جداً ومستقرة في كافة غرف ومرافق الفندق لضمان بقائك على اتصال دائم وبأفضل تجربة تصفح.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== MAP SECTION ==================== -->
+    <section class="section map-section">
+        <div class="container">
+            <div class="section-header text-center fade-in-up">
+                <h2 data-i18n="map_title">موقعنا على الخريطة</h2>
+                <div class="divider"></div>
+                <p data-i18n="map_desc">تجدنا في قلب النجف الأشرف، على بُعد خطوات من المرقد الشريف</p>
+            </div>
+            <div class="map-container fade-in-up">
+                <iframe 
+                    src="https://maps.google.com/maps?cid=1871900899553736929&output=embed"
+                    allowfullscreen="" 
+                    loading="lazy" 
+                    referrerpolicy="no-referrer-when-downgrade"
+                    title="فندق مدينة العطاء السياحي - موقع على الخريطة">
+                </iframe>
+            </div>
+            <div class="text-center fade-in-up" style="margin-top: -10px; margin-bottom: 30px;">
+                <a href="https://maps.app.goo.gl/vCCouXzSUrF8XwfM9" target="_blank" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 30px;">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    <span data-i18n="btn_open_maps">فتح في خرائط جوجل</span>
+                </a>
+            </div>
+            <div class="map-info fade-in-up">
+                <div class="map-info-item">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <div>
+                        <h4 data-i18n="map_address_label">العنوان</h4>
+                        <p data-i18n="map_address">شارع الإمام علي (ع)، المدينة القديمة، النجف الأشرف، العراق</p>
+                    </div>
+                </div>
+                <div class="map-info-item">
+                    <i class="fa-solid fa-clock"></i>
+                    <div>
+                        <h4 data-i18n="map_hours_label">ساعات العمل</h4>
+                        <p data-i18n="map_hours">24 ساعة - تسجيل الوصول والمغادرة</p>
+                    </div>
+                </div>
+                <div class="map-info-item">
+                    <i class="fa-solid fa-phone"></i>
+                    <div>
+                        <h4 data-i18n="map_phone_label">للتواصل</h4>
+                        <a href="tel:+9647869347466" dir="ltr">+964 786 934 7466</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== MY RESERVATIONS ==================== -->
+    <section id="my-reservations" class="section reservations-section">
+        <div class="container">
+            <div class="section-header text-center fade-in-up">
+                <h2 data-i18n="reservations_title">حجوزاتي</h2>
+                <div class="divider"></div>
+                <p data-i18n="reservations_desc">يمكنك مراجعة جميع حجوزاتك السابقة والحالية من هنا.</p>
+            </div>
+
+            <!-- Empty State -->
+            <div class="reservations-empty" id="reservations-empty">
+                <div class="empty-icon">
+                    <i class="fa-solid fa-calendar-xmark"></i>
+                </div>
+                <h3 data-i18n="no_reservations_title">لا توجد حجوزات</h3>
+                <p data-i18n="no_reservations_desc">لم تقم بأي حجز بعد. احجز غرفتك الآن واستمتع بإقامة مميزة.</p>
+                <a href="#booking" class="btn btn-primary" data-i18n="btn_book_now">احجز الآن</a>
+            </div>
+
+            <!-- Reservations List -->
+            <div class="reservations-list" id="reservations-list"></div>
+
+            <!-- Clear All Button -->
+            <div class="reservations-actions" id="reservations-actions" style="display:none;">
+                <button class="btn btn-clear-all" id="clear-all-reservations">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span data-i18n="btn_clear_all">مسح جميع الحجوزات</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="footer text-right">
+        <div class="container footer-content">
+            <div class="footer-col">
+                <div class="footer-logo">
+                    <i class="fa-solid fa-hotel logo-icon"></i>
+                    <h2 data-i18n="site_name_ar">مدينة العطاء السياحي</h2>
+                </div>
+                <p data-i18n="footer_desc">إقامتك المريحة في قلب النجف الأشرف. نضمن لك تجربة روحانية وهادئة بأفضل الخدمات الفندقية الحديثة.</p>
+            </div>
+
+            <div class="footer-col">
+                <h3 data-i18n="footer_links">روابط سريعة</h3>
+                <ul>
+                    <li><a href="#home" data-i18n="nav_home">الرئيسية</a></li>
+                    <li><a href="#rooms" data-i18n="nav_rooms">الغرف والأسعار</a></li>
+                    <li><a href="#amenities" data-i18n="nav_amenities">المرافق والخدمات</a></li>
+                    <li><a href="#booking" data-i18n="nav_book">طلب حجز</a></li>
+                    <li><a href="#my-reservations" data-i18n="nav_reservations">حجوزاتي</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col contact-info">
+                <h3 data-i18n="footer_contact">معلومات التواصل</h3>
+                <ul>
+                    <li><i class="fa-solid fa-location-dot"></i><span data-i18n="footer_address"> شارع الإمام علي، المدينة القديمة، النجف الأشرف، العراق.</span></li>
+                    <li><i class="fa-solid fa-phone"></i> <span dir="ltr">+964 786 934 7466</span></li>
+                    <li><i class="fa-solid fa-envelope"></i> info@ataacityhotel.com</li>
+                </ul>
+                <div class="social-links">
+                    <a href="https://wa.me/9647869347466" target="_blank" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+                    <a href="https://www.instagram.com/hote_ataacity?igsh=ZG1nZ2I4NmgzZmFi&utm_source=qr" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://www.tiktok.com/@hotel.ataa?_r=1&_t=ZS-96dMZd6KeWL" target="_blank" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p data-i18n="footer_copy">&copy; 2024 فندق ومطعم مدينة العطاء السياحي. تصميم وتطوير بأحدث التقنيات.</p>
+        </div>
+    </footer>
+
+    <!-- ==================== INVOICE MODAL ==================== -->
+    <div id="invoiceModal" class="invoice-modal">
+        <div class="invoice-overlay" onclick="closeInvoice()"></div>
+        <div class="invoice-wrapper">
+            <div class="invoice-box" id="invoicePrintArea">
+                <div class="inv-header">
+                    <div class="inv-logo-area">
+                        <i class="fa-solid fa-hotel inv-hotel-icon"></i>
+                        <div>
+                            <h2 class="inv-hotel-name" data-i18n="hero_title">فندق ومطعم مدينة العطاء السياحي</h2>
+                            <p class="inv-hotel-sub">Ataa City Hotel &amp; Restaurant &#9733;&#9733;&#9733;&#9733;</p>
+                        </div>
+                    </div>
+                    <div class="inv-title-area">
+                        <h2 class="inv-title" data-i18n="inv_title">فاتورة حجز</h2>
+                        <p class="inv-number"><span data-i18n="inv_num_label">رقم:</span> <span id="inv-num"></span></p>
+                        <p class="inv-date"><span data-i18n="inv_date_label">التاريخ:</span> <span id="inv-date"></span></p>
+                    </div>
+                </div>
+                <div class="inv-divider"></div>
+                <div class="inv-section">
+                    <h3 class="inv-section-title"><i class="fa-solid fa-user"></i> <span data-i18n="inv_guest_label">بيانات النزيل</span></h3>
+                    <div class="inv-grid">
+                        <div class="inv-field"><span class="inv-label" data-i18n="form_name">الاسم الكامل</span><span class="inv-value" id="inv-name"></span></div>
+                        <div class="inv-field"><span class="inv-label" data-i18n="form_phone">رقم الهاتف</span><span class="inv-value" id="inv-phone" dir="ltr"></span></div>
+                        <div class="inv-field"><span class="inv-label" data-i18n="form_guests">عدد الأفراد</span><span class="inv-value" id="inv-guests"></span></div>
+                        <div class="inv-field"><span class="inv-label" data-i18n="form_payment">طريقة الدفع</span><span class="inv-value" id="inv-payment"></span></div>
+                    </div>
+                </div>
+                <div class="inv-section">
+                    <h3 class="inv-section-title"><i class="fa-solid fa-bed"></i> <span data-i18n="inv_stay_label">تفاصيل الإقامة</span></h3>
+                    <div class="inv-grid">
+                        <div class="inv-field"><span class="inv-label" data-i18n="form_roomtype">نوع الغرفة</span><span class="inv-value" id="inv-room"></span></div>
+                        <div class="inv-field"><span class="inv-label" data-i18n="form_checkin">تاريخ الوصول</span><span class="inv-value" id="inv-checkin" dir="ltr"></span></div>
+                        <div class="inv-field"><span class="inv-label" data-i18n="form_checkout">تاريخ المغادرة</span><span class="inv-value" id="inv-checkout" dir="ltr"></span></div>
+                        <div class="inv-field"><span class="inv-label" data-i18n="summary_nights">عدد الليالي</span><span class="inv-value" id="inv-nights"></span></div>
+                    </div>
+                </div>
+                <div class="inv-section">
+                    <h3 class="inv-section-title"><i class="fa-solid fa-file-invoice-dollar"></i> <span data-i18n="inv_amount_label">تفاصيل المبلغ</span></h3>
+                    <table class="inv-table">
+                        <thead>
+                            <tr>
+                                <th data-i18n="inv_table_desc">البيان</th>
+                                <th data-i18n="inv_table_nights">الليالي</th>
+                                <th data-i18n="inv_table_price">السعر/ليلة</th>
+                                <th data-i18n="inv_table_total">الإجمالي</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td id="inv-table-room"></td>
+                                <td id="inv-table-nights"></td>
+                                <td id="inv-table-price"></td>
+                                <td id="inv-table-total"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="inv-total-row">
+                    <span data-i18n="inv_total_amount">المبلغ الإجمالي</span>
+                    <span class="inv-grand-total" id="inv-grand-total"></span>
+                </div>
+                <div class="inv-status-badge">
+                    <i class="fa-solid fa-clock"></i> <span data-i18n="status_pending">الحجز قيد المراجعة</span>
+                </div>
+                <div class="inv-footer-note">
+                    <p><i class="fa-solid fa-location-dot"></i> <span data-i18n="footer_address">شارع الإمام علي، المدينة القديمة، النجف الأشرف</span></p>
+                    <p><i class="fa-solid fa-phone"></i> <span dir="ltr">+964 786 934 7466</span></p>
+                    <p class="inv-thank" data-i18n="inv_thank">شكراً لاختياركم فندق ومطعم مدينة العطاء السياحي</p>
+                </div>
+            </div>
+            <div class="inv-actions no-print">
+                <button class="inv-btn inv-btn-print" onclick="printInvoice()"><i class="fa-solid fa-print"></i> <span data-i18n="btn_print">طباعة</span></button>
+                <button class="inv-btn inv-btn-share" onclick="shareInvoice()"><i class="fa-solid fa-share-nodes"></i> <span data-i18n="btn_share">مشاركة</span></button>
+                <button class="inv-btn inv-btn-whatsapp" onclick="shareWhatsApp()"><i class="fa-brands fa-whatsapp"></i> <span data-i18n="btn_whatsapp">واتساب</span></button>
+                <button class="inv-btn inv-btn-close" onclick="closeInvoice()"><i class="fa-solid fa-xmark"></i> <span data-i18n="btn_close">إغلاق</span></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="js/lang.js"></script>
+    <script src="js/script.js"></script>
+
+</body>
+
+</html>

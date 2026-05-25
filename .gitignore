@@ -1,0 +1,14 @@
+# System files
+.DS_Store
+Thumbs.db
+.codetb-index.json
+
+# Large video files (GitHub limit is 100MB)
+images/*.mp4
+
+# IDE
+.vscode/
+.idea/
+
+# Existing git subfolders
+ataacity/
