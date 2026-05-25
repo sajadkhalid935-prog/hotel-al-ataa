@@ -4,8 +4,8 @@
 // يرجى ملء البيانات التالية بعد إنشاء مشروع Supabase مجاني.
 // إذا تركت الحقول فارغة، سيعمل الموقع تلقائياً على الذاكرة المحلية (localStorage) دون أي مشاكل.
 
-const SUPABASE_URL = ""; // ضع هنا رابط مشروعك (مثال: https://xxxx.supabase.co)
-const SUPABASE_ANON_KEY = ""; // ضع هنا مفتاح Anon Key الخاص بمشروعك
+const SUPABASE_URL = "https://jbrghywaucvdhfmtmnji.supabase.co"; // ضع هنا رابط مشروعك (مثال: https://xxxx.supabase.co)
+const SUPABASE_ANON_KEY = "sb_publishable_Tipjoqt0T_v0V5IPKNChoA_hbKXJ_SS"; // ضع هنا مفتاح Anon Key الخاص بمشروعك
 
 let supabaseClient = null;
 
