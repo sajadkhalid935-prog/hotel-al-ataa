@@ -384,6 +384,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Helper to normalize phone numbers (convert Arabic/Persian digits and format correctly)
+    function normalizePhoneNumber(countryCode, phoneNumber) {
+        if (!phoneNumber) return '';
+        
+        // 1. Convert Arabic and Persian digits to English digits
+        const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+        const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+        
+        let cleanPhone = phoneNumber;
+        for (let i = 0; i < 10; i++) {
+            cleanPhone = cleanPhone.replace(new RegExp(arabicDigits[i], 'g'), i)
+                                   .replace(new RegExp(persianDigits[i], 'g'), i);
+        }
+        
+        // 2. Remove all non-numeric characters
+        cleanPhone = cleanPhone.replace(/[^0-9]/g, '');
+        
+        // 3. Clean country code
+        let cleanCode = countryCode.replace(/[^0-9]/g, '');
+        
+        // 4. Strip leading zeroes from the phone number
+        while (cleanPhone.startsWith('0')) {
+            cleanPhone = cleanPhone.substring(1);
+        }
+        
+        // 5. If the phone starts with country code (e.g. 964...), strip it
+        if (cleanPhone.startsWith(cleanCode)) {
+            cleanPhone = cleanPhone.substring(cleanCode.length);
+        }
+        
+        // 6. Strip leading zeroes again (e.g. if they wrote +964 0780...)
+        while (cleanPhone.startsWith('0')) {
+            cleanPhone = cleanPhone.substring(1);
+        }
+        
+        // 7. Combine them
+        return '+' + cleanCode + cleanPhone;
+    }
+
     // ==========================================
     // 10. BOOKING FORM SUBMISSION
     // ==========================================
@@ -419,10 +458,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const total = diffDays * roomPrice;
             const roomName = roomTypeSelect.options[roomTypeSelect.selectedIndex].text;
 
+            // Normalize phone number
+            const normalizedPhone = normalizePhoneNumber(countryCode, phone);
+
             // Show invoice modal
             showInvoice({
                 name,
-                phone: countryCode + phone,
+                phone: normalizedPhone,
                 guests,
                 payment: payment ? payment.parentElement.querySelector('span').textContent : 'نقداً',
                 room: roomName,
@@ -437,7 +479,7 @@ document.addEventListener('DOMContentLoaded', () => {
             saveReservation({
                 id: 'ATH-' + Date.now().toString().slice(-6),
                 name,
-                phone: countryCode + phone,
+                phone: normalizedPhone,
                 guests,
                 payment: payment ? payment.parentElement.querySelector('span').textContent : 'نقداً',
                 room: roomName,

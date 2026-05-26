@@ -1405,6 +1405,21 @@
                 b.status = newStatus;
                 saveReservations(bookings);
 
+                renderStats(bookings);
+                renderBookings(bookings);
+                showToast(`تم ${newStatus === 'accepted' ? 'الموافقة على' : 'رفض'} الحجز ${id} بنجاح.`, 'success');
+
+                // Open WhatsApp synchronously here to avoid popup blocking
+                if (newStatus === 'accepted') {
+                    openWhatsApp(id);
+                } else {
+                    const notify = confirm("هل ترغب في فتح واتساب لإرسال رسالة آلية للزبون لإعلامه بوضعية الطلب؟");
+                    if (notify) {
+                        openWhatsApp(id);
+                    }
+                }
+
+                // Slow background update to Google Sheets
                 if (window.googleSheetsClient && window.googleSheetsClient.isEnabled()) {
                     try {
                         await window.googleSheetsClient.updateStatus(id, newStatus);
@@ -1413,22 +1428,6 @@
                         console.error("Failed to update status in Google Sheets:", err);
                     }
                 }
-
-                renderStats(bookings);
-                renderBookings(bookings);
-                showToast(`تم ${newStatus === 'accepted' ? 'الموافقة على' : 'رفض'} الحجز ${id} بنجاح.`, 'success');
-
-                // Auto open WhatsApp to notify the client
-                setTimeout(() => {
-                    if (newStatus === 'accepted') {
-                        openWhatsApp(id);
-                    } else {
-                        const notify = confirm("هل ترغب في فتح واتساب لإرسال رسالة آلية للزبون لإعلامه بوضعية الطلب؟");
-                        if (notify) {
-                            openWhatsApp(id);
-                        }
-                    }
-                }, 400);
             }
         }
 
@@ -1453,12 +1452,63 @@
             }
         }
 
+        function cleanWhatsAppPhone(phone) {
+            if (!phone) return '';
+            
+            // Convert Arabic and Persian digits to English digits
+            const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+            const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+            
+            let clean = phone;
+            for (let i = 0; i < 10; i++) {
+                clean = clean.replace(new RegExp(arabicDigits[i], 'g'), i)
+                             .replace(new RegExp(persianDigits[i], 'g'), i);
+            }
+            
+            // Remove all non-numeric characters
+            clean = clean.replace(/[^0-9]/g, '');
+            
+            // Remove leading double zeroes
+            if (clean.startsWith('00')) {
+                clean = clean.substring(2);
+            }
+            
+            // Handle local Iraqi numbers if they have no country code
+            if (clean.startsWith('07') && clean.length === 11) {
+                clean = '964' + clean.substring(1);
+            } else if (clean.startsWith('7') && clean.length === 10) {
+                clean = '964' + clean;
+            }
+            
+            // Handle local Iranian numbers if they have no country code
+            else if (clean.startsWith('09') && clean.length === 11) {
+                clean = '98' + clean.substring(1);
+            } else if (clean.startsWith('9') && clean.length === 10) {
+                clean = '98' + clean;
+            }
+            
+            // Remove leading zero after known country codes
+            const countryCodes = ['964', '98', '966', '965', '971', '973', '974', '968', '962', '963', '961', '90', '44', '1', '49', '33'];
+            for (const code of countryCodes) {
+                if (clean.startsWith(code + '0')) {
+                    clean = code + clean.substring(code.length + 1);
+                    break;
+                }
+            }
+            
+            return clean;
+        }
+
         function openWhatsApp(id) {
             const bookings = getReservations();
             const b = bookings.find(x => x.id === id);
             if (!b) return;
 
-            const cleanPhone = b.phone.replace(/[^0-9+]/g, ''); // Extract digits
+            const cleanPhone = cleanWhatsAppPhone(b.phone);
+            if (!cleanPhone) {
+                showToast('رقم الهاتف غير صالح للإرسال عبر واتساب!', 'error');
+                return;
+            }
             const status = b.status || 'pending';
             let message = '';
 
@@ -1470,7 +1520,7 @@
                 message = `*فندق ومطعم مدينة العطاء السياحي*\n\nأهلاً بك أخي العزيز *${b.name}*.\nبخصوص طلب حجزك المبدئي رقم ${b.id}، يرجى التواصل معنا لإكمال إجراءات التأكيد. شكراً لك! 🌹`;
             }
 
-            const url = `https://wa.me/${cleanPhone.replace('+', '')}?text=${encodeURIComponent(message)}`;
+            const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
             window.open(url, '_blank');
         }
 
