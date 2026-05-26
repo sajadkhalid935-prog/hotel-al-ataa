@@ -596,13 +596,47 @@ function applyRoomPrices() {
     });
 }
 
+// ===================================================
+// DYNAMIC ROOM IMAGES SYSTEM
+// ===================================================
+const defaultRoomImages = {
+    single: 'images/single_room.jpg',
+    double: 'images/real_room.jpg',
+    triple: 'images/triple_room.jpg',
+    quad: 'images/quad_room.jpg',
+    family: 'images/family_room_real.jpg'
+};
+
+function getRoomImages() {
+    try {
+        const stored = localStorage.getItem('ataa-room-images');
+        return stored ? JSON.parse(stored) : defaultRoomImages;
+    } catch (e) {
+        return defaultRoomImages;
+    }
+}
+
+function applyRoomImages() {
+    const images = getRoomImages();
+    document.querySelectorAll('[data-room-img]').forEach(img => {
+        const roomType = img.getAttribute('data-room-img');
+        if (roomType && images[roomType]) {
+            img.src = images[roomType];
+        }
+    });
+}
+
 // Export functions to global scope
 window.getRoomPrices = getRoomPrices;
 window.applyRoomPrices = applyRoomPrices;
 window.defaultPrices = defaultPrices;
+window.getRoomImages = getRoomImages;
+window.applyRoomImages = applyRoomImages;
+window.defaultRoomImages = defaultRoomImages;
 
-// Run dynamic price application immediately
+// Run dynamic configurations immediately
 applyRoomPrices();
+applyRoomImages();
 
 let currentLang = 'ar';
 // Export for script.js
@@ -614,8 +648,9 @@ function switchLanguage(lang) {
     window.translations = translations; // Export for script.js
     window.currentLang = lang; // Export current language code for script.js
     
-    // Always refresh and apply the room prices before performing the DOM translations updates
+    // Always refresh and apply the room prices and images before performing the DOM translations updates
     applyRoomPrices();
+    applyRoomImages();
     
     const t = translations[lang];
     if (!t) return;

@@ -1,4 +1,4 @@
-﻿// ===================================================
+// ===================================================
 // GOOGLE SHEETS CLOUD DATABASE CONFIGURATION (API)
 // ===================================================
 // ظٹط±ط¬ظ‰ ظ…ظ„ط، ط§ظ„ط±ط§ط¨ط· ط£ط¯ظ†ط§ظ‡ ط¨ط¹ط¯ ظ†ط´ط± ظƒظˆط¯ Google Apps Script ظƒطھط·ط¨ظٹظ‚ ظˆظٹط¨ (Web App).
@@ -89,18 +89,23 @@ const googleSheetsClient = {
         return this.post({ action: "deleteReservation", id: id });
     },
 
-    // ظ…ط³ط­ ظƒط§ظپط© ط§ظ„ط­ط¬ظˆط²ط§طھ ظ…ظ† ط§ظ„ط¬ط¯ظˆظ„ ط³ط­ط§ط¨ظٹط§ظ‹
+    // مسح كافة الحجوزات من الجدول سحابياً
     clearAllReservations: async function() {
         return this.post({ action: "clearAllReservations" });
     },
 
-    // ط­ظپط¸ ط§ظ„ط£ط³ط¹ط§ط± ط§ظ„ط¬ط¯ظٹط¯ط© ظ„ظ„ط؛ط±ظپ
+    // حفظ الأسعار الجديدة للغرف
     savePrices: async function(prices) {
         return this.post({ action: "savePrices", prices: prices });
+    },
+
+    // حفظ الصور الجديدة للغرف
+    saveImages: async function(images) {
+        return this.post({ action: "saveImages", images: images });
     }
 };
 
-// طھطµط¯ظٹط± ط§ظ„ظƒظ„ط§ظٹظ†طھ ظ„ظ„ط¹ظ…ظ„ ط¹ظ„ظ‰ ط§ظ„ظ†ط·ط§ظ‚ ط§ظ„ط¹ط§ظ… ظ„ظ„ظ…ظˆظ‚ط¹ ظˆط§ظ„ظ„ظˆط­ط©
+// تصدير الكلاينت للعمل على النطاق العام للموقع واللوحة
 window.googleSheetsClient = googleSheetsClient;
 
 // طھط¹ط·ظٹظ„ ظƒظˆط¯ ط§ظ„ط³ظˆط¨ط§ط¨ظٹط³ ظ„طھط¬ظ†ط¨ ط£ظٹ طھط¹ط§ط±ط¶ط§طھ
