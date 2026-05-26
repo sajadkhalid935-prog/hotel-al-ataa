@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+﻿document.addEventListener('DOMContentLoaded', () => {
 
     // ==========================================
     // 0. LOADING SCREEN
@@ -1040,11 +1040,17 @@ document.addEventListener('DOMContentLoaded', () => {
             .then((data) => {
                 const priceSetting = data.find(s => s.key === 'room_prices');
                 if (priceSetting && priceSetting.value) {
-                    localStorage.setItem('ataa-room-prices', JSON.stringify(priceSetting.value));
-                    if (typeof applyRoomPrices === 'function') {
-                        applyRoomPrices();
-                        if (typeof updateBookingSummary === 'function') {
-                            updateBookingSummary();
+                    // Only overwrite if admin hasn't saved recently (check timestamp)
+                    const lastSaveTime = parseInt(localStorage.getItem('ataa-room-prices-timestamp') || '0');
+                    if ((Date.now() - lastSaveTime) < 60000) {
+                        console.log("Skipping cloud price sync on index - admin saved prices recently.");
+                    } else {
+                        localStorage.setItem('ataa-room-prices', JSON.stringify(priceSetting.value));
+                        if (typeof applyRoomPrices === 'function') {
+                            applyRoomPrices();
+                            if (typeof updateBookingSummary === 'function') {
+                                updateBookingSummary();
+                            }
                         }
                     }
                 }
@@ -1073,3 +1079,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 });
+
