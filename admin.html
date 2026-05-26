@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>لوحة التحكم - فندق مدينة العطاء السياحي</title>
 
     <!-- Google Fonts -->
@@ -1459,7 +1462,7 @@
             const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
             const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
             
-            let clean = phone;
+            let clean = String(phone);
             for (let i = 0; i < 10; i++) {
                 clean = clean.replace(new RegExp(arabicDigits[i], 'g'), i)
                              .replace(new RegExp(persianDigits[i], 'g'), i);

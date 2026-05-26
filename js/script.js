@@ -392,7 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
         const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
         
-        let cleanPhone = phoneNumber;
+        let cleanPhone = String(phoneNumber);
         for (let i = 0; i < 10; i++) {
             cleanPhone = cleanPhone.replace(new RegExp(arabicDigits[i], 'g'), i)
                                    .replace(new RegExp(persianDigits[i], 'g'), i);
@@ -402,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cleanPhone = cleanPhone.replace(/[^0-9]/g, '');
         
         // 3. Clean country code
-        let cleanCode = countryCode.replace(/[^0-9]/g, '');
+        let cleanCode = String(countryCode).replace(/[^0-9]/g, '');
         
         // 4. Strip leading zeroes from the phone number
         while (cleanPhone.startsWith('0')) {
