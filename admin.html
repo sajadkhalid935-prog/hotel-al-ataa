@@ -1420,9 +1420,13 @@
 
                 // Auto open WhatsApp to notify the client
                 setTimeout(() => {
-                    const notify = confirm("هل ترغب في فتح واتساب لإرسال رسالة آلية للزبون لإعلامه بوضعية الطلب؟");
-                    if (notify) {
+                    if (newStatus === 'accepted') {
                         openWhatsApp(id);
+                    } else {
+                        const notify = confirm("هل ترغب في فتح واتساب لإرسال رسالة آلية للزبون لإعلامه بوضعية الطلب؟");
+                        if (notify) {
+                            openWhatsApp(id);
+                        }
                     }
                 }, 400);
             }
