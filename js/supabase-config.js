@@ -1,13 +1,13 @@
-// ===================================================
+﻿// ===================================================
 // GOOGLE SHEETS CLOUD DATABASE CONFIGURATION (API)
 // ===================================================
-// يرجى ملء الرابط أدناه بعد نشر كود Google Apps Script كتطبيق ويب (Web App).
-// إذا تركت الرابط فارغاً، سيعمل الموقع تلقائياً على الذاكرة المحلية (localStorage) دون أي مشاكل.
+// ظٹط±ط¬ظ‰ ظ…ظ„ط، ط§ظ„ط±ط§ط¨ط· ط£ط¯ظ†ط§ظ‡ ط¨ط¹ط¯ ظ†ط´ط± ظƒظˆط¯ Google Apps Script ظƒطھط·ط¨ظٹظ‚ ظˆظٹط¨ (Web App).
+// ط¥ط°ط§ طھط±ظƒطھ ط§ظ„ط±ط§ط¨ط· ظپط§ط±ط؛ط§ظ‹طŒ ط³ظٹط¹ظ…ظ„ ط§ظ„ظ…ظˆظ‚ط¹ طھظ„ظ‚ط§ط¦ظٹط§ظ‹ ط¹ظ„ظ‰ ط§ظ„ط°ط§ظƒط±ط© ط§ظ„ظ…ط­ظ„ظٹط© (localStorage) ط¯ظˆظ† ط£ظٹ ظ…ط´ط§ظƒظ„.
 
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8oopbYE509F45UywoH8Ve3Cm4HuIn4xxAc3CQkdjxvollPX58mSktPX5XpPSz-6lq/exec"; // ضع هنا رابط ويب تطبيق Apps Script الخاص بك
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8oopbYE509F45UywoH8Ve3Cm4HuIn4xxAc3CQkdjxvollPX58mSktPX5XpPSz-6lq/exec"; // ط¶ط¹ ظ‡ظ†ط§ ط±ط§ط¨ط· ظˆظٹط¨ طھط·ط¨ظٹظ‚ Apps Script ط§ظ„ط®ط§طµ ط¨ظƒ
 
 const googleSheetsClient = {
-    // التحقق من تفعيل الاتصال بـ Google Sheets
+    // ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† طھظپط¹ظٹظ„ ط§ظ„ط§طھطµط§ظ„ ط¨ظ€ Google Sheets
     isEnabled: function() {
         return (
             typeof GOOGLE_SCRIPT_URL !== "undefined" && 
@@ -17,13 +17,13 @@ const googleSheetsClient = {
         );
     },
     
-    // دالة مساعدة لطلبات GET
+    // ط¯ط§ظ„ط© ظ…ط³ط§ط¹ط¯ط© ظ„ط·ظ„ط¨ط§طھ GET
     get: async function(action) {
         if (!this.isEnabled()) {
             throw new Error("Google Apps Script URL is not configured.");
         }
         try {
-            const url = `${GOOGLE_SCRIPT_URL}?action=${action}`;
+            const url = `${GOOGLE_SCRIPT_URL}?action=${action}&_=${new Date().getTime()}`;
             const response = await fetch(url);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -39,7 +39,7 @@ const googleSheetsClient = {
         }
     },
     
-    // دالة مساعدة لطلبات POST (يتم إرسالها كـ text/plain لتفادي مشاكل CORS Preflight)
+    // ط¯ط§ظ„ط© ظ…ط³ط§ط¹ط¯ط© ظ„ط·ظ„ط¨ط§طھ POST (ظٹطھظ… ط¥ط±ط³ط§ظ„ظ‡ط§ ظƒظ€ text/plain ظ„طھظپط§ط¯ظٹ ظ…ط´ط§ظƒظ„ CORS Preflight)
     post: async function(payload) {
         if (!this.isEnabled()) {
             throw new Error("Google Apps Script URL is not configured.");
@@ -64,44 +64,45 @@ const googleSheetsClient = {
         }
     },
 
-    // جلب الإعدادات (أسعار الغرف)
+    // ط¬ظ„ط¨ ط§ظ„ط¥ط¹ط¯ط§ط¯ط§طھ (ط£ط³ط¹ط§ط± ط§ظ„ط؛ط±ظپ)
     getSettings: async function() {
         return this.get("getSettings");
     },
 
-    // جلب كل الحجوزات
+    // ط¬ظ„ط¨ ظƒظ„ ط§ظ„ط­ط¬ظˆط²ط§طھ
     getReservations: async function() {
         return this.get("getReservations");
     },
 
-    // حفظ حجز جديد
+    // ط­ظپط¸ ط­ط¬ط² ط¬ط¯ظٹط¯
     saveReservation: async function(data) {
         return this.post({ action: "saveReservation", data: data });
     },
 
-    // تحديث حالة الحجز (accepted / rejected / pending)
+    // طھط­ط¯ظٹط« ط­ط§ظ„ط© ط§ظ„ط­ط¬ط² (accepted / rejected / pending)
     updateStatus: async function(id, status) {
         return this.post({ action: "updateStatus", id: id, status: status });
     },
 
-    // حذف حجز واحد
+    // ط­ط°ظپ ط­ط¬ط² ظˆط§ط­ط¯
     deleteReservation: async function(id) {
         return this.post({ action: "deleteReservation", id: id });
     },
 
-    // مسح كافة الحجوزات من الجدول سحابياً
+    // ظ…ط³ط­ ظƒط§ظپط© ط§ظ„ط­ط¬ظˆط²ط§طھ ظ…ظ† ط§ظ„ط¬ط¯ظˆظ„ ط³ط­ط§ط¨ظٹط§ظ‹
     clearAllReservations: async function() {
         return this.post({ action: "clearAllReservations" });
     },
 
-    // حفظ الأسعار الجديدة للغرف
+    // ط­ظپط¸ ط§ظ„ط£ط³ط¹ط§ط± ط§ظ„ط¬ط¯ظٹط¯ط© ظ„ظ„ط؛ط±ظپ
     savePrices: async function(prices) {
         return this.post({ action: "savePrices", prices: prices });
     }
 };
 
-// تصدير الكلاينت للعمل على النطاق العام للموقع واللوحة
+// طھطµط¯ظٹط± ط§ظ„ظƒظ„ط§ظٹظ†طھ ظ„ظ„ط¹ظ…ظ„ ط¹ظ„ظ‰ ط§ظ„ظ†ط·ط§ظ‚ ط§ظ„ط¹ط§ظ… ظ„ظ„ظ…ظˆظ‚ط¹ ظˆط§ظ„ظ„ظˆط­ط©
 window.googleSheetsClient = googleSheetsClient;
 
-// تعطيل كود السوبابيس لتجنب أي تعارضات
+// طھط¹ط·ظٹظ„ ظƒظˆط¯ ط§ظ„ط³ظˆط¨ط§ط¨ظٹط³ ظ„طھط¬ظ†ط¨ ط£ظٹ طھط¹ط§ط±ط¶ط§طھ
 window.supabaseClient = null;
+
