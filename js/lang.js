@@ -1,6 +1,6 @@
 const translations = {
     ar: {
-        title: "فندق ومطعم مدينة العطاء السياحي - إقامتك المريحة في قلب النجف الأشرف",
+        title: "فندق ومطعم مدينة العطاء | إقامة فاخرة في النجف الأشرف",
         site_name_ar: "مدينة العطاء السياحي",
         site_name_en: "Ataa City Tourist Hotel",
         nav_home: "الرئيسية",
