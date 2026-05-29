@@ -1004,10 +1004,7 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <button id="sound-toggle-btn" class="btn btn-secondary" onclick="toggleSoundNotification()" style="gap: 8px;">
-                        <i class="fa-solid fa-volume-high" id="sound-toggle-icon"></i>
-                        <span id="sound-toggle-text">صوت التنبيه: مفعل</span>
-                    </button>
+
                     <a href="index.html" class="btn btn-secondary" target="_blank">
                         <i class="fa-solid fa-globe"></i> زيارة الموقع
                     </a>
@@ -1392,7 +1389,7 @@
         // 🔔 نظام الإشعارات الفورية (Browser Push Notifications)
         // ===================================================
         const NotificationSystem = {
-            POLL_INTERVAL: 10000, // 10 ثوانٍ
+            POLL_INTERVAL: 30000, // 30 ثانية لتوفير استهلاك الكوتا السحابية
             KNOWN_IDS_KEY: 'ataa-known-booking-ids',
             _pollTimer: null,
             _isRunning: false,
@@ -1506,10 +1503,6 @@
                             this._saveKnownIds(allIds);
 
                             if (!isFirstCheck) {
-                                // تشغيل صوت التنبيه المدمج
-                                if (typeof playIncomingOrderSound === 'function') {
-                                    playIncomingOrderSound();
-                                }
 
                                 // إرسال الإشعارات لكل حجز جديد
                                 newBookings.forEach(booking => {
@@ -1698,7 +1691,6 @@
             });
             loadPricesInForm(); // Load current room prices in inputs
             loadImagesInForm(); // Load current room images in inputs & previews
-            initSoundToggleUI(); // Initialize sound notification UI state
 
             // تفعيل نظام الإشعارات الفورية
             if (typeof NotificationSystem !== 'undefined') {
@@ -1728,11 +1720,11 @@
 
         async function handleSavePrices(e) {
             e.preventDefault();
-            const single = parseInt(document.getElementById('price-single').value) || 25000;
-            const double = parseInt(document.getElementById('price-double').value) || 35000;
-            const triple = parseInt(document.getElementById('price-triple').value) || 50000;
-            const quad = parseInt(document.getElementById('price-quad').value) || 75000;
-            const family = parseInt(document.getElementById('price-family').value) || 100000;
+            const single = parseInt(document.getElementById('price-single').value) || 40000;
+            const double = parseInt(document.getElementById('price-double').value) || 60000;
+            const triple = parseInt(document.getElementById('price-triple').value) || 75000;
+            const quad = parseInt(document.getElementById('price-quad').value) || 100000;
+            const family = parseInt(document.getElementById('price-family').value) || 125000;
 
             const prices = { single, double, triple, quad, family };
             localStorage.setItem('ataa-room-prices', JSON.stringify(prices));
@@ -1873,116 +1865,6 @@
         }
 
         let lastBookingsCount = 0;
-        let soundEnabled = localStorage.getItem('ataa-sound-enabled') !== 'false';
-
-        function initSoundToggleUI() {
-            const btn = document.getElementById('sound-toggle-btn');
-            const icon = document.getElementById('sound-toggle-icon');
-            const text = document.getElementById('sound-toggle-text');
-            if (!btn || !icon || !text) return;
-
-            if (soundEnabled) {
-                icon.className = 'fa-solid fa-volume-high';
-                text.textContent = 'صوت التنبيه: مفعل';
-                btn.classList.remove('btn-danger-outline');
-                btn.classList.add('btn-secondary');
-            } else {
-                icon.className = 'fa-solid fa-volume-xmark';
-                text.textContent = 'صوت التنبيه: معطل';
-                btn.classList.remove('btn-secondary');
-                btn.classList.add('btn-danger-outline');
-            }
-        }
-
-        function toggleSoundNotification() {
-            soundEnabled = !soundEnabled;
-            localStorage.setItem('ataa-sound-enabled', soundEnabled ? 'true' : 'false');
-            initSoundToggleUI();
-            
-            if (soundEnabled) {
-                // Play test sound to confirm and unlock audio in browser
-                playIncomingOrderSound(true);
-                showToast('تم تفعيل التنبيهات الصوتية بنجاح!', 'success');
-            } else {
-                showToast('تم كتم التنبيهات الصوتية.', 'info');
-            }
-        }
-
-        function playBackupBeep() {
-            try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5 note
-                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                
-                oscillator.start();
-                
-                setTimeout(() => {
-                    oscillator.stop();
-                    audioCtx.close();
-                }, 150);
-            } catch (e) {
-                console.error("Backup beep failed:", e);
-            }
-        }
-
-        let lastSoundPlayTime = 0;
-
-        function playIncomingOrderSound(forcePlay = false) {
-            if (!soundEnabled && !forcePlay) return;
-
-            // Enforce a 5-second cooldown to prevent overlapping or repeating sound alerts
-            const now = Date.now();
-            if (!forcePlay && (now - lastSoundPlayTime) < 5000) {
-                console.log("Sound alert skipped due to cooldown.");
-                return;
-            }
-            lastSoundPlayTime = now;
-
-            // Play backup beep chime
-            playBackupBeep();
-
-            // Play local high-quality female voice MP3 ("وصل طلب")
-            const localAudio = new Audio('audio/order_received.mp3');
-            localAudio.play().catch(err => {
-                console.log("Local audio file play failed, trying speech synthesis fallback:", err);
-                
-                const text = "وصل طلب";
-                // Fallback 1: Web Speech Synthesis
-                if ('speechSynthesis' in window) {
-                    try {
-                        window.speechSynthesis.cancel();
-                        const utterance = new SpeechSynthesisUtterance(text);
-                        utterance.lang = 'ar-SA';
-                        utterance.rate = 0.9; // Slightly slower for better clarity
-                        
-                        const voices = window.speechSynthesis.getVoices();
-                        const femaleVoice = voices.find(v => 
-                            v.lang.includes('ar') && 
-                            (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('hudda') || v.name.toLowerCase().includes('leila') || v.name.toLowerCase().includes('salma'))
-                        );
-                        if (femaleVoice) {
-                            utterance.voice = femaleVoice;
-                        }
-                        window.speechSynthesis.speak(utterance);
-                        return; // Succeeded
-                    } catch (e) {
-                        console.log("SpeechSynthesis fallback failed:", e);
-                    }
-                }
-
-                // Fallback 2: Google Translate TTS dynamic fetch
-                const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=ar&q=${encodeURIComponent(text)}`;
-                const audio = new Audio(audioUrl);
-                audio.play().catch(e => console.log("All audio voice alerts failed:", e));
-            });
-        }
 
         function getReservations() {
             try {
@@ -2108,10 +1990,7 @@
         async function refreshDashboard(playSound = false) {
             const bookings = await syncReservations();
             
-            // Only play sound if playSound is true and bookings list has grown (new booking arrived)
-            if (playSound && bookings.length > lastBookingsCount) {
-                playIncomingOrderSound();
-            }
+
             lastBookingsCount = bookings.length;
             
             renderStats(bookings);

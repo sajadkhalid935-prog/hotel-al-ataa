@@ -25,7 +25,7 @@ const translations = {
         rooms_title: "الغرف والأسعار",
         rooms_desc: "نوفر خيارات إقامة مريحة ومتنوعة تناسب جميع العوائل والزوار مع خدمة 4 نجوم.",
         room_single: "غرفة فردية",
-        price_single: "25,000 د.ع / ليلة",
+        price_single: "40,000 د.ع / ليلة",
         desc_single: "مثالية للمسافر المفرد، توفر هدوءاً وراحة تامة وتجهيزات متكاملة.",
         bed_single: " سرير واحد",
         wifi: " إنترنت مجاني",
@@ -33,22 +33,22 @@ const translations = {
         coffee: " ضيافة مجانية",
         btn_select_room: "اختيار الغرفة",
         room_double: "غرفة زوجية",
-        price_double: "35,000 د.ع / ليلة",
+        price_double: "60,000 د.ع / ليلة",
         desc_double: "غرفة مريحة مزودة بسريرين مفردين أو سرير مزدوج كبير.",
         bed_double: " سرير مزدوج / 2 مفرد",
         bath: " حمام خاص",
         room_triple: "غرفة ثلاثية",
-        price_triple: "50,000 د.ع / ليلة",
+        price_triple: "75,000 د.ع / ليلة",
         desc_triple: "مساحة واسعة تناسب العوائل الصغيرة مع أفضل الخدمات الفندقية.",
         bed_triple: " 3 أسرة مفردة",
         ac: " تكييف مركزي",
         safe: " خزنة آمنة",
         room_quad: "غرفة رباعية",
-        price_quad: "75,000 د.ع / ليلة",
+        price_quad: "100,000 د.ع / ليلة",
         desc_quad: "مثالية للعوائل المتوسطة، مجهزة بأربعة أسرة مريحة وكافة وسائل الراحة.",
         bed_quad: " 4 أسرة مفردة",
         room_family: "غرفة خماسية (جناح عائلي)",
-        price_family: "100,000 د.ع / ليلة",
+        price_family: "125,000 د.ع / ليلة",
         desc_family: "جناح عائلي فاخر مصمم لتوفير راحة مطلقة للعوائل الكبيرة والمجموعات.",
         bed_family: " 5 أسرة",
         sofa: " منطقة جلوس",
@@ -201,7 +201,7 @@ const translations = {
         rooms_title: "اتاق‌ها و قیمت‌ها",
         rooms_desc: "ما گزینه‌های اقامتی راحت و متنوعی را برای همه خانواده‌ها و بازدیدکنندگان ارائه می‌دهیم.",
         room_single: "اتاق یک نفره",
-        price_single: "۲۵,۰۰۰ د.ع / شب",
+        price_single: "۴۰,۰۰۰ د.ع / شب",
         desc_single: "ایده‌آل برای مسافران تنها، آرامش و راحتی کامل.",
         bed_single: " یک تخت",
         wifi: " اینترنت رایگان",
@@ -209,22 +209,22 @@ const translations = {
         coffee: " پذیرایی رایگان",
         btn_select_room: "انتخاب اتاق",
         room_double: "اتاق دو نفره",
-        price_double: "۳۵,۰۰۰ د.ع / شب",
+        price_double: "۶۰,۰۰۰ د.ع / شب",
         desc_double: "اتاق راحت با دو تخت یک نفره یا یک تخت دو نفره بزرگ.",
         bed_double: " تخت دو نفره / ۲ تک",
         bath: " حمام اختصاصی",
         room_triple: "اتاق سه نفره",
-        price_triple: "۵۰,۰۰۰ د.ع / شب",
+        price_triple: "۷۵,۰۰۰ د.ع / شب",
         desc_triple: "فضای وسیع مناسب خانواده‌های کوچک با بهترین خدمات هتلی.",
         bed_triple: " ۳ تخت یک نفره",
         ac: " تهویه مرکزی",
         safe: " گاوصندوق امن",
         room_quad: "اتاق چهار نفره",
-        price_quad: "۷۵,۰۰۰ د.ع / شب",
+        price_quad: "۱۰۰,۰۰۰ د.ع / شب",
         desc_quad: "ایده‌آل برای خانواده‌های متوسط، مجهز به چهار تخت راحت.",
         bed_quad: " ۴ تخت یک نفره",
         room_family: "اتاق پنج نفره (سوئیت خانوادگی)",
-        price_family: "۱۰۰,۰۰۰ د.ع / شب",
+        price_family: "۱۲۵,۰۰۰ د.ع / شب",
         desc_family: "سوئیت لوکس خانوادگی طراحی شده برای آرامش مطلق.",
         bed_family: " ۵ تخت",
         sofa: " فضای نشیمن",
@@ -377,7 +377,7 @@ const translations = {
         rooms_title: "Rooms & Rates",
         rooms_desc: "We offer comfortable and diverse accommodation options for all families and visitors with 4-star service.",
         room_single: "Single Room",
-        price_single: "25,000 IQD / night",
+        price_single: "40,000 IQD / night",
         desc_single: "Perfect for solo travelers, offering complete peace and comfort.",
         bed_single: " Single bed",
         wifi: " Free WiFi",
@@ -385,22 +385,22 @@ const translations = {
         coffee: " Free hospitality",
         btn_select_room: "Select Room",
         room_double: "Double Room",
-        price_double: "35,000 IQD / night",
+        price_double: "60,000 IQD / night",
         desc_double: "Comfortable room with two single beds or one large double bed.",
         bed_double: " Double / 2 Singles",
         bath: " Private bathroom",
         room_triple: "Triple Room",
-        price_triple: "50,000 IQD / night",
+        price_triple: "75,000 IQD / night",
         desc_triple: "Spacious room suitable for small families with the best hotel services.",
         bed_triple: " 3 Single beds",
         ac: " Central AC",
         safe: " Safe box",
         room_quad: "Quad Room",
-        price_quad: "75,000 IQD / night",
+        price_quad: "100,000 IQD / night",
         desc_quad: "Ideal for medium families, equipped with four comfortable beds.",
         bed_quad: " 4 Single beds",
         room_family: "Family Suite (5 persons)",
-        price_family: "100,000 IQD / night",
+        price_family: "125,000 IQD / night",
         desc_family: "Luxurious family suite designed for absolute comfort for large families.",
         bed_family: " 5 Beds",
         sofa: " Sitting area",
@@ -533,17 +533,26 @@ const translations = {
 // DYNAMIC ROOM PRICING SYSTEM
 // ===================================================
 const defaultPrices = {
-    single: 25000,
-    double: 35000,
-    triple: 50000,
-    quad: 75000,
-    family: 100000
+    single: 40000,
+    double: 60000,
+    triple: 75000,
+    quad: 100000,
+    family: 125000
 };
 
 function getRoomPrices() {
     try {
         const stored = localStorage.getItem('ataa-room-prices');
-        return stored ? JSON.parse(stored) : defaultPrices;
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            // إذا كانت الأسعار المخزنة هي الأسعار القديمة الملغاة (مثل 25 ألف للفردية)، نقوم بتحديثها فوراً للقيم الجديدة
+            if (parsed.single === 25000) {
+                localStorage.setItem('ataa-room-prices', JSON.stringify(defaultPrices));
+                return defaultPrices;
+            }
+            return parsed;
+        }
+        return defaultPrices;
     } catch (e) {
         return defaultPrices;
     }
