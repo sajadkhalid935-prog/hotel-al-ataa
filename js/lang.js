@@ -1,6 +1,7 @@
 const translations = {
     ar: {
-        title: "فندق ومطعم مدينة العطاء | إقامة فاخرة في النجف الأشرف",
+        title: "فندق مدينة العطاء - النجف | راحة تامة في قلب المدينة",
+        description: "استمتع بإقامة هادئة في فندق مدينة العطاء. خدمات 4 نجوم، غرف مريحة، وقرب تام من المراقد المقدسة. احجز إقامتك المريحة اليوم!",
         site_name_ar: "مدينة العطاء السياحي",
         site_name_en: "Ataa City Tourist Hotel",
         nav_home: "الرئيسية",
@@ -176,7 +177,8 @@ const translations = {
         video_play: "شاهد الفيديو"
     },
     fa: {
-        title: "هتل و رستوران مدينة عطاء گردشگری - اقامت راحت شما در قلب نجف اشرف",
+        title: "هتل مدینة العطاء - نجف | آرامش کامل در قلب شهر",
+        description: "از اقامتی آرام در هتل مدینة العطاء لذت ببرید. خدمات ۴ ستاره، اتاق‌های راحت و نزدیکی کامل به حرم‌های مطهر. همین امروز اقامت راحت خود را رزرو کنید!",
         site_name_ar: "مدينة عطاء گردشگری",
         site_name_en: "Ataa City Tourist Hotel",
         nav_home: "صفحه اصلی",
@@ -352,7 +354,8 @@ const translations = {
         video_play: "ویدیو را ببینید"
     },
     en: {
-        title: "Ataa City Tourist Hotel & Restaurant - Your Comfortable Stay in the Heart of Najaf",
+        title: "Ataa City Hotel - Najaf | Absolute Comfort in the Heart of the City",
+        description: "Enjoy a peaceful stay at Ataa City Hotel. 4-star services, comfortable rooms, and close proximity to the holy shrines. Book your comfortable stay today!",
         site_name_ar: "Ataa City Tourist",
         site_name_en: "Ataa City Tourist Hotel",
         nav_home: "Home",
@@ -700,6 +703,12 @@ function switchLanguage(lang) {
 
     // Update title
     if (t.title) document.title = t.title;
+
+    // Update meta description
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc && t.description) {
+        metaDesc.setAttribute('content', t.description);
+    }
 
     // Update active lang button
     document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
