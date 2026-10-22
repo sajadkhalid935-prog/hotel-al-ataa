@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" id="viewport-meta" content="width=device-width, initial-scale=1.0">
   <title>هتل مدینة العطاء - نجف اشرف | جدول رزرو اتوبوس‌ها</title>
   
   <!-- Google Fonts: Cairo & Tajawal -->
@@ -69,7 +69,12 @@
       --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    html { scroll-behavior: smooth; }
+    html {
+      scroll-behavior: smooth;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
     * {
       box-sizing: border-box;
       margin: 0;
@@ -87,6 +92,8 @@
         radial-gradient(circle at 0% 100%, rgba(201, 168, 76, 0.06) 0%, transparent 50%);
       color: var(--text-white);
       min-height: 100vh;
+      width: 100%;
+      max-width: 100%;
       line-height: 1.5;
       overflow-x: hidden;
       direction: rtl;
@@ -1917,6 +1924,51 @@
       justify-content: flex-end;
       margin-bottom: 6px;
     }
+
+    /* ==========================================================================
+       7. PC-Like Full Schedule Layout on Phone & Responsive Login
+       ========================================================================== */
+    body.pc-layout-active,
+    body.pc-layout-active #app,
+    body.pc-layout-active header.main-header,
+    body.pc-layout-active #admin-bar,
+    body.pc-layout-active .stats-section,
+    body.pc-layout-active .controls-section,
+    body.pc-layout-active .schedule-section,
+    body.pc-layout-active .legend-section,
+    body.pc-layout-active footer.main-footer {
+      min-width: 1580px;
+    }
+
+    @media screen and (max-width: 768px) {
+      /* --- Login Page Mobile --- */
+      #login-page {
+        padding: 14px;
+      }
+      .login-container {
+        padding: 24px 18px;
+        border-radius: 18px;
+      }
+      .hotel-emblem {
+        width: 135px;
+        margin-bottom: 8px;
+      }
+      .hotel-title {
+        font-size: 22px;
+      }
+      .hotel-sub {
+        font-size: 13px;
+      }
+      .portal-desc {
+        font-size: 12px;
+        margin-bottom: 18px;
+        padding-bottom: 10px;
+      }
+      .form-control {
+        font-size: 16px;
+        padding: 11px 38px 11px 12px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -2985,7 +3037,14 @@
       ADMIN: 'madinat_alata_admin',
       BOOKINGS: 'madinat_alata_bookings_v2',
       DELETED_BOOKINGS: 'madinat_alata_deleted_bookings_v2',
-      SETTINGS: 'madinat_alata_settings_v2'
+      SETTINGS: 'madinat_alata_settings_v2',
+      SYNC_META: 'madinat_alata_sync_meta_v2'
+    };
+
+    const CLOUD_SYNC_CONFIG = {
+      NTFY_BASE: 'https://ntfy.sh/madinat_alata_najaf_live_sync_313_v2',
+      REST_OBJ_URL: 'https://api.restful-api.dev/objects/ff808181a09d98f701a165fb78a46038',
+      DEVICE_ID: 'dev_' + Math.random().toString(36).substring(2, 10) + '_' + Date.now()
     };
 
     var AppState = window.AppState = {
@@ -3002,6 +3061,9 @@
       statusFilter: 'ALL',
       bookings: [],
       deletedBookings: [],
+      syncVersion: 0,
+      clearedAtVersion: 0,
+      hasSyncedOnce: false,
       currentViewingBooking: null
     };
 
@@ -3221,6 +3283,17 @@
         console.error(e);
       }
 
+      // Sync Metadata
+      try {
+        var rawMeta = localStorage.getItem(STORAGE_KEYS.SYNC_META);
+        if (rawMeta) {
+          var meta = JSON.parse(rawMeta);
+          AppState.syncVersion = meta.syncVersion || 0;
+          AppState.clearedAtVersion = meta.clearedAtVersion || 0;
+          AppState.hasSyncedOnce = !!meta.hasSyncedOnce;
+        }
+      } catch (e) {}
+
       // Bookings
       try {
         var rawBookings = localStorage.getItem(STORAGE_KEYS.BOOKINGS);
@@ -3232,7 +3305,7 @@
           });
         } else {
           AppState.bookings = generateInitialSampleBookings(AppState.startDate);
-          saveBookingsToStorage();
+          localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(AppState.bookings));
         }
       } catch (e) {
         AppState.bookings = generateInitialSampleBookings(AppState.startDate);
@@ -3247,12 +3320,41 @@
       }
     }
 
+    function saveLocalStateOnly() {
+      try {
+        localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(AppState.bookings));
+        localStorage.setItem(STORAGE_KEYS.DELETED_BOOKINGS, JSON.stringify(AppState.deletedBookings));
+        localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify({
+          startDate: AppState.startDate,
+          daysCount: AppState.daysCount,
+          busCount: AppState.busCount,
+          loginUsername: AppState.loginUsername,
+          loginPassword: AppState.loginPassword
+        }));
+        localStorage.setItem(STORAGE_KEYS.SYNC_META, JSON.stringify({
+          syncVersion: AppState.syncVersion || 0,
+          clearedAtVersion: AppState.clearedAtVersion || 0,
+          hasSyncedOnce: !!AppState.hasSyncedOnce
+        }));
+      } catch (e) {}
+    }
+
+    var _cloudPushTimer = null;
+    function scheduleCloudPush() {
+      if (_cloudPushTimer) clearTimeout(_cloudPushTimer);
+      _cloudPushTimer = setTimeout(function() {
+        pushStateToCloud();
+      }, 80);
+    }
+
     function saveBookingsToStorage() {
       localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(AppState.bookings));
+      scheduleCloudPush();
     }
 
     function saveDeletedBookingsToStorage() {
       localStorage.setItem(STORAGE_KEYS.DELETED_BOOKINGS, JSON.stringify(AppState.deletedBookings));
+      scheduleCloudPush();
     }
 
     function saveSettingsToStorage() {
@@ -3264,6 +3366,285 @@
         loginPassword: AppState.loginPassword
       };
       localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(s));
+      scheduleCloudPush();
+    }
+
+    /* ==========================================================================
+       C2. Real-Time Cloud Sync Engine (Phone <-> PC <-> Tablet)
+       ========================================================================== */
+    function buildCloudPayload() {
+      return {
+        syncVersion: AppState.syncVersion || 1,
+        clearedAtVersion: AppState.clearedAtVersion || 0,
+        deviceId: CLOUD_SYNC_CONFIG.DEVICE_ID,
+        settings: {
+          daysCount: AppState.daysCount,
+          busCount: AppState.busCount,
+          loginUsername: AppState.loginUsername || 'najaf',
+          loginPassword: AppState.loginPassword || '313'
+        },
+        bookings: AppState.bookings || [],
+        deletedBookings: AppState.deletedBookings || []
+      };
+    }
+
+    function getUtf8ByteLength(str) {
+      try {
+        return new Blob([str]).size;
+      } catch (e) {
+        return str.length * 2;
+      }
+    }
+
+    function hasLocalCustomChanges() {
+      if (Array.isArray(AppState.deletedBookings) && AppState.deletedBookings.length > 0) return true;
+      if (Array.isArray(AppState.bookings)) {
+        for (var i = 0; i < AppState.bookings.length; i++) {
+          var b = AppState.bookings[i];
+          if (b && b.id && String(b.id).indexOf('b_sample_') !== 0) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    function pushStateToCloud() {
+      AppState.syncVersion = (AppState.syncVersion || 0) + 1;
+      AppState.hasSyncedOnce = true;
+      saveLocalStateOnly();
+
+      var payload = buildCloudPayload();
+      var jsonStr = JSON.stringify(payload);
+      var utf8Bytes = getUtf8ByteLength(jsonStr);
+
+      // 1. Push to persistent REST Cloud Object
+      fetch(CLOUD_SYNC_CONFIG.REST_OBJ_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        body: JSON.stringify({
+          name: 'madinat_alata_bus_db',
+          data: payload
+        })
+      }).catch(function() {});
+
+      // 2. Push to real-time ntfy stream (instant SSE broadcast + cached history)
+      // Check actual UTF-8 byte length so ntfy never converts >4096 byte Arabic/Persian JSON into an attachment
+      var ntfyBody = (utf8Bytes <= 3500)
+        ? jsonStr
+        : JSON.stringify({
+            syncVersion: payload.syncVersion,
+            deviceId: payload.deviceId,
+            notifyOnly: true
+          });
+
+      fetch(CLOUD_SYNC_CONFIG.NTFY_BASE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+        body: ntfyBody
+      }).catch(function() {});
+    }
+
+    function applyCloudPayload(remote, isInitialSync) {
+      if (!remote || typeof remote !== 'object') return false;
+      if (!isInitialSync && remote.deviceId === CLOUD_SYNC_CONFIG.DEVICE_ID) return false;
+
+      if (remote.notifyOnly) {
+        fetchFromRestCloud().then(function(restData) {
+          if (restData) applyCloudPayload(restData, true);
+        });
+        return false;
+      }
+
+      if (!Array.isArray(remote.bookings)) return false;
+
+      var remoteVer = parseInt(remote.syncVersion, 10) || 0;
+      var localVer = parseInt(AppState.syncVersion, 10) || 0;
+
+      // If cloud is completely uninitialized (version 0):
+      // Only push automatically if this device has real user bookings/deletions
+      if (remoteVer === 0) {
+        if (hasLocalCustomChanges()) {
+          pushStateToCloud();
+        }
+        return true;
+      }
+
+      // If we haven't synced this browser before, preserve any custom user-created bookings & deletions made locally
+      var localCustomToMerge = [];
+      var localDeletedToMerge = [];
+      if (!AppState.hasSyncedOnce) {
+        var remoteDeletedIds = {};
+        if (Array.isArray(remote.deletedBookings)) {
+          remote.deletedBookings.forEach(function(d) { if (d && d.id) remoteDeletedIds[d.id] = true; });
+        }
+        if (Array.isArray(AppState.deletedBookings)) {
+          AppState.deletedBookings.forEach(function(d) {
+            if (d && d.id && !remoteDeletedIds[d.id]) {
+              localDeletedToMerge.push(d);
+              remoteDeletedIds[d.id] = true;
+            }
+          });
+        }
+        var remoteIds = {};
+        remote.bookings.forEach(function(b) { if (b && b.id) remoteIds[b.id] = true; });
+
+        if (Array.isArray(AppState.bookings)) {
+          AppState.bookings.forEach(function(b) {
+            if (b && b.id && String(b.id).indexOf('b_sample_') !== 0 && !remoteIds[b.id] && !remoteDeletedIds[b.id]) {
+              localCustomToMerge.push(b);
+            }
+          });
+        }
+      }
+
+      if (remoteVer >= localVer || !AppState.hasSyncedOnce) {
+        AppState.syncVersion = Math.max(remoteVer, localVer);
+        AppState.clearedAtVersion = remote.clearedAtVersion || 0;
+        AppState.bookings = remote.bookings.slice();
+        if (Array.isArray(remote.deletedBookings)) {
+          AppState.deletedBookings = remote.deletedBookings.slice();
+        }
+        if (remote.settings) {
+          if (remote.settings.busCount) AppState.busCount = parseInt(remote.settings.busCount, 10) || 8;
+          if (remote.settings.daysCount) AppState.daysCount = parseInt(remote.settings.daysCount, 10) || 14;
+          if (remote.settings.loginUsername) AppState.loginUsername = remote.settings.loginUsername;
+          if (remote.settings.loginPassword) AppState.loginPassword = remote.settings.loginPassword;
+        }
+        AppState.hasSyncedOnce = true;
+
+        var needsPushBack = false;
+        if (localDeletedToMerge.length > 0) {
+          var delMap = {};
+          localDeletedToMerge.forEach(function(d) {
+            delMap[d.id] = true;
+            AppState.deletedBookings.push(d);
+          });
+          AppState.bookings = AppState.bookings.filter(function(b) { return !delMap[b.id]; });
+          needsPushBack = true;
+        }
+        if (localCustomToMerge.length > 0) {
+          localCustomToMerge.forEach(function(b) { AppState.bookings.push(b); });
+          needsPushBack = true;
+        }
+
+        if (needsPushBack) {
+          saveLocalStateOnly();
+          scheduleCloudPush();
+        } else {
+          saveLocalStateOnly();
+        }
+
+        syncControlsInputs();
+        if (AppState.isLoggedIn) {
+          renderTable();
+        }
+        return true;
+      }
+      return false;
+    }
+
+    function fetchFromRestCloud() {
+      return fetch(CLOUD_SYNC_CONFIG.REST_OBJ_URL + '?t=' + Date.now(), { cache: 'no-store' })
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .then(function(obj) {
+          if (obj && obj.data) {
+            return obj.data;
+          }
+          return null;
+        })
+        .catch(function() { return null; });
+    }
+
+    function fetchFromNtfyHistory() {
+      return fetch(CLOUD_SYNC_CONFIG.NTFY_BASE + '/json?poll=1&since=all&t=' + Date.now(), { cache: 'no-store' })
+        .then(function(r) { return r.ok ? r.text() : ''; })
+        .then(function(text) {
+          if (!text) return null;
+          var lines = text.trim().split('\n');
+          var bestPayload = null;
+          var bestVer = -1;
+          for (var i = 0; i < lines.length; i++) {
+            try {
+              var evt = JSON.parse(lines[i]);
+              if (evt && evt.event === 'message' && evt.message) {
+                var parsed = JSON.parse(evt.message);
+                if (parsed && Array.isArray(parsed.bookings)) {
+                  var v = parseInt(parsed.syncVersion, 10) || 0;
+                  if (v >= bestVer) {
+                    bestVer = v;
+                    bestPayload = parsed;
+                  }
+                }
+              }
+            } catch (e) {}
+          }
+          return bestPayload;
+        })
+        .catch(function() { return null; });
+    }
+
+    function syncFromCloudNow() {
+      Promise.all([fetchFromNtfyHistory(), fetchFromRestCloud()]).then(function(results) {
+        var ntfyData = results[0];
+        var restData = results[1];
+        var ntfyVer = (ntfyData && ntfyData.syncVersion) ? parseInt(ntfyData.syncVersion, 10) : -1;
+        var restVer = (restData && restData.syncVersion !== undefined) ? parseInt(restData.syncVersion, 10) : -1;
+
+        var winner = null;
+        if (restVer >= ntfyVer && restData && Array.isArray(restData.bookings)) {
+          winner = restData;
+        } else if (ntfyData && Array.isArray(ntfyData.bookings)) {
+          winner = ntfyData;
+        }
+
+        if (winner) {
+          applyCloudPayload(winner, true);
+        } else if (!AppState.hasSyncedOnce && hasLocalCustomChanges()) {
+          pushStateToCloud();
+        }
+      });
+    }
+
+    var _ntfyEventSource = null;
+    function initCloudSync() {
+      // 1. Initial pull on startup
+      syncFromCloudNow();
+
+      // 2. Live Server-Sent Events stream for instant updates across Phone & PC
+      if (window.EventSource) {
+        try {
+          _ntfyEventSource = new EventSource(CLOUD_SYNC_CONFIG.NTFY_BASE + '/sse');
+          _ntfyEventSource.onmessage = function(e) {
+            try {
+              var wrapper = JSON.parse(e.data);
+              if (wrapper && wrapper.message) {
+                var remote = JSON.parse(wrapper.message);
+                applyCloudPayload(remote, false);
+              } else if (wrapper && wrapper.attachment) {
+                fetchFromRestCloud().then(function(restData) {
+                  if (restData) applyCloudPayload(restData, true);
+                });
+              }
+            } catch (err) {}
+          };
+        } catch (e) {}
+      }
+
+      // 3. Re-sync when user switches back to tab/app or unlocks phone
+      window.addEventListener('focus', function() {
+        syncFromCloudNow();
+      });
+      document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+          syncFromCloudNow();
+        }
+      });
+
+      // 4. Periodic fallback sync every 5 seconds
+      setInterval(function() {
+        syncFromCloudNow();
+      }, 5000);
     }
 
     /* ==========================================================================
@@ -3282,6 +3663,7 @@
         document.getElementById('login-username').value = '';
         document.getElementById('login-password').value = '';
         applyAuthView();
+        syncFromCloudNow();
         showToast(t('toast_welcome'), 'success');
       } else {
         errorBox.style.display = 'block';
@@ -3346,8 +3728,11 @@
     function applyAuthView() {
       var loginPage = document.getElementById('login-page');
       var app = document.getElementById('app');
+      var vpMeta = document.getElementById('viewport-meta');
 
       if (AppState.isLoggedIn) {
+        if (vpMeta) vpMeta.setAttribute('content', 'width=1580');
+        document.body.classList.add('pc-layout-active');
         loginPage.style.display = 'none';
         app.style.display = 'flex';
         document.body.style.overflow = 'auto';
@@ -3357,6 +3742,8 @@
         renderTable();
         renderStats();
       } else {
+        if (vpMeta) vpMeta.setAttribute('content', 'width=device-width, initial-scale=1.0');
+        document.body.classList.remove('pc-layout-active');
         loginPage.style.display = 'flex';
         app.style.display = 'none';
       }
@@ -4356,6 +4743,7 @@
       applyLanguage();
       startLiveClock();
       applyAuthView();
+      initCloudSync();
     });
   </script>
   <!-- Back to Top Button -->
