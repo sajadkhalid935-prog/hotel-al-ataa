@@ -2312,7 +2312,7 @@
             </div>
             <div>
               <label class="form-label" for="form-status" data-i18n="form_status_label">وضعیت رزرو</label>
-              <select id="form-status" class="form-select" required>
+              <select id="form-status" class="form-select" required onchange="if(this.value==='confirmed') playBookingConfirmSound();">
                 <option value="confirmed" data-i18n="status_confirmed">تأیید شده</option>
                 <option value="unregistered" data-i18n="status_unconfirmed">تأیید نشده</option>
               </select>
@@ -3855,8 +3855,59 @@
       }
 
       saveBookingsToStorage();
+      playBookingConfirmSound();
       closeModal('booking-modal');
       renderTable();
+    }
+
+    /**
+     * Play a pleasant hotel confirmation chime using Web Audio API
+     */
+    function playBookingConfirmSound() {
+      try {
+        var AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        var ctx = new AudioCtx();
+        var notes = [
+          { freq: 523.25, start: 0.00, dur: 0.22 }, // C5
+          { freq: 659.25, start: 0.11, dur: 0.24 }, // E5
+          { freq: 783.99, start: 0.22, dur: 0.28 }, // G5
+          { freq: 1046.50, start: 0.34, dur: 0.55 } // C6
+        ];
+        notes.forEach(function(n) {
+          var osc = ctx.createOscillator();
+          var osc2 = ctx.createOscillator();
+          var gain = ctx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(n.freq, ctx.currentTime + n.start);
+
+          osc2.type = 'triangle';
+          osc2.frequency.setValueAtTime(n.freq * 2, ctx.currentTime + n.start);
+
+          var g2 = ctx.createGain();
+          g2.gain.setValueAtTime(0.08, ctx.currentTime + n.start);
+
+          gain.gain.setValueAtTime(0.0001, ctx.currentTime + n.start);
+          gain.gain.exponentialRampToValueAtTime(0.28, ctx.currentTime + n.start + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + n.start + n.dur);
+
+          osc.connect(gain);
+          osc2.connect(g2);
+          g2.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc.start(ctx.currentTime + n.start);
+          osc2.start(ctx.currentTime + n.start);
+          osc.stop(ctx.currentTime + n.start + n.dur + 0.05);
+          osc2.stop(ctx.currentTime + n.start + n.dur + 0.05);
+        });
+        setTimeout(function() {
+          if (ctx && ctx.close) ctx.close();
+        }, 1200);
+      } catch (err) {
+        console.warn('Audio error:', err);
+      }
     }
 
     function handleDeleteCurrentBooking() {
