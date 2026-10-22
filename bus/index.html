@@ -2465,7 +2465,23 @@
           </select>
         </div>
 
-        <div class="form-group-full">
+        <div class="form-group-full" style="border-top: 1px solid rgba(25, 34, 62, 0.15); padding-top: 14px; margin-top: 10px;">
+          <label class="form-label" data-i18n="settings_login_creds_title" style="color: #19223E; font-weight: 800; margin-bottom: 10px;">
+            <i class="fa-solid fa-user-shield"></i> تغییر نام کاربری و رمز عبور ورود به سایت
+          </label>
+          <div class="form-row">
+            <div>
+              <label class="form-label" for="settings-login-username" data-i18n="login_user_label">نام کاربری</label>
+              <input type="text" id="settings-login-username" class="form-input" required>
+            </div>
+            <div>
+              <label class="form-label" for="settings-login-password" data-i18n="login_pass_label">رمز عبور</label>
+              <input type="text" id="settings-login-password" class="form-input" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group-full" style="border-top: 1px solid rgba(25, 34, 62, 0.15); padding-top: 14px; margin-top: 10px;">
           <label class="form-label" data-i18n="settings_data_label">عملیات داده‌ها و ذخیره‌سازی</label>
           <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
             <button type="button" class="btn-danger" style="justify-content: flex-start;" onclick="clearAllDataWithConfirm()">
@@ -2593,6 +2609,7 @@
         bus_count_4: '۴ اتوبوس',
         bus_count_6: '۶ اتوبوس',
         bus_count_8: '۸ اتوبوس (پیش‌فرض)',
+        settings_login_creds_title: 'تغییر نام کاربری و رمز عبور ورود به سایت',
         settings_data_label: 'عملیات داده‌ها و ذخیره‌سازی',
         settings_reset_sample: 'بازیابی رزروهای حذف‌شده',
         settings_clear_all: 'حذف کامل تمام رزروها (خالی کردن جدول)',
@@ -2765,6 +2782,7 @@
         bus_count_4: '4 باصات',
         bus_count_6: '6 باصات',
         bus_count_8: '8 باصات (الافتراضي)',
+        settings_login_creds_title: 'تغيير اسم المستخدم وكلمة المرور للدخول للموقع',
         settings_data_label: 'إجراءات البيانات وقواعد الحفظ',
         settings_reset_sample: 'استعادة الحجوزات المحذوفة',
         settings_clear_all: 'مسح جميع الحجوزات نهائياً (إفراغ الجدول)',
@@ -2974,6 +2992,8 @@
       lang: 'fa',
       isLoggedIn: false,
       isAdmin: false,
+      loginUsername: 'najaf',
+      loginPassword: '313',
       startDate: DateUtils.formatYYYYMMDD(new Date()),
       daysCount: 14,
       busCount: 8,
@@ -3189,9 +3209,13 @@
           var parsed = JSON.parse(rawSettings);
           AppState.daysCount = parsed.daysCount || 14;
           AppState.busCount = parsed.busCount || 8;
+          AppState.loginUsername = parsed.loginUsername || 'najaf';
+          AppState.loginPassword = parsed.loginPassword || '313';
         } else {
           AppState.daysCount = 14;
           AppState.busCount = 8;
+          AppState.loginUsername = 'najaf';
+          AppState.loginPassword = '313';
         }
       } catch (e) {
         console.error(e);
@@ -3235,7 +3259,9 @@
       var s = {
         startDate: AppState.startDate,
         daysCount: AppState.daysCount,
-        busCount: AppState.busCount
+        busCount: AppState.busCount,
+        loginUsername: AppState.loginUsername,
+        loginPassword: AppState.loginPassword
       };
       localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(s));
     }
@@ -3249,7 +3275,7 @@
       var p = document.getElementById('login-password').value.trim();
       var errorBox = document.getElementById('login-error-box');
 
-      if (u === 'najaf' && p === '313') {
+      if (u === (AppState.loginUsername || 'najaf') && p === (AppState.loginPassword || '313')) {
         errorBox.style.display = 'none';
         AppState.isLoggedIn = true;
         AppState.startDate = DateUtils.formatYYYYMMDD(new Date());
@@ -4129,6 +4155,8 @@
         err.style.display = 'none';
         closeModal('settings-auth-modal');
         document.getElementById('settings-bus-count').value = String(AppState.busCount);
+        document.getElementById('settings-login-username').value = AppState.loginUsername || 'najaf';
+        document.getElementById('settings-login-password').value = AppState.loginPassword || '313';
         openModal('admin-settings-modal');
       } else {
         err.style.display = 'block';
@@ -4139,6 +4167,11 @@
 
     function saveAdminSettings() {
       var count = parseInt(document.getElementById('settings-bus-count').value, 10);
+      var newUser = document.getElementById('settings-login-username').value.trim();
+      var newPass = document.getElementById('settings-login-password').value.trim();
+
+      if (newUser) AppState.loginUsername = newUser;
+      if (newPass) AppState.loginPassword = newPass;
       AppState.busCount = count;
       saveSettingsToStorage();
       closeModal('admin-settings-modal');
