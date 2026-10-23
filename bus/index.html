@@ -2067,6 +2067,11 @@
 
         <!-- Actions -->
         <div class="header-actions">
+          <button type="button" id="cloud-sync-btn" class="btn-navy" onclick="manualCloudSync()" data-i18n-title="sync_btn_title" title="همگام‌سازی فوری بین تمام دستگاه‌ها" style="border-color: rgba(16, 185, 129, 0.55); background: rgba(16, 185, 129, 0.14);">
+            <i class="fa-solid fa-cloud-arrow-up" id="cloud-sync-icon" style="color: #10B981;"></i>
+            <span id="cloud-sync-text" data-i18n="sync_connected">متصل به ابر ✓</span>
+          </button>
+
           <button type="button" id="header-lang-btn" class="lang-switch-btn" onclick="toggleLanguage()" title="تغيير اللغة إلى العربية / تغییر زبان">
             <i class="fa-solid fa-earth-americas"></i>
             <span id="header-lang-btn-text">العربية</span>
@@ -2367,6 +2372,7 @@
               <select id="form-status" class="form-select" required onchange="if(this.value==='confirmed') playBookingConfirmSound();">
                 <option value="confirmed" data-i18n="status_confirmed">تأیید شده</option>
                 <option value="unregistered" data-i18n="status_unconfirmed">تأیید نشده</option>
+                <option value="new" data-i18n="status_new">ورود جدید</option>
               </select>
             </div>
           </div>
@@ -2381,7 +2387,7 @@
               <i class="fa-solid fa-building" style="color: var(--gold-primary);"></i>
               <span data-i18n="form_iraqi_company_label">شرکت عراقی معتبر</span> <span style="color:#F87171;">*</span>
             </label>
-            <input type="text" id="form-iraqi-company" class="form-input" data-i18n-placeholder="form_iraqi_company_ph" placeholder="نام شرکت عراقی واسط و معتبر..." required>
+            <input type="text" id="form-iraqi-company" class="form-input" data-i18n-placeholder="form_iraqi_company_ph" placeholder="نام شرکت عراقی واسط و معتبر...">
           </div>
 
           <div class="form-row">
@@ -2449,12 +2455,18 @@
       <div class="modal-body" id="view-booking-body">
         <!-- Rendered by JS -->
       </div>
-      <div class="modal-footer">
+      <div class="modal-footer" style="justify-content: space-between; flex-wrap: wrap;">
         <button type="button" class="btn-navy" onclick="closeModal('view-booking-modal')" data-i18n="btn_close">بستن</button>
-        <button type="button" class="btn-gold" id="btn-edit-from-view" style="display: none;" onclick="transitionViewToEdit()">
-          <i class="fa-solid fa-pen-to-square"></i>
-          <span data-i18n="btn_edit_booking">ویرایش این رزرو</span>
-        </button>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button type="button" class="btn-gold" id="btn-confirm-from-view" style="display: none; background: linear-gradient(135deg, #059669, #10B981); color: #ffffff; border-color: #34D399;" onclick="confirmViewingBookingNow()">
+            <i class="fa-solid fa-circle-check"></i>
+            <span data-i18n="btn_confirm_booking_now">تأیید فوری این رزرو ✓</span>
+          </button>
+          <button type="button" class="btn-gold" id="btn-edit-from-view" style="display: none;" onclick="transitionViewToEdit()">
+            <i class="fa-solid fa-pen-to-square"></i>
+            <span data-i18n="btn_edit_booking">ویرایش این رزرو</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -2732,7 +2744,15 @@
         toast_imported: function(n) { return 'اطلاعات رزروها با موفقیت وارد شد (' + n + ' رزرو)'; },
         err_invalid_backup: 'فایل انتخاب شده دارای فرمت معتبر رزروها نیست',
         err_read_backup: 'خطا در خواندن فایل نسخه پشتیبان',
-        toast_lang_switched: 'زبان سامانه به فارسی تغییر یافت'
+        toast_lang_switched: 'زبان سامانه به فارسی تغییر یافت',
+        sync_connected: 'متصل به ابر ✓',
+        sync_syncing: 'در حال همگام‌سازی...',
+        sync_error: 'تلاش مجدد اتصال...',
+        sync_btn_title: 'همگام‌سازی فوری بین تمام دستگاه‌ها (موبایل و کامپیوتر)',
+        toast_remote_updated: '🔄 جدول رزروها به صورت خودکار از دستگاه دیگر بروزرسانی شد',
+        toast_sync_ok: '☁️ اطلاعات رزروها با موفقیت بین تمام دستگاه‌ها همگام‌سازی شد',
+        btn_confirm_booking_now: 'تأیید فوری این رزرو ✓',
+        toast_booking_confirmed_now: '✅ رزرو با موفقیت تأیید شد و در تمام دستگاه‌ها ثبت گردید'
       },
       ar: {
         page_title: 'فندق مدينة العطاء - النجف الأشرف | جدول حجوزات الباصات',
@@ -2905,7 +2925,15 @@
         toast_imported: function(n) { return 'تم استيراد بيانات الحجوزات بنجاح (' + n + ' حجز)'; },
         err_invalid_backup: 'الملف المحدد لا يحتوي على صيغة حجوزات صالحة',
         err_read_backup: 'فشل قراءة ملف النسخة الاحتياطية',
-        toast_lang_switched: 'تم تغيير لغة المنظومة إلى العربية'
+        toast_lang_switched: 'تم تغيير لغة المنظومة إلى العربية',
+        sync_connected: 'متصل بالسحابة ✓',
+        sync_syncing: 'جاري المزامنة...',
+        sync_error: 'إعادة الاتصال...',
+        sync_btn_title: 'مزامنة فورية بين جميع الأجهزة (الهاتف والحاسوب)',
+        toast_remote_updated: '🔄 تم تحديث جدول الحجوزات تلقائياً من جهاز آخر',
+        toast_sync_ok: '☁️ تمت مزامنة الحجوزات بنجاح بين جميع الأجهزة',
+        btn_confirm_booking_now: 'تأكيد هذا الحجز الآن ✓',
+        toast_booking_confirmed_now: '✅ تم تأكيد الحجز بنجاح ومزامنته في جميع الأجهزة'
       }
     };
 
@@ -3042,7 +3070,7 @@
     };
 
     const CLOUD_SYNC_CONFIG = {
-      NTFY_BASE: 'https://ntfy.sh/madinat_alata_najaf_cloud_v3_313',
+      GOOGLE_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbw8oopbYE509F45UywoH8Ve3Cm4HuIn4xxAc3CQkdjxvollPX58mSktPX5XpPSz-6lq/exec',
       DEVICE_ID: 'dev_' + Math.random().toString(36).substring(2, 10) + '_' + Date.now()
     };
 
@@ -3061,6 +3089,8 @@
       bookings: [],
       deletedBookings: [],
       syncVersion: 0,
+      settingsRev: 0,
+      settingsUpdatedAt: 0,
       lastCloudMsgId: '',
       hasSyncedOnce: false,
       currentViewingBooking: null
@@ -3122,6 +3152,7 @@
       var btt = document.getElementById('back-to-top-btn');
       if (btt) btt.title = t('back_to_top');
 
+      updateSyncBadge(_currentSyncBadgeState || 'connected');
       applyAdminBarState();
       syncControlsInputs();
       if (AppState.isLoggedIn) {
@@ -3143,7 +3174,9 @@
           status: 'confirmed',
           subStatus: 'مؤكد',
           persianDate: JalaliCalendar.formatDateStr(DateUtils.parseYYYYMMDD(baseDateStr)),
-          notes: 'وفد قادم من مشهد المقدسة - 45 راكب - إقامة شاملة الإطعام'
+          notes: 'وفد قادم من مشهد المقدسة - 45 راكب - إقامة شاملة الإطعام',
+          rev: 0,
+          updatedAt: 0
         },
         {
           id: 'b_sample_2',
@@ -3154,7 +3187,9 @@
           status: 'new',
           subStatus: 'دخول جديد',
           persianDate: JalaliCalendar.formatDateStr(DateUtils.parseYYYYMMDD(baseDateStr)),
-          notes: 'تسجيل وصول بعد صلاة الظهر - تم تخصيص الطابق الثالث'
+          notes: 'تسجيل وصول بعد صلاة الظهر - تم تخصيص الطابق الثالث',
+          rev: 0,
+          updatedAt: 0
         },
         {
           id: 'b_sample_3',
@@ -3165,7 +3200,9 @@
           status: 'unregistered',
           subStatus: 'غير مؤكد',
           persianDate: JalaliCalendar.formatDateStr(DateUtils.parseYYYYMMDD(baseDateStr)),
-          notes: 'بانتظار وصول كشف الجوازات النهائي من منفذ الشلامجة'
+          notes: 'بانتظار وصول كشف الجوازات النهائي من منفذ الشلامجة',
+          rev: 0,
+          updatedAt: 0
         },
         {
           id: 'b_sample_4',
@@ -3176,7 +3213,9 @@
           status: 'confirmed',
           subStatus: 'مؤكد',
           persianDate: JalaliCalendar.formatDateStr(DateUtils.parseYYYYMMDD(DateUtils.addDays(baseDateStr, 2))),
-          notes: 'وفد تجاري وثقافي - حجوزات غرف مفردة وثنائية'
+          notes: 'وفد تجاري وثقافي - حجوزات غرف مفردة وثنائية',
+          rev: 0,
+          updatedAt: 0
         },
         {
           id: 'b_sample_5',
@@ -3187,7 +3226,9 @@
           status: 'confirmed',
           subStatus: 'مؤكد',
           persianDate: JalaliCalendar.formatDateStr(DateUtils.parseYYYYMMDD(baseDateStr)),
-          notes: 'إقامة 6 ليالٍ متتالية مع برنامج زيارة يومي'
+          notes: 'إقامة 6 ليالٍ متتالية مع برنامج زيارة يومي',
+          rev: 0,
+          updatedAt: 0
         },
         {
           id: 'b_sample_6',
@@ -3198,7 +3239,9 @@
           status: 'new',
           subStatus: 'دخول جديد',
           persianDate: JalaliCalendar.formatDateStr(DateUtils.parseYYYYMMDD(DateUtils.addDays(baseDateStr, 3))),
-          notes: 'حجز مسبق مع دفعة أولى مسلمة للاستقبال'
+          notes: 'حجز مسبق مع دفعة أولى مسلمة للاستقبال',
+          rev: 0,
+          updatedAt: 0
         },
         {
           id: 'b_sample_7',
@@ -3209,7 +3252,9 @@
           status: 'confirmed',
           subStatus: 'مؤكد',
           persianDate: JalaliCalendar.formatDateStr(DateUtils.parseYYYYMMDD(DateUtils.addDays(baseDateStr, -1))),
-          notes: 'وصلوا بالأمس - ليلة اليوم هي الليلة الثانية'
+          notes: 'وصلوا بالأمس - ليلة اليوم هي الليلة الثانية',
+          rev: 0,
+          updatedAt: 0
         },
         {
           id: 'b_sample_8',
@@ -3220,7 +3265,9 @@
           status: 'new',
           subStatus: 'مؤكد',
           persianDate: JalaliCalendar.formatDateStr(DateUtils.parseYYYYMMDD(baseDateStr)),
-          notes: 'تنسيق مع كراج النجف الدولي لاستقبال الحافلة'
+          notes: 'تنسيق مع كراج النجف الدولي لاستقبال الحافلة',
+          rev: 0,
+          updatedAt: 0
         },
         {
           id: 'b_sample_9',
@@ -3231,7 +3278,9 @@
           status: 'confirmed',
           subStatus: 'مؤكد',
           persianDate: JalaliCalendar.formatDateStr(DateUtils.parseYYYYMMDD(DateUtils.addDays(baseDateStr, 4))),
-          notes: 'حجز متتالي بعد مغادرة قافلة الفردوس'
+          notes: 'حجز متتالي بعد مغادرة قافلة الفردوس',
+          rev: 0,
+          updatedAt: 0
         },
         {
           id: 'b_sample_10',
@@ -3242,9 +3291,116 @@
           status: 'new',
           subStatus: 'دخول جديد',
           persianDate: JalaliCalendar.formatDateStr(DateUtils.parseYYYYMMDD(DateUtils.addDays(baseDateStr, 5))),
-          notes: 'تأكيد الحجز قبل 48 ساعة'
+          notes: 'تأكيد الحجز قبل 48 ساعة',
+          rev: 0,
+          updatedAt: 0
         }
       ];
+    }
+
+    const SAMPLE_DEFAULTS = {
+      'b_sample_1': { status: 'confirmed', nights: 4, company: 'شركة أنوار النجف للسياحة' },
+      'b_sample_2': { status: 'new', nights: 3, company: 'قافلة الفردوس المباركة' },
+      'b_sample_3': { status: 'unregistered', nights: 2, company: 'حملة شمس كربلاء' },
+      'b_sample_4': { status: 'confirmed', nights: 5, company: 'شركة نسيم طوس العالمية' },
+      'b_sample_5': { status: 'confirmed', nights: 6, company: 'مؤسسة الهدى والنور' },
+      'b_sample_6': { status: 'new', nights: 4, company: 'قافلة المختار الثقفي' },
+      'b_sample_7': { status: 'confirmed', nights: 4, company: 'شركة أنوار الإيمان' },
+      'b_sample_8': { status: 'new', nights: 3, company: 'شركة باب المراد للسياحة' },
+      'b_sample_9': { status: 'confirmed', nights: 4, company: 'قافلة سفينة النجاة' },
+      'b_sample_10': { status: 'new', nights: 4, company: 'شركة ضيوف الرحمن' }
+    };
+
+    function isUntouchedSampleBooking(b) {
+      if (!b) return false;
+      var id = String(b.id !== undefined ? b.id : (b.i || '')).trim();
+      var def = SAMPLE_DEFAULTS[id];
+      if (!def) return false;
+      var r = parseInt(b.rev !== undefined ? b.rev : b.r, 10);
+      var t = parseInt(b.updatedAt !== undefined ? b.updatedAt : b.t, 10);
+      if (!isNaN(r) && r > 0) return false;
+      if (!isNaN(t) && t > 0) return false;
+      var st = b.status || b.s || 'confirmed';
+      var comp = String(b.company !== undefined ? b.company : (b.c || '')).trim();
+      var n = parseInt(b.nights !== undefined ? b.nights : b.n, 10) || 1;
+      var irq = String(b.iraqiCompany !== undefined ? b.iraqiCompany : (b.q || '')).trim();
+      if (irq) return false;
+      return (st === def.status && comp === def.company && n === def.nights);
+    }
+
+    function normalizeBooking(b) {
+      if (!b) return null;
+      var id = String(b.id !== undefined ? b.id : (b.i || '')).trim();
+      if (!id) return null;
+      var busId = parseInt(b.busId !== undefined ? b.busId : b.b, 10) || 1;
+      var status = b.status || b.s || 'confirmed';
+      var company = String(b.company !== undefined ? b.company : (b.c || '')).trim();
+      var startDate = b.startDate || b.d || AppState.startDate;
+      var persianDate = b.persianDate !== undefined ? b.persianDate : (b.p || '');
+      var nights = parseInt(b.nights !== undefined ? b.nights : b.n, 10) || 1;
+      var iraqiCompany = b.iraqiCompany !== undefined ? b.iraqiCompany : (b.q || '');
+      var notes = b.notes !== undefined ? b.notes : (b.m || '');
+      var subStatus = b.subStatus !== undefined ? b.subStatus : (b.u || '');
+      if (subStatus === 'غير مسجل') subStatus = 'غير مؤكد';
+
+      var untouched = isUntouchedSampleBooking(b);
+      var rev = parseInt(b.rev !== undefined ? b.rev : b.r, 10);
+      var updatedAt = parseInt(b.updatedAt !== undefined ? b.updatedAt : b.t, 10);
+
+      if (isNaN(rev) || rev < 0) {
+        rev = untouched ? 0 : 1;
+      }
+      if (isNaN(updatedAt) || updatedAt < 0) {
+        if (untouched) {
+          updatedAt = 0;
+        } else if (id.indexOf('b_sample_') !== 0 && id.indexOf('b_') === 0) {
+          var parts = id.split('_');
+          var parsedTs = parseInt(parts[1], 10);
+          updatedAt = (!isNaN(parsedTs) && parsedTs > 1000000) ? parsedTs : 1000000;
+        } else {
+          updatedAt = 500000;
+        }
+      }
+
+      return {
+        id: id,
+        busId: busId,
+        status: status,
+        company: company,
+        startDate: startDate,
+        persianDate: persianDate,
+        nights: nights,
+        iraqiCompany: iraqiCompany,
+        notes: notes,
+        subStatus: subStatus,
+        rev: rev,
+        updatedAt: updatedAt
+      };
+    }
+
+    function normalizeDeletedItem(d) {
+      if (!d) return null;
+      if (typeof d === 'string') {
+        return { id: d, rev: 2, deletedAt: 1800000000000 };
+      }
+      var id = String(d.id !== undefined ? d.id : (d.i || '')).trim();
+      if (!id) return null;
+      var rev = parseInt(d.rev !== undefined ? d.rev : d.r, 10);
+      var deletedAt = parseInt(d.deletedAt !== undefined ? d.deletedAt : d.t, 10);
+      if (isNaN(rev) || rev <= 0) rev = 2;
+      if (isNaN(deletedAt) || deletedAt <= 0) deletedAt = 1800000000000;
+      var out = {
+        id: id,
+        rev: rev,
+        deletedAt: deletedAt
+      };
+      if (d.company || d.c) {
+        var nb = normalizeBooking(d);
+        if (nb) {
+          out = Object.assign({}, nb, { id: id, rev: rev, deletedAt: deletedAt });
+        }
+      }
+      return out;
     }
 
     /**
@@ -3272,11 +3428,15 @@
           AppState.busCount = parsed.busCount || 8;
           AppState.loginUsername = parsed.loginUsername || 'najaf';
           AppState.loginPassword = parsed.loginPassword || '313';
+          AppState.settingsRev = parsed.settingsRev || 0;
+          AppState.settingsUpdatedAt = parsed.settingsUpdatedAt || 0;
         } else {
           AppState.daysCount = 14;
           AppState.busCount = 8;
           AppState.loginUsername = 'najaf';
           AppState.loginPassword = '313';
+          AppState.settingsRev = 0;
+          AppState.settingsUpdatedAt = 0;
         }
       } catch (e) {
         console.error(e);
@@ -3297,11 +3457,8 @@
       try {
         var rawBookings = localStorage.getItem(STORAGE_KEYS.BOOKINGS);
         if (rawBookings) {
-          AppState.bookings = JSON.parse(rawBookings);
-          // Rename legacy label "غير مسجل" -> "غير مؤكد"
-          AppState.bookings.forEach(function(b) {
-            if (b.subStatus === 'غير ' + 'مسجل') b.subStatus = 'غير مؤكد';
-          });
+          var parsedBookings = JSON.parse(rawBookings);
+          AppState.bookings = Array.isArray(parsedBookings) ? parsedBookings.map(normalizeBooking).filter(Boolean) : [];
         } else {
           AppState.bookings = generateInitialSampleBookings(AppState.startDate);
           localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(AppState.bookings));
@@ -3313,7 +3470,8 @@
       // Deleted Bookings Archive (for Admin restore)
       try {
         var rawDeleted = localStorage.getItem(STORAGE_KEYS.DELETED_BOOKINGS);
-        AppState.deletedBookings = rawDeleted ? JSON.parse(rawDeleted) : [];
+        var parsedDel = rawDeleted ? JSON.parse(rawDeleted) : [];
+        AppState.deletedBookings = Array.isArray(parsedDel) ? parsedDel.map(normalizeDeletedItem).filter(Boolean) : [];
       } catch (e) {
         AppState.deletedBookings = [];
       }
@@ -3328,7 +3486,9 @@
           daysCount: AppState.daysCount,
           busCount: AppState.busCount,
           loginUsername: AppState.loginUsername,
-          loginPassword: AppState.loginPassword
+          loginPassword: AppState.loginPassword,
+          settingsRev: AppState.settingsRev || 0,
+          settingsUpdatedAt: AppState.settingsUpdatedAt || 0
         }));
         localStorage.setItem(STORAGE_KEYS.SYNC_META, JSON.stringify({
           syncVersion: AppState.syncVersion || 0,
@@ -3342,10 +3502,12 @@
     var _lastLocalPushTime = 0;
     function scheduleCloudPush() {
       _lastLocalPushTime = Date.now();
+      updateSyncBadge('syncing');
+      broadcastLocalChange();
       if (_cloudPushTimer) clearTimeout(_cloudPushTimer);
       _cloudPushTimer = setTimeout(function() {
         pushStateToCloud();
-      }, 60);
+      }, 50);
     }
 
     function saveBookingsToStorage() {
@@ -3359,22 +3521,116 @@
     }
 
     function saveSettingsToStorage() {
+      AppState.syncVersion = (AppState.syncVersion || 2) + 1;
+      AppState.settingsRev = AppState.syncVersion;
+      AppState.settingsUpdatedAt = Date.now();
       var s = {
         startDate: AppState.startDate,
         daysCount: AppState.daysCount,
         busCount: AppState.busCount,
         loginUsername: AppState.loginUsername,
-        loginPassword: AppState.loginPassword
+        loginPassword: AppState.loginPassword,
+        settingsRev: AppState.settingsRev,
+        settingsUpdatedAt: AppState.settingsUpdatedAt
       };
       localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(s));
       scheduleCloudPush();
     }
 
     /* ==========================================================================
-       C2. Real-Time Cloud Sync Engine (Phone <-> PC <-> Tablet)
+       C2. Real-Time Cloud Sync Engine (Google Sheets Cloud Database + CRDT Merge)
        ========================================================================== */
+    var _cachedRoomImagesBase = {
+      single: 'images/single_room.jpg',
+      double: 'images/real_room.jpg',
+      triple: 'images/triple_room.jpg',
+      quad: 'images/quad_room.jpg',
+      family: 'images/family_room_real.jpg'
+    };
+    var _isPushingToCloud = false;
+    var _pendingPushAgain = false;
+    var _isSyncingFromCloud = false;
+    var _currentSyncBadgeState = 'connected';
+    var _broadcastChannel = null;
+
+    function updateSyncBadge(state) {
+      _currentSyncBadgeState = state || 'connected';
+      var btn = document.getElementById('cloud-sync-btn');
+      var icon = document.getElementById('cloud-sync-icon');
+      var txt = document.getElementById('cloud-sync-text');
+      if (!btn || !icon || !txt) return;
+
+      if (state === 'syncing') {
+        btn.style.borderColor = 'rgba(245, 158, 11, 0.6)';
+        btn.style.background = 'rgba(245, 158, 11, 0.16)';
+        icon.className = 'fa-solid fa-arrows-rotate fa-spin';
+        icon.style.color = '#FBBF24';
+        txt.setAttribute('data-i18n', 'sync_syncing');
+        txt.textContent = t('sync_syncing');
+      } else if (state === 'error') {
+        btn.style.borderColor = 'rgba(239, 68, 68, 0.6)';
+        btn.style.background = 'rgba(239, 68, 68, 0.16)';
+        icon.className = 'fa-solid fa-cloud-bolt';
+        icon.style.color = '#F87171';
+        txt.setAttribute('data-i18n', 'sync_error');
+        txt.textContent = t('sync_error');
+      } else {
+        btn.style.borderColor = 'rgba(16, 185, 129, 0.55)';
+        btn.style.background = 'rgba(16, 185, 129, 0.14)';
+        icon.className = 'fa-solid fa-cloud-arrow-up';
+        icon.style.color = '#10B981';
+        txt.setAttribute('data-i18n', 'sync_connected');
+        txt.textContent = t('sync_connected');
+      }
+    }
+
+    function getLocalCfg() {
+      return {
+        dc: AppState.daysCount || 14,
+        bc: AppState.busCount || 8,
+        u: AppState.loginUsername || 'najaf',
+        p: AppState.loginPassword || '313',
+        r: AppState.settingsRev || 0,
+        t: AppState.settingsUpdatedAt || 0
+      };
+    }
+
+    function normalizeCfg(cfg) {
+      if (!cfg || typeof cfg !== 'object') return getLocalCfg();
+      return {
+        dc: parseInt(cfg.dc || cfg.daysCount, 10) || 14,
+        bc: parseInt(cfg.bc || cfg.busCount, 10) || 8,
+        u: cfg.u || cfg.loginUsername || 'najaf',
+        p: cfg.p || cfg.loginPassword || '313',
+        r: parseInt(cfg.r !== undefined ? cfg.r : cfg.settingsRev, 10) || 0,
+        t: parseInt(cfg.t !== undefined ? cfg.t : cfg.settingsUpdatedAt, 10) || 0
+      };
+    }
+
+    function computeCanonicalSignature(bookings, deleted, cfg) {
+      var bPart = (bookings || []).map(function(b) {
+        var n = normalizeBooking(b);
+        if (!n) return '';
+        var dateTag = (n.rev === 0 && n.updatedAt === 0) ? 'SAMPLE' : n.startDate;
+        return [n.id, n.busId, n.status, n.company, dateTag, n.nights, n.iraqiCompany, n.notes, n.subStatus, n.rev, n.updatedAt].join('|');
+      }).filter(Boolean).sort().join(';;');
+
+      var dPart = (deleted || []).map(function(d) {
+        var nd = normalizeDeletedItem(d);
+        if (!nd) return '';
+        return nd.id + ':' + nd.rev + ':' + nd.deletedAt;
+      }).filter(Boolean).sort().join(';;');
+
+      var nc = normalizeCfg(cfg);
+      var cPart = [nc.bc, nc.dc, nc.u, nc.p, nc.r, nc.t].join('|');
+
+      return bPart + '###' + dPart + '###' + cPart;
+    }
+
     function buildCloudPayload() {
-      var compactBookings = (AppState.bookings || []).map(function(b) {
+      var compactBookings = (AppState.bookings || []).map(function(rawB) {
+        var b = normalizeBooking(rawB);
+        if (!b) return null;
         var item = {
           i: b.id,
           b: b.busId,
@@ -3382,217 +3638,346 @@
           c: b.company,
           d: b.startDate,
           p: b.persianDate || '',
-          n: b.nights
+          n: b.nights,
+          r: b.rev || 0,
+          t: b.updatedAt || 0
         };
         if (b.iraqiCompany) item.q = b.iraqiCompany;
         if (b.notes) item.m = b.notes;
         if (b.subStatus) item.u = b.subStatus;
         return item;
-      });
-
-      var deletedIds = (AppState.deletedBookings || []).map(function(d) {
-        return (typeof d === 'string') ? d : (d && d.id ? d.id : '');
       }).filter(Boolean);
+
+      var compactDeleted = (AppState.deletedBookings || []).map(function(rawD) {
+        var d = normalizeDeletedItem(rawD);
+        if (!d) return null;
+        return {
+          i: d.id,
+          r: d.rev || 2,
+          t: d.deletedAt || 1800000000000
+        };
+      }).filter(Boolean).slice(-250);
 
       return {
         v: AppState.syncVersion || 1,
         dev: CLOUD_SYNC_CONFIG.DEVICE_ID,
-        cfg: {
-          dc: AppState.daysCount,
-          bc: AppState.busCount,
-          u: AppState.loginUsername || 'najaf',
-          p: AppState.loginPassword || '313'
-        },
+        cfg: getLocalCfg(),
         bk: compactBookings,
-        del: deletedIds
+        del: compactDeleted,
+        ts: Date.now()
       };
     }
 
-    function expandBookingsFromCloud(rawList) {
-      if (!Array.isArray(rawList)) return [];
-      return rawList.map(function(item) {
-        if (item.id && item.company !== undefined) {
-          return item;
-        }
-        return {
-          id: item.i,
-          busId: parseInt(item.b, 10) || 1,
-          status: item.s || 'confirmed',
-          company: item.c || '',
-          startDate: item.d || AppState.startDate,
-          persianDate: item.p || '',
-          nights: parseInt(item.n, 10) || 1,
-          iraqiCompany: item.q || '',
-          notes: item.m || '',
-          subStatus: item.u || ''
-        };
-      });
+    function fetchCloudPayload() {
+      var url = CLOUD_SYNC_CONFIG.GOOGLE_SCRIPT_URL + '?action=getSettings&_=' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+      return fetch(url, { cache: 'no-store' })
+        .then(function(r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function(json) {
+          if (!json || json.status !== 'success' || !Array.isArray(json.data)) {
+            throw new Error('Invalid settings payload');
+          }
+          var imgEntry = json.data.find(function(s) { return s && s.key === 'room_images'; });
+          if (imgEntry && imgEntry.value && typeof imgEntry.value === 'object') {
+            if (imgEntry.value.single) _cachedRoomImagesBase.single = imgEntry.value.single;
+            if (imgEntry.value.double) _cachedRoomImagesBase.double = imgEntry.value.double;
+            if (imgEntry.value.triple) _cachedRoomImagesBase.triple = imgEntry.value.triple;
+            if (imgEntry.value.quad) _cachedRoomImagesBase.quad = imgEntry.value.quad;
+            if (imgEntry.value.family) _cachedRoomImagesBase.family = imgEntry.value.family;
+            if (imgEntry.value.bus_sync_v1 && typeof imgEntry.value.bus_sync_v1 === 'object') {
+              return imgEntry.value.bus_sync_v1;
+            }
+          }
+          return null;
+        });
     }
 
-    function pushStateToCloud() {
-      _lastLocalPushTime = Date.now();
-      AppState.syncVersion = (AppState.syncVersion || 0) + 1;
-      AppState.hasSyncedOnce = true;
-      saveLocalStateOnly();
-
-      var payload = buildCloudPayload();
-      var jsonStr = JSON.stringify(payload);
-
-      fetch(CLOUD_SYNC_CONFIG.NTFY_BASE, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-        body: jsonStr
-      })
-      .then(function(r) { return r.ok ? r.json() : null; })
-      .then(function(res) {
-        if (res && res.id) {
-          AppState.lastCloudMsgId = res.id;
-          saveLocalStateOnly();
-        }
-      })
-      .catch(function() {});
-    }
-
-    function applyCloudPayload(remote, msgId, isInitialSync) {
-      if (!remote || typeof remote !== 'object') return false;
-      var remoteDev = remote.dev || remote.deviceId;
-      if (!isInitialSync && remoteDev === CLOUD_SYNC_CONFIG.DEVICE_ID) {
-        if (msgId) {
-          AppState.lastCloudMsgId = msgId;
-          saveLocalStateOnly();
-        }
-        return false;
+    function mergeWithCloudPayload(remote, isBackgroundPoll) {
+      if (!remote || typeof remote !== 'object') {
+        return { changedLocal: false, needsPush: true };
       }
 
-      // Avoid overwriting a local save that just happened within the last 1.5 seconds
-      if (!isInitialSync && (Date.now() - _lastLocalPushTime < 1500)) {
-        return false;
+      var rawRemoteBookings = remote.bk || remote.bookings;
+      if (!Array.isArray(rawRemoteBookings)) {
+        return { changedLocal: false, needsPush: true };
       }
 
-      if (msgId && msgId === AppState.lastCloudMsgId && AppState.hasSyncedOnce) {
-        return false;
-      }
+      var remoteBookings = rawRemoteBookings.map(normalizeBooking).filter(Boolean);
+      var remoteDeleted = (remote.del || remote.deletedBookings || []).map(normalizeDeletedItem).filter(Boolean);
+      var remoteCfg = normalizeCfg(remote.cfg || remote.settings);
 
-      var rawBookings = remote.bk || remote.bookings;
-      if (!Array.isArray(rawBookings)) return false;
+      var localBookings = (AppState.bookings || []).map(normalizeBooking).filter(Boolean);
+      var localDeleted = (AppState.deletedBookings || []).map(normalizeDeletedItem).filter(Boolean);
+      var localCfg = getLocalCfg();
 
-      var expandedBookings = expandBookingsFromCloud(rawBookings);
-      var remoteDelList = remote.del || remote.deletedBookings || [];
-      var remoteDeletedIds = {};
-      remoteDelList.forEach(function(d) {
-        var id = (typeof d === 'string') ? d : (d && d.id ? d.id : '');
-        if (id) remoteDeletedIds[id] = true;
+      var prevLocalSig = computeCanonicalSignature(localBookings, localDeleted, localCfg);
+      var remoteSig = computeCanonicalSignature(remoteBookings, remoteDeleted, remoteCfg);
+
+      var prevStatusMap = {};
+      localBookings.forEach(function(b) {
+        prevStatusMap[b.id] = b.status;
       });
 
-      // On first-ever sync for this browser, merge any local custom bookings not yet in the cloud
-      var localCustomToMerge = [];
-      if (!AppState.hasSyncedOnce && Array.isArray(AppState.bookings)) {
-        var remoteIds = {};
-        expandedBookings.forEach(function(b) { if (b && b.id) remoteIds[b.id] = true; });
-        AppState.bookings.forEach(function(b) {
-          if (b && b.id && String(b.id).indexOf('b_sample_') !== 0 && !remoteIds[b.id] && !remoteDeletedIds[b.id]) {
-            localCustomToMerge.push(b);
+      // 1. Merge Deleted Tombstones
+      var delMap = {};
+      remoteDeleted.forEach(function(d) {
+        delMap[d.id] = d;
+      });
+      localDeleted.forEach(function(d) {
+        if (!delMap[d.id]) {
+          delMap[d.id] = d;
+        } else {
+          var remD = delMap[d.id];
+          var localWins = (d.rev > remD.rev) || (d.rev === remD.rev && d.deletedAt > remD.deletedAt);
+          var winner = localWins ? d : remD;
+          delMap[d.id] = Object.assign({}, d.company ? d : {}, remD.company ? remD : {}, winner);
+        }
+      });
+
+      // 2. Merge Active Bookings
+      var bkMap = {};
+      remoteBookings.forEach(function(b) {
+        bkMap[b.id] = b;
+      });
+      localBookings.forEach(function(b) {
+        if (!bkMap[b.id]) {
+          bkMap[b.id] = b;
+        } else {
+          var remB = bkMap[b.id];
+          var localWins = (b.rev > remB.rev) || (b.rev === remB.rev && b.updatedAt > remB.updatedAt);
+          bkMap[b.id] = localWins ? b : remB;
+        }
+      });
+
+      // 3. Resolve Active Bookings vs Tombstones
+      Object.keys(bkMap).forEach(function(id) {
+        if (delMap[id]) {
+          var bk = bkMap[id];
+          var dl = delMap[id];
+          var isDeletedNewer = (dl.rev > bk.rev) || (dl.rev === bk.rev && dl.deletedAt >= bk.updatedAt);
+          if (isDeletedNewer) {
+            delMap[id] = Object.assign({}, bk, { id: id, rev: dl.rev, deletedAt: dl.deletedAt });
+            delete bkMap[id];
+          } else {
+            delete delMap[id];
+          }
+        }
+      });
+
+      var mergedBookings = Object.keys(bkMap).sort().map(function(id) { return bkMap[id]; });
+      var mergedDeleted = Object.keys(delMap).sort().map(function(id) { return delMap[id]; });
+
+      // 4. Merge Settings
+      var localCfgWins = (localCfg.r > remoteCfg.r) || (localCfg.r === remoteCfg.r && localCfg.t > remoteCfg.t);
+      var mergedCfg = localCfgWins ? localCfg : remoteCfg;
+
+      var mergedSig = computeCanonicalSignature(mergedBookings, mergedDeleted, mergedCfg);
+      var changedLocal = (mergedSig !== prevLocalSig);
+      var needsPush = (mergedSig !== remoteSig);
+
+      // Detect if a booking was newly added or newly confirmed from another device
+      var hasNewOrConfirmedRemote = false;
+      if (changedLocal && isBackgroundPoll) {
+        mergedBookings.forEach(function(b) {
+          if (!prevStatusMap[b.id]) {
+            hasNewOrConfirmedRemote = true;
+          } else if (prevStatusMap[b.id] !== 'confirmed' && b.status === 'confirmed') {
+            hasNewOrConfirmedRemote = true;
           }
         });
       }
 
-      AppState.bookings = expandedBookings;
-      AppState.deletedBookings = Object.keys(remoteDeletedIds).map(function(id) { return { id: id }; });
+      // Apply merged state to AppState
+      AppState.bookings = mergedBookings;
+      AppState.deletedBookings = mergedDeleted;
+      AppState.busCount = mergedCfg.bc || 8;
+      AppState.daysCount = mergedCfg.dc || 14;
+      AppState.loginUsername = mergedCfg.u || 'najaf';
+      AppState.loginPassword = mergedCfg.p || '313';
+      AppState.settingsRev = mergedCfg.r || 0;
+      AppState.settingsUpdatedAt = mergedCfg.t || 0;
 
-      var cfg = remote.cfg || remote.settings;
-      if (cfg) {
-        var bc = cfg.bc || cfg.busCount;
-        var dc = cfg.dc || cfg.daysCount;
-        var usr = cfg.u || cfg.loginUsername;
-        var pwd = cfg.p || cfg.loginPassword;
-        if (bc) AppState.busCount = parseInt(bc, 10) || 8;
-        if (dc) AppState.daysCount = parseInt(dc, 10) || 14;
-        if (usr) AppState.loginUsername = usr;
-        if (pwd) AppState.loginPassword = pwd;
-      }
-
-      var remoteVer = parseInt(remote.v || remote.syncVersion, 10) || 1;
-      AppState.syncVersion = Math.max(AppState.syncVersion || 0, remoteVer);
-      if (msgId) AppState.lastCloudMsgId = msgId;
+      var maxRev = parseInt(remote.v || remote.syncVersion, 10) || 1;
+      mergedBookings.forEach(function(b) { if (b.rev > maxRev) maxRev = b.rev; });
+      mergedDeleted.forEach(function(d) { if (d.rev > maxRev) maxRev = d.rev; });
+      if (mergedCfg.r > maxRev) maxRev = mergedCfg.r;
+      AppState.syncVersion = Math.max(AppState.syncVersion || 0, maxRev);
       AppState.hasSyncedOnce = true;
 
-      if (localCustomToMerge.length > 0) {
-        localCustomToMerge.forEach(function(b) { AppState.bookings.push(b); });
-        saveLocalStateOnly();
-        scheduleCloudPush();
-      } else {
-        saveLocalStateOnly();
+      saveLocalStateOnly();
+
+      if (changedLocal) {
+        syncControlsInputs();
+        if (AppState.isLoggedIn) {
+          renderTable();
+          if (isBackgroundPoll) {
+            if (hasNewOrConfirmedRemote) {
+              playBookingConfirmSound();
+            }
+            showToast(t('toast_remote_updated'), 'info');
+          }
+        }
       }
 
-      syncControlsInputs();
-      if (AppState.isLoggedIn) {
-        renderTable();
-      }
-      return true;
+      return { changedLocal: changedLocal, needsPush: needsPush };
     }
 
-    function syncFromCloudNow() {
-      fetch(CLOUD_SYNC_CONFIG.NTFY_BASE + '/json?poll=1&since=all&t=' + Date.now(), { cache: 'no-store' })
-        .then(function(r) { return r.ok ? r.text() : ''; })
-        .then(function(text) {
-          if (!text || !text.trim()) return;
-          var lines = text.trim().split('\n');
-          var latestPayload = null;
-          var latestMsgId = '';
-          for (var i = 0; i < lines.length; i++) {
-            try {
-              var evt = JSON.parse(lines[i]);
-              if (evt && evt.event === 'message' && evt.message) {
-                var parsed = JSON.parse(evt.message);
-                if (parsed && (Array.isArray(parsed.bk) || Array.isArray(parsed.bookings))) {
-                  latestPayload = parsed;
-                  latestMsgId = evt.id || '';
-                }
-              }
-            } catch (e) {}
-          }
-          if (latestPayload) {
-            applyCloudPayload(latestPayload, latestMsgId, true);
+    function pushStateToCloud() {
+      if (_isPushingToCloud) {
+        _pendingPushAgain = true;
+        return Promise.resolve();
+      }
+      _isPushingToCloud = true;
+      _lastLocalPushTime = Date.now();
+      AppState.syncVersion = (AppState.syncVersion || 0) + 1;
+      AppState.hasSyncedOnce = true;
+      saveLocalStateOnly();
+      updateSyncBadge('syncing');
+
+      return fetchCloudPayload()
+        .then(function(remote) {
+          if (remote) {
+            mergeWithCloudPayload(remote, false);
           }
         })
-        .catch(function() {});
+        .catch(function() {})
+        .then(function() {
+          var payload = buildCloudPayload();
+          var imagesPayload = Object.assign({}, _cachedRoomImagesBase, {
+            bus_sync_v1: payload
+          });
+          return fetch(CLOUD_SYNC_CONFIG.GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'cors',
+            body: JSON.stringify({
+              action: 'saveImages',
+              images: imagesPayload
+            })
+          });
+        })
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .then(function(res) {
+          if (res && res.status === 'success') {
+            updateSyncBadge('connected');
+            broadcastLocalChange();
+          } else {
+            updateSyncBadge('error');
+          }
+        })
+        .catch(function() {
+          updateSyncBadge('error');
+        })
+        .finally(function() {
+          _isPushingToCloud = false;
+          if (_pendingPushAgain) {
+            _pendingPushAgain = false;
+            pushStateToCloud();
+          }
+        });
     }
 
-    var _ntfyEventSource = null;
-    function initCloudSync() {
-      // 1. Initial pull on startup
-      syncFromCloudNow();
+    function syncFromCloudNow(isManual) {
+      if (_isPushingToCloud || _isSyncingFromCloud) return Promise.resolve();
+      _isSyncingFromCloud = true;
+      if (isManual) updateSyncBadge('syncing');
 
-      // 2. Live Server-Sent Events stream for instant updates across Phone & PC
-      if (window.EventSource) {
-        try {
-          _ntfyEventSource = new EventSource(CLOUD_SYNC_CONFIG.NTFY_BASE + '/sse');
-          _ntfyEventSource.onmessage = function(e) {
-            try {
-              var wrapper = JSON.parse(e.data);
-              if (wrapper && wrapper.event === 'message' && wrapper.message) {
-                var remote = JSON.parse(wrapper.message);
-                applyCloudPayload(remote, wrapper.id || '', false);
-              }
-            } catch (err) {}
-          };
-        } catch (e) {}
-      }
+      return fetchCloudPayload()
+        .then(function(remote) {
+          if (!remote) {
+            _isSyncingFromCloud = false;
+            return pushStateToCloud();
+          }
+          var res = mergeWithCloudPayload(remote, !isManual);
+          updateSyncBadge('connected');
+          _isSyncingFromCloud = false;
+          if (res.needsPush) {
+            return pushStateToCloud();
+          }
+        })
+        .catch(function() {
+          _isSyncingFromCloud = false;
+          updateSyncBadge('error');
+        });
+    }
 
-      // 3. Re-sync when user switches back to tab/app or unlocks phone
-      window.addEventListener('focus', function() {
-        syncFromCloudNow();
+    function manualCloudSync() {
+      updateSyncBadge('syncing');
+      pushStateToCloud().then(function() {
+        if (AppState.isLoggedIn) {
+          renderTable();
+          showToast(t('toast_sync_ok'), 'success');
+        }
       });
-      document.addEventListener('visibilitychange', function() {
-        if (document.visibilityState === 'visible') {
-          syncFromCloudNow();
+    }
+
+    function broadcastLocalChange() {
+      try {
+        if (_broadcastChannel) {
+          _broadcastChannel.postMessage({ type: 'BUS_SYNC', ts: Date.now() });
+        }
+      } catch (e) {}
+    }
+
+    function reloadFromLocalStorageEvent() {
+      try {
+        var rawBookings = localStorage.getItem(STORAGE_KEYS.BOOKINGS);
+        if (rawBookings) {
+          var parsed = JSON.parse(rawBookings);
+          if (Array.isArray(parsed)) {
+            AppState.bookings = parsed.map(normalizeBooking).filter(Boolean);
+          }
+        }
+        var rawDeleted = localStorage.getItem(STORAGE_KEYS.DELETED_BOOKINGS);
+        if (rawDeleted) {
+          var parsedDel = JSON.parse(rawDeleted);
+          if (Array.isArray(parsedDel)) {
+            AppState.deletedBookings = parsedDel.map(normalizeDeletedItem).filter(Boolean);
+          }
+        }
+        if (AppState.isLoggedIn) {
+          renderTable();
+        }
+      } catch (e) {}
+    }
+
+    function initCloudSync() {
+      // 1. Same-device cross-tab instant sync
+      try {
+        if (window.BroadcastChannel) {
+          _broadcastChannel = new BroadcastChannel('madinat_alata_bus_sync_channel');
+          _broadcastChannel.onmessage = function() {
+            reloadFromLocalStorageEvent();
+          };
+        }
+      } catch (e) {}
+
+      window.addEventListener('storage', function(e) {
+        if (e.key === STORAGE_KEYS.BOOKINGS || e.key === STORAGE_KEYS.DELETED_BOOKINGS || e.key === STORAGE_KEYS.SETTINGS) {
+          reloadFromLocalStorageEvent();
         }
       });
 
-      // 4. Periodic fallback sync every 3 seconds
+      // 2. Initial cloud pull & merge on startup
+      syncFromCloudNow(false);
+
+      // 3. Re-sync immediately when user switches back to tab/app or unlocks phone
+      window.addEventListener('focus', function() {
+        syncFromCloudNow(false);
+      });
+      document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+          syncFromCloudNow(false);
+        }
+      });
+
+      // 4. Periodic real-time cloud sync every 3.5 seconds
       setInterval(function() {
-        syncFromCloudNow();
-      }, 3000);
+        if (document.visibilityState !== 'hidden') {
+          syncFromCloudNow(false);
+        }
+      }, 3500);
     }
 
     /* ==========================================================================
@@ -3600,23 +3985,27 @@
        ========================================================================== */
     function handleLoginSubmit(e) {
       e.preventDefault();
-      var u = document.getElementById('login-username').value.trim();
-      var p = document.getElementById('login-password').value.trim();
+      var uInput = document.getElementById('login-username');
+      var pInput = document.getElementById('login-password');
+      var u = uInput.value.trim();
+      var p = pInput.value.trim();
       var errorBox = document.getElementById('login-error-box');
 
       if (u === (AppState.loginUsername || 'najaf') && p === (AppState.loginPassword || '313')) {
         errorBox.style.display = 'none';
+        if (uInput && uInput.blur) uInput.blur();
+        if (pInput && pInput.blur) pInput.blur();
         AppState.isLoggedIn = true;
         AppState.startDate = DateUtils.formatYYYYMMDD(new Date());
-        document.getElementById('login-username').value = '';
-        document.getElementById('login-password').value = '';
+        uInput.value = '';
+        pInput.value = '';
         applyAuthView();
-        syncFromCloudNow();
+        syncFromCloudNow(false);
         showToast(t('toast_welcome'), 'success');
       } else {
         errorBox.style.display = 'block';
-        document.getElementById('login-password').value = '';
-        document.getElementById('login-password').focus();
+        pInput.value = '';
+        pInput.focus();
       }
     }
 
@@ -3673,13 +4062,24 @@
       showToast(t('toast_admin_off'), 'info');
     }
 
+    function setViewportContent(contentStr) {
+      var oldMeta = document.getElementById('viewport-meta');
+      if (oldMeta && oldMeta.parentNode) {
+        oldMeta.parentNode.removeChild(oldMeta);
+      }
+      var newMeta = document.createElement('meta');
+      newMeta.name = 'viewport';
+      newMeta.id = 'viewport-meta';
+      newMeta.content = contentStr;
+      document.head.appendChild(newMeta);
+    }
+
     function applyAuthView() {
       var loginPage = document.getElementById('login-page');
       var app = document.getElementById('app');
-      var vpMeta = document.getElementById('viewport-meta');
 
       if (AppState.isLoggedIn) {
-        if (vpMeta) vpMeta.setAttribute('content', 'width=1580');
+        setViewportContent('width=1580, user-scalable=yes');
         document.body.classList.add('pc-layout-active');
         loginPage.style.display = 'none';
         app.style.display = 'flex';
@@ -3689,8 +4089,11 @@
         syncControlsInputs();
         renderTable();
         renderStats();
+        setTimeout(function() {
+          window.scrollTo(0, 0);
+        }, 50);
       } else {
-        if (vpMeta) vpMeta.setAttribute('content', 'width=device-width, initial-scale=1.0');
+        setViewportContent('width=device-width, initial-scale=1.0');
         document.body.classList.remove('pc-layout-active');
         loginPage.style.display = 'flex';
         app.style.display = 'none';
@@ -4150,7 +4553,7 @@
         document.getElementById('form-company').focus();
         return;
       }
-      if (!iraqiCompany) {
+      if (!id && !iraqiCompany) {
         showToast(t('err_enter_iraqi_company'), 'error');
         document.getElementById('form-iraqi-company').focus();
         return;
@@ -4181,6 +4584,10 @@
       }
       // ─────────────────────────────────────────────────────────────────────
 
+      AppState.syncVersion = (AppState.syncVersion || 2) + 1;
+      var nowRev = AppState.syncVersion;
+      var nowTs = Date.now();
+
       if (id) {
         var idx = AppState.bookings.findIndex(function(b) { return b.id === id; });
         if (idx !== -1) {
@@ -4194,12 +4601,14 @@
             nights: nights,
             subStatus: subStatus,
             notes: notes,
-            iraqiCompany: iraqiCompany
+            iraqiCompany: iraqiCompany,
+            rev: nowRev,
+            updatedAt: nowTs
           };
           showToast(t('toast_booking_updated'), 'success');
         }
       } else {
-        var newId = 'b_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+        var newId = 'b_' + nowTs + '_' + Math.floor(Math.random() * 1000);
         AppState.bookings.push({
           id: newId,
           busId: busId,
@@ -4210,7 +4619,9 @@
           nights: nights,
           subStatus: subStatus,
           notes: notes,
-          iraqiCompany: iraqiCompany
+          iraqiCompany: iraqiCompany,
+          rev: nowRev,
+          updatedAt: nowTs
         });
         showToast(t('toast_booking_added'), 'success');
       }
@@ -4364,12 +4775,22 @@
       if (!id) return;
 
       if (confirm(t('confirm_delete_booking'))) {
+        AppState.syncVersion = (AppState.syncVersion || 2) + 1;
+        var delRev = AppState.syncVersion;
+        var delTs = Date.now();
         var toDelete = AppState.bookings.find(function(b) { return b.id === id; });
-        if (toDelete) {
-          AppState.deletedBookings.push(toDelete);
-          saveDeletedBookingsToStorage();
-        }
+        var delRecord = Object.assign({}, toDelete || {}, {
+          id: id,
+          rev: delRev,
+          deletedAt: delTs
+        });
+        AppState.deletedBookings = AppState.deletedBookings.filter(function(d) {
+          var dId = (typeof d === 'string') ? d : (d && d.id ? d.id : '');
+          return dId !== id;
+        });
+        AppState.deletedBookings.push(delRecord);
         AppState.bookings = AppState.bookings.filter(function(b) { return b.id !== id; });
+        saveDeletedBookingsToStorage();
         saveBookingsToStorage();
         closeModal('booking-modal');
         renderTable();
@@ -4417,10 +4838,34 @@
 
       document.getElementById('view-booking-body').innerHTML = html;
 
+      var confirmBtn = document.getElementById('btn-confirm-from-view');
+      if (confirmBtn) {
+        confirmBtn.style.display = (booking.status !== 'confirmed') ? 'inline-flex' : 'none';
+      }
+
       var editBtn = document.getElementById('btn-edit-from-view');
       editBtn.style.display = 'inline-flex';
 
       openModal('view-booking-modal');
+    }
+
+    function confirmViewingBookingNow() {
+      if (!AppState.currentViewingBooking) return;
+      var id = AppState.currentViewingBooking.id;
+      var idx = AppState.bookings.findIndex(function(b) { return b.id === id; });
+      if (idx === -1) return;
+
+      AppState.syncVersion = (AppState.syncVersion || 2) + 1;
+      AppState.bookings[idx].status = 'confirmed';
+      AppState.bookings[idx].subStatus = 'مؤكد';
+      AppState.bookings[idx].rev = AppState.syncVersion;
+      AppState.bookings[idx].updatedAt = Date.now();
+
+      saveBookingsToStorage();
+      playBookingConfirmSound();
+      closeModal('view-booking-modal');
+      renderTable();
+      showToast(t('toast_booking_confirmed_now'), 'success');
     }
 
     function transitionViewToEdit() {
@@ -4524,10 +4969,19 @@
         return;
       }
       if (confirm(t('confirm_reset_sample'))) {
+        AppState.syncVersion = (AppState.syncVersion || 2) + 1;
+        var restRev = AppState.syncVersion;
+        var restTs = Date.now();
         AppState.deletedBookings.forEach(function(delBooking) {
+          if (!delBooking || !delBooking.company) return;
           var exists = AppState.bookings.some(function(b) { return b.id === delBooking.id; });
           if (!exists) {
-            AppState.bookings.push(delBooking);
+            var restored = normalizeBooking(delBooking);
+            if (restored) {
+              restored.rev = restRev;
+              restored.updatedAt = restTs;
+              AppState.bookings.push(restored);
+            }
           }
         });
         AppState.deletedBookings = [];
@@ -4545,14 +4999,31 @@
         return;
       }
       if (confirm(t('confirm_clear_all'))) {
+        AppState.syncVersion = (AppState.syncVersion || 2) + 1;
+        var clrRev = AppState.syncVersion;
+        var clrTs = Date.now();
         if (AppState.bookings && AppState.bookings.length > 0) {
           AppState.bookings.forEach(function(b) {
-            var exists = AppState.deletedBookings.some(function(d) { return d.id === b.id; });
-            if (!exists) AppState.deletedBookings.push(b);
+            AppState.deletedBookings = AppState.deletedBookings.filter(function(d) {
+              var dId = (typeof d === 'string') ? d : (d && d.id ? d.id : '');
+              return dId !== b.id;
+            });
+            AppState.deletedBookings.push(Object.assign({}, b, {
+              id: b.id,
+              rev: clrRev,
+              deletedAt: clrTs
+            }));
           });
-          saveDeletedBookingsToStorage();
         }
+        // Also ensure all default sample IDs are marked deleted
+        Object.keys(SAMPLE_DEFAULTS).forEach(function(sId) {
+          var alreadyDel = AppState.deletedBookings.some(function(d) { return d && d.id === sId; });
+          if (!alreadyDel) {
+            AppState.deletedBookings.push({ id: sId, rev: clrRev, deletedAt: clrTs });
+          }
+        });
         AppState.bookings = [];
+        saveDeletedBookingsToStorage();
         saveBookingsToStorage();
         closeModal('admin-settings-modal');
         renderTable();
@@ -4592,7 +5063,17 @@
         try {
           var imported = JSON.parse(event.target.result);
           if (imported && Array.isArray(imported.bookings)) {
-            AppState.bookings = imported.bookings;
+            AppState.syncVersion = (AppState.syncVersion || 2) + 1;
+            var impRev = AppState.syncVersion;
+            var impTs = Date.now();
+            AppState.bookings = imported.bookings.map(function(b) {
+              var nb = normalizeBooking(b);
+              if (nb) {
+                nb.rev = impRev;
+                nb.updatedAt = impTs;
+              }
+              return nb;
+            }).filter(Boolean);
             if (imported.settings) {
               if (imported.settings.busCount) AppState.busCount = imported.settings.busCount;
               if (imported.settings.daysCount) AppState.daysCount = imported.settings.daysCount;
