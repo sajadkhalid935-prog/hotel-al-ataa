@@ -3042,8 +3042,7 @@
     };
 
     const CLOUD_SYNC_CONFIG = {
-      NTFY_BASE: 'https://ntfy.sh/madinat_alata_najaf_live_sync_313_v2',
-      REST_OBJ_URL: 'https://api.restful-api.dev/objects/ff808181a09d98f701a165fb78a46038',
+      NTFY_BASE: 'https://ntfy.sh/madinat_alata_najaf_cloud_v3_313',
       DEVICE_ID: 'dev_' + Math.random().toString(36).substring(2, 10) + '_' + Date.now()
     };
 
@@ -3062,7 +3061,7 @@
       bookings: [],
       deletedBookings: [],
       syncVersion: 0,
-      clearedAtVersion: 0,
+      lastCloudMsgId: '',
       hasSyncedOnce: false,
       currentViewingBooking: null
     };
@@ -3289,7 +3288,7 @@
         if (rawMeta) {
           var meta = JSON.parse(rawMeta);
           AppState.syncVersion = meta.syncVersion || 0;
-          AppState.clearedAtVersion = meta.clearedAtVersion || 0;
+          AppState.lastCloudMsgId = meta.lastCloudMsgId || '';
           AppState.hasSyncedOnce = !!meta.hasSyncedOnce;
         }
       } catch (e) {}
@@ -3333,18 +3332,20 @@
         }));
         localStorage.setItem(STORAGE_KEYS.SYNC_META, JSON.stringify({
           syncVersion: AppState.syncVersion || 0,
-          clearedAtVersion: AppState.clearedAtVersion || 0,
+          lastCloudMsgId: AppState.lastCloudMsgId || '',
           hasSyncedOnce: !!AppState.hasSyncedOnce
         }));
       } catch (e) {}
     }
 
     var _cloudPushTimer = null;
+    var _lastLocalPushTime = 0;
     function scheduleCloudPush() {
+      _lastLocalPushTime = Date.now();
       if (_cloudPushTimer) clearTimeout(_cloudPushTimer);
       _cloudPushTimer = setTimeout(function() {
         pushStateToCloud();
-      }, 80);
+      }, 60);
     }
 
     function saveBookingsToStorage() {
@@ -3373,237 +3374,188 @@
        C2. Real-Time Cloud Sync Engine (Phone <-> PC <-> Tablet)
        ========================================================================== */
     function buildCloudPayload() {
+      var compactBookings = (AppState.bookings || []).map(function(b) {
+        var item = {
+          i: b.id,
+          b: b.busId,
+          s: b.status,
+          c: b.company,
+          d: b.startDate,
+          p: b.persianDate || '',
+          n: b.nights
+        };
+        if (b.iraqiCompany) item.q = b.iraqiCompany;
+        if (b.notes) item.m = b.notes;
+        if (b.subStatus) item.u = b.subStatus;
+        return item;
+      });
+
+      var deletedIds = (AppState.deletedBookings || []).map(function(d) {
+        return (typeof d === 'string') ? d : (d && d.id ? d.id : '');
+      }).filter(Boolean);
+
       return {
-        syncVersion: AppState.syncVersion || 1,
-        clearedAtVersion: AppState.clearedAtVersion || 0,
-        deviceId: CLOUD_SYNC_CONFIG.DEVICE_ID,
-        settings: {
-          daysCount: AppState.daysCount,
-          busCount: AppState.busCount,
-          loginUsername: AppState.loginUsername || 'najaf',
-          loginPassword: AppState.loginPassword || '313'
+        v: AppState.syncVersion || 1,
+        dev: CLOUD_SYNC_CONFIG.DEVICE_ID,
+        cfg: {
+          dc: AppState.daysCount,
+          bc: AppState.busCount,
+          u: AppState.loginUsername || 'najaf',
+          p: AppState.loginPassword || '313'
         },
-        bookings: AppState.bookings || [],
-        deletedBookings: AppState.deletedBookings || []
+        bk: compactBookings,
+        del: deletedIds
       };
     }
 
-    function getUtf8ByteLength(str) {
-      try {
-        return new Blob([str]).size;
-      } catch (e) {
-        return str.length * 2;
-      }
-    }
-
-    function hasLocalCustomChanges() {
-      if (Array.isArray(AppState.deletedBookings) && AppState.deletedBookings.length > 0) return true;
-      if (Array.isArray(AppState.bookings)) {
-        for (var i = 0; i < AppState.bookings.length; i++) {
-          var b = AppState.bookings[i];
-          if (b && b.id && String(b.id).indexOf('b_sample_') !== 0) {
-            return true;
-          }
+    function expandBookingsFromCloud(rawList) {
+      if (!Array.isArray(rawList)) return [];
+      return rawList.map(function(item) {
+        if (item.id && item.company !== undefined) {
+          return item;
         }
-      }
-      return false;
+        return {
+          id: item.i,
+          busId: parseInt(item.b, 10) || 1,
+          status: item.s || 'confirmed',
+          company: item.c || '',
+          startDate: item.d || AppState.startDate,
+          persianDate: item.p || '',
+          nights: parseInt(item.n, 10) || 1,
+          iraqiCompany: item.q || '',
+          notes: item.m || '',
+          subStatus: item.u || ''
+        };
+      });
     }
 
     function pushStateToCloud() {
+      _lastLocalPushTime = Date.now();
       AppState.syncVersion = (AppState.syncVersion || 0) + 1;
       AppState.hasSyncedOnce = true;
       saveLocalStateOnly();
 
       var payload = buildCloudPayload();
       var jsonStr = JSON.stringify(payload);
-      var utf8Bytes = getUtf8ByteLength(jsonStr);
-
-      // 1. Push to persistent REST Cloud Object
-      fetch(CLOUD_SYNC_CONFIG.REST_OBJ_URL, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json; charset=utf-8' },
-        body: JSON.stringify({
-          name: 'madinat_alata_bus_db',
-          data: payload
-        })
-      }).catch(function() {});
-
-      // 2. Push to real-time ntfy stream (instant SSE broadcast + cached history)
-      // Check actual UTF-8 byte length so ntfy never converts >4096 byte Arabic/Persian JSON into an attachment
-      var ntfyBody = (utf8Bytes <= 3500)
-        ? jsonStr
-        : JSON.stringify({
-            syncVersion: payload.syncVersion,
-            deviceId: payload.deviceId,
-            notifyOnly: true
-          });
 
       fetch(CLOUD_SYNC_CONFIG.NTFY_BASE, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-        body: ntfyBody
-      }).catch(function() {});
+        body: jsonStr
+      })
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(res) {
+        if (res && res.id) {
+          AppState.lastCloudMsgId = res.id;
+          saveLocalStateOnly();
+        }
+      })
+      .catch(function() {});
     }
 
-    function applyCloudPayload(remote, isInitialSync) {
+    function applyCloudPayload(remote, msgId, isInitialSync) {
       if (!remote || typeof remote !== 'object') return false;
-      if (!isInitialSync && remote.deviceId === CLOUD_SYNC_CONFIG.DEVICE_ID) return false;
-
-      if (remote.notifyOnly) {
-        fetchFromRestCloud().then(function(restData) {
-          if (restData) applyCloudPayload(restData, true);
-        });
+      var remoteDev = remote.dev || remote.deviceId;
+      if (!isInitialSync && remoteDev === CLOUD_SYNC_CONFIG.DEVICE_ID) {
+        if (msgId) {
+          AppState.lastCloudMsgId = msgId;
+          saveLocalStateOnly();
+        }
         return false;
       }
 
-      if (!Array.isArray(remote.bookings)) return false;
-
-      var remoteVer = parseInt(remote.syncVersion, 10) || 0;
-      var localVer = parseInt(AppState.syncVersion, 10) || 0;
-
-      // If cloud is completely uninitialized (version 0):
-      // Only push automatically if this device has real user bookings/deletions
-      if (remoteVer === 0) {
-        if (hasLocalCustomChanges()) {
-          pushStateToCloud();
-        }
-        return true;
+      // Avoid overwriting a local save that just happened within the last 1.5 seconds
+      if (!isInitialSync && (Date.now() - _lastLocalPushTime < 1500)) {
+        return false;
       }
 
-      // If we haven't synced this browser before, preserve any custom user-created bookings & deletions made locally
+      if (msgId && msgId === AppState.lastCloudMsgId && AppState.hasSyncedOnce) {
+        return false;
+      }
+
+      var rawBookings = remote.bk || remote.bookings;
+      if (!Array.isArray(rawBookings)) return false;
+
+      var expandedBookings = expandBookingsFromCloud(rawBookings);
+      var remoteDelList = remote.del || remote.deletedBookings || [];
+      var remoteDeletedIds = {};
+      remoteDelList.forEach(function(d) {
+        var id = (typeof d === 'string') ? d : (d && d.id ? d.id : '');
+        if (id) remoteDeletedIds[id] = true;
+      });
+
+      // On first-ever sync for this browser, merge any local custom bookings not yet in the cloud
       var localCustomToMerge = [];
-      var localDeletedToMerge = [];
-      if (!AppState.hasSyncedOnce) {
-        var remoteDeletedIds = {};
-        if (Array.isArray(remote.deletedBookings)) {
-          remote.deletedBookings.forEach(function(d) { if (d && d.id) remoteDeletedIds[d.id] = true; });
-        }
-        if (Array.isArray(AppState.deletedBookings)) {
-          AppState.deletedBookings.forEach(function(d) {
-            if (d && d.id && !remoteDeletedIds[d.id]) {
-              localDeletedToMerge.push(d);
-              remoteDeletedIds[d.id] = true;
-            }
-          });
-        }
+      if (!AppState.hasSyncedOnce && Array.isArray(AppState.bookings)) {
         var remoteIds = {};
-        remote.bookings.forEach(function(b) { if (b && b.id) remoteIds[b.id] = true; });
-
-        if (Array.isArray(AppState.bookings)) {
-          AppState.bookings.forEach(function(b) {
-            if (b && b.id && String(b.id).indexOf('b_sample_') !== 0 && !remoteIds[b.id] && !remoteDeletedIds[b.id]) {
-              localCustomToMerge.push(b);
-            }
-          });
-        }
-      }
-
-      if (remoteVer >= localVer || !AppState.hasSyncedOnce) {
-        AppState.syncVersion = Math.max(remoteVer, localVer);
-        AppState.clearedAtVersion = remote.clearedAtVersion || 0;
-        AppState.bookings = remote.bookings.slice();
-        if (Array.isArray(remote.deletedBookings)) {
-          AppState.deletedBookings = remote.deletedBookings.slice();
-        }
-        if (remote.settings) {
-          if (remote.settings.busCount) AppState.busCount = parseInt(remote.settings.busCount, 10) || 8;
-          if (remote.settings.daysCount) AppState.daysCount = parseInt(remote.settings.daysCount, 10) || 14;
-          if (remote.settings.loginUsername) AppState.loginUsername = remote.settings.loginUsername;
-          if (remote.settings.loginPassword) AppState.loginPassword = remote.settings.loginPassword;
-        }
-        AppState.hasSyncedOnce = true;
-
-        var needsPushBack = false;
-        if (localDeletedToMerge.length > 0) {
-          var delMap = {};
-          localDeletedToMerge.forEach(function(d) {
-            delMap[d.id] = true;
-            AppState.deletedBookings.push(d);
-          });
-          AppState.bookings = AppState.bookings.filter(function(b) { return !delMap[b.id]; });
-          needsPushBack = true;
-        }
-        if (localCustomToMerge.length > 0) {
-          localCustomToMerge.forEach(function(b) { AppState.bookings.push(b); });
-          needsPushBack = true;
-        }
-
-        if (needsPushBack) {
-          saveLocalStateOnly();
-          scheduleCloudPush();
-        } else {
-          saveLocalStateOnly();
-        }
-
-        syncControlsInputs();
-        if (AppState.isLoggedIn) {
-          renderTable();
-        }
-        return true;
-      }
-      return false;
-    }
-
-    function fetchFromRestCloud() {
-      return fetch(CLOUD_SYNC_CONFIG.REST_OBJ_URL + '?t=' + Date.now(), { cache: 'no-store' })
-        .then(function(r) { return r.ok ? r.json() : null; })
-        .then(function(obj) {
-          if (obj && obj.data) {
-            return obj.data;
+        expandedBookings.forEach(function(b) { if (b && b.id) remoteIds[b.id] = true; });
+        AppState.bookings.forEach(function(b) {
+          if (b && b.id && String(b.id).indexOf('b_sample_') !== 0 && !remoteIds[b.id] && !remoteDeletedIds[b.id]) {
+            localCustomToMerge.push(b);
           }
-          return null;
-        })
-        .catch(function() { return null; });
+        });
+      }
+
+      AppState.bookings = expandedBookings;
+      AppState.deletedBookings = Object.keys(remoteDeletedIds).map(function(id) { return { id: id }; });
+
+      var cfg = remote.cfg || remote.settings;
+      if (cfg) {
+        var bc = cfg.bc || cfg.busCount;
+        var dc = cfg.dc || cfg.daysCount;
+        var usr = cfg.u || cfg.loginUsername;
+        var pwd = cfg.p || cfg.loginPassword;
+        if (bc) AppState.busCount = parseInt(bc, 10) || 8;
+        if (dc) AppState.daysCount = parseInt(dc, 10) || 14;
+        if (usr) AppState.loginUsername = usr;
+        if (pwd) AppState.loginPassword = pwd;
+      }
+
+      var remoteVer = parseInt(remote.v || remote.syncVersion, 10) || 1;
+      AppState.syncVersion = Math.max(AppState.syncVersion || 0, remoteVer);
+      if (msgId) AppState.lastCloudMsgId = msgId;
+      AppState.hasSyncedOnce = true;
+
+      if (localCustomToMerge.length > 0) {
+        localCustomToMerge.forEach(function(b) { AppState.bookings.push(b); });
+        saveLocalStateOnly();
+        scheduleCloudPush();
+      } else {
+        saveLocalStateOnly();
+      }
+
+      syncControlsInputs();
+      if (AppState.isLoggedIn) {
+        renderTable();
+      }
+      return true;
     }
 
-    function fetchFromNtfyHistory() {
-      return fetch(CLOUD_SYNC_CONFIG.NTFY_BASE + '/json?poll=1&since=all&t=' + Date.now(), { cache: 'no-store' })
+    function syncFromCloudNow() {
+      fetch(CLOUD_SYNC_CONFIG.NTFY_BASE + '/json?poll=1&since=all&t=' + Date.now(), { cache: 'no-store' })
         .then(function(r) { return r.ok ? r.text() : ''; })
         .then(function(text) {
-          if (!text) return null;
+          if (!text || !text.trim()) return;
           var lines = text.trim().split('\n');
-          var bestPayload = null;
-          var bestVer = -1;
+          var latestPayload = null;
+          var latestMsgId = '';
           for (var i = 0; i < lines.length; i++) {
             try {
               var evt = JSON.parse(lines[i]);
               if (evt && evt.event === 'message' && evt.message) {
                 var parsed = JSON.parse(evt.message);
-                if (parsed && Array.isArray(parsed.bookings)) {
-                  var v = parseInt(parsed.syncVersion, 10) || 0;
-                  if (v >= bestVer) {
-                    bestVer = v;
-                    bestPayload = parsed;
-                  }
+                if (parsed && (Array.isArray(parsed.bk) || Array.isArray(parsed.bookings))) {
+                  latestPayload = parsed;
+                  latestMsgId = evt.id || '';
                 }
               }
             } catch (e) {}
           }
-          return bestPayload;
+          if (latestPayload) {
+            applyCloudPayload(latestPayload, latestMsgId, true);
+          }
         })
-        .catch(function() { return null; });
-    }
-
-    function syncFromCloudNow() {
-      Promise.all([fetchFromNtfyHistory(), fetchFromRestCloud()]).then(function(results) {
-        var ntfyData = results[0];
-        var restData = results[1];
-        var ntfyVer = (ntfyData && ntfyData.syncVersion) ? parseInt(ntfyData.syncVersion, 10) : -1;
-        var restVer = (restData && restData.syncVersion !== undefined) ? parseInt(restData.syncVersion, 10) : -1;
-
-        var winner = null;
-        if (restVer >= ntfyVer && restData && Array.isArray(restData.bookings)) {
-          winner = restData;
-        } else if (ntfyData && Array.isArray(ntfyData.bookings)) {
-          winner = ntfyData;
-        }
-
-        if (winner) {
-          applyCloudPayload(winner, true);
-        } else if (!AppState.hasSyncedOnce && hasLocalCustomChanges()) {
-          pushStateToCloud();
-        }
-      });
+        .catch(function() {});
     }
 
     var _ntfyEventSource = null;
@@ -3618,13 +3570,9 @@
           _ntfyEventSource.onmessage = function(e) {
             try {
               var wrapper = JSON.parse(e.data);
-              if (wrapper && wrapper.message) {
+              if (wrapper && wrapper.event === 'message' && wrapper.message) {
                 var remote = JSON.parse(wrapper.message);
-                applyCloudPayload(remote, false);
-              } else if (wrapper && wrapper.attachment) {
-                fetchFromRestCloud().then(function(restData) {
-                  if (restData) applyCloudPayload(restData, true);
-                });
+                applyCloudPayload(remote, wrapper.id || '', false);
               }
             } catch (err) {}
           };
@@ -3641,10 +3589,10 @@
         }
       });
 
-      // 4. Periodic fallback sync every 5 seconds
+      // 4. Periodic fallback sync every 3 seconds
       setInterval(function() {
         syncFromCloudNow();
-      }, 5000);
+      }, 3000);
     }
 
     /* ==========================================================================
