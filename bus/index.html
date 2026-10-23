@@ -2159,17 +2159,6 @@
           </div>
         </div>
 
-        <div class="stat-card card-orange">
-          <div class="stat-icon">
-            <i class="fa-solid fa-calendar-plus"></i>
-          </div>
-          <div class="stat-info">
-            <h3 data-i18n="stat_new_title">ورود جدید امروز</h3>
-            <div class="stat-number" id="stat-new-today">0</div>
-            <div class="stat-sub" data-i18n="stat_new_sub">کاروان‌های ورودی امروز</div>
-          </div>
-        </div>
-
         <div class="stat-card card-red">
           <div class="stat-icon">
             <i class="fa-solid fa-circle-check"></i>
@@ -2255,10 +2244,6 @@
     <!-- 6. Legend Bar -->
     <section class="legend-section">
       <div class="legend-bar">
-        <div class="legend-item">
-          <div class="legend-color-box legend-new"></div>
-          <span data-i18n-html="legend_new"><strong>ورود جدید:</strong> کادر نارنجی (پذیرش تازه)</span>
-        </div>
         <div class="legend-item">
           <div class="legend-color-box legend-confirmed"></div>
           <span data-i18n-html="legend_confirmed"><strong>تأیید شده:</strong> کادر سبز (رزرو قطعی با تعهد ثبت‌شده)</span>
@@ -2372,7 +2357,6 @@
               <select id="form-status" class="form-select" required onchange="if(this.value==='confirmed') playBookingConfirmSound();">
                 <option value="confirmed" data-i18n="status_confirmed">تأیید شده</option>
                 <option value="unregistered" data-i18n="status_unconfirmed">تأیید نشده</option>
-                <option value="new" data-i18n="status_new">ورود جدید</option>
               </select>
             </div>
           </div>
@@ -2945,13 +2929,11 @@
 
     function translateSubStatus(sub, status) {
       if (!sub) {
-        if (status === 'confirmed') return t('status_confirmed');
         if (status === 'unregistered') return t('status_unconfirmed');
-        return t('status_new');
+        return t('status_confirmed');
       }
-      if (sub === 'مؤكد' || sub === 'تأیید شده') return t('status_confirmed');
+      if (sub === 'مؤكد' || sub === 'تأیید شده' || sub === 'دخول جديد' || sub === 'ورود جدید') return t('status_confirmed');
       if (sub === 'غير مؤكد' || sub === 'غير مسجل' || sub === 'تأیید نشده') return t('status_unconfirmed');
-      if (sub === 'دخول جديد' || sub === 'ورود جدید') return t('status_new');
       return sub;
     }
 
@@ -3184,8 +3166,8 @@
           startDate: baseDateStr,
           nights: 3,
           company: 'قافلة الفردوس المباركة',
-          status: 'new',
-          subStatus: 'دخول جديد',
+          status: 'confirmed',
+          subStatus: 'مؤكد',
           persianDate: JalaliCalendar.formatDateStr(DateUtils.parseYYYYMMDD(baseDateStr)),
           notes: 'تسجيل وصول بعد صلاة الظهر - تم تخصيص الطابق الثالث',
           rev: 0,
@@ -3236,8 +3218,8 @@
           startDate: DateUtils.addDays(baseDateStr, 3),
           nights: 4,
           company: 'قافلة المختار الثقفي',
-          status: 'new',
-          subStatus: 'دخول جديد',
+          status: 'confirmed',
+          subStatus: 'مؤكد',
           persianDate: JalaliCalendar.formatDateStr(DateUtils.parseYYYYMMDD(DateUtils.addDays(baseDateStr, 3))),
           notes: 'حجز مسبق مع دفعة أولى مسلمة للاستقبال',
           rev: 0,
@@ -3262,7 +3244,7 @@
           startDate: baseDateStr,
           nights: 3,
           company: 'شركة باب المراد للسياحة',
-          status: 'new',
+          status: 'confirmed',
           subStatus: 'مؤكد',
           persianDate: JalaliCalendar.formatDateStr(DateUtils.parseYYYYMMDD(baseDateStr)),
           notes: 'تنسيق مع كراج النجف الدولي لاستقبال الحافلة',
@@ -3288,8 +3270,8 @@
           startDate: DateUtils.addDays(baseDateStr, 5),
           nights: 4,
           company: 'شركة ضيوف الرحمن',
-          status: 'new',
-          subStatus: 'دخول جديد',
+          status: 'confirmed',
+          subStatus: 'مؤكد',
           persianDate: JalaliCalendar.formatDateStr(DateUtils.parseYYYYMMDD(DateUtils.addDays(baseDateStr, 5))),
           notes: 'تأكيد الحجز قبل 48 ساعة',
           rev: 0,
@@ -3300,15 +3282,15 @@
 
     const SAMPLE_DEFAULTS = {
       'b_sample_1': { status: 'confirmed', nights: 4, company: 'شركة أنوار النجف للسياحة' },
-      'b_sample_2': { status: 'new', nights: 3, company: 'قافلة الفردوس المباركة' },
+      'b_sample_2': { status: 'confirmed', nights: 3, company: 'قافلة الفردوس المباركة' },
       'b_sample_3': { status: 'unregistered', nights: 2, company: 'حملة شمس كربلاء' },
       'b_sample_4': { status: 'confirmed', nights: 5, company: 'شركة نسيم طوس العالمية' },
       'b_sample_5': { status: 'confirmed', nights: 6, company: 'مؤسسة الهدى والنور' },
-      'b_sample_6': { status: 'new', nights: 4, company: 'قافلة المختار الثقفي' },
+      'b_sample_6': { status: 'confirmed', nights: 4, company: 'قافلة المختار الثقفي' },
       'b_sample_7': { status: 'confirmed', nights: 4, company: 'شركة أنوار الإيمان' },
-      'b_sample_8': { status: 'new', nights: 3, company: 'شركة باب المراد للسياحة' },
+      'b_sample_8': { status: 'confirmed', nights: 3, company: 'شركة باب المراد للسياحة' },
       'b_sample_9': { status: 'confirmed', nights: 4, company: 'قافلة سفينة النجاة' },
-      'b_sample_10': { status: 'new', nights: 4, company: 'شركة ضيوف الرحمن' }
+      'b_sample_10': { status: 'confirmed', nights: 4, company: 'شركة ضيوف الرحمن' }
     };
 
     function isUntouchedSampleBooking(b) {
@@ -3321,6 +3303,7 @@
       if (!isNaN(r) && r > 0) return false;
       if (!isNaN(t) && t > 0) return false;
       var st = b.status || b.s || 'confirmed';
+      if (st === 'new') st = 'confirmed';
       var comp = String(b.company !== undefined ? b.company : (b.c || '')).trim();
       var n = parseInt(b.nights !== undefined ? b.nights : b.n, 10) || 1;
       var irq = String(b.iraqiCompany !== undefined ? b.iraqiCompany : (b.q || '')).trim();
@@ -3334,6 +3317,7 @@
       if (!id) return null;
       var busId = parseInt(b.busId !== undefined ? b.busId : b.b, 10) || 1;
       var status = b.status || b.s || 'confirmed';
+      if (status === 'new') status = 'confirmed';
       var company = String(b.company !== undefined ? b.company : (b.c || '')).trim();
       var startDate = b.startDate || b.d || AppState.startDate;
       var persianDate = b.persianDate !== undefined ? b.persianDate : (b.p || '');
@@ -3342,6 +3326,7 @@
       var notes = b.notes !== undefined ? b.notes : (b.m || '');
       var subStatus = b.subStatus !== undefined ? b.subStatus : (b.u || '');
       if (subStatus === 'غير مسجل') subStatus = 'غير مؤكد';
+      if (subStatus === 'دخول جديد' || subStatus === 'ورود جدید') subStatus = 'مؤكد';
 
       var untouched = isUntouchedSampleBooking(b);
       var rev = parseInt(b.rev !== undefined ? b.rev : b.r, 10);
@@ -4290,13 +4275,12 @@
         cellHtml += '</div>';
       } else if (isFirstDay) {
         // Primary Card (Check-in Day)
-        var statusBadgeText = t('status_new');
-        if (coveringBooking.status === 'confirmed') statusBadgeText = t('status_confirmed');
-        if (coveringBooking.status === 'unregistered') statusBadgeText = t('status_unconfirmed');
+        var cardStatus = (coveringBooking.status === 'unregistered') ? 'unregistered' : 'confirmed';
+        var statusBadgeText = (cardStatus === 'unregistered') ? t('status_unconfirmed') : t('status_confirmed');
 
-        var subStatusTranslated = translateSubStatus(coveringBooking.subStatus, coveringBooking.status);
+        var subStatusTranslated = translateSubStatus(coveringBooking.subStatus, cardStatus);
 
-        cellHtml += '<div class="booking-card status-' + coveringBooking.status + '" onclick="handleCellClick(' + busId + ', \'' + dateStr + '\', \'' + coveringBooking.id + '\')">';
+        cellHtml += '<div class="booking-card status-' + cardStatus + '" onclick="handleCellClick(' + busId + ', \'' + dateStr + '\', \'' + coveringBooking.id + '\')">';
         cellHtml += '  <div class="card-top-row">';
         cellHtml += '    <span class="badge-status-tag">[' + statusBadgeText + ']</span>';
         cellHtml += '    <span class="nights-pill">' + t('net_nights_prefix') + coveringBooking.nights + ' ' + t('nights_word') + '</span>';
@@ -4312,7 +4296,8 @@
         cellHtml += '</div>';
       } else {
         // Continuation Cell
-        cellHtml += '<div class="continuation-cell status-' + coveringBooking.status + '" onclick="handleCellClick(' + busId + ', \'' + dateStr + '\', \'' + coveringBooking.id + '\')">';
+        var contStatus = (coveringBooking.status === 'unregistered') ? 'unregistered' : 'confirmed';
+        cellHtml += '<div class="continuation-cell status-' + contStatus + '" onclick="handleCellClick(' + busId + ', \'' + dateStr + '\', \'' + coveringBooking.id + '\')">';
         cellHtml += '  <span class="cont-badge">' + t('cont_stay') + '</span>';
         cellHtml += '  <div class="cont-company" title="' + escapeHtml(coveringBooking.company) + '">' + escapeHtml(coveringBooking.company) + '</div>';
         cellHtml += '  <span class="cont-night-index">' + t('night_x_of_y')(dayIndex, coveringBooking.nights) + '</span>';
@@ -4342,7 +4327,6 @@
     function renderStats() {
       var todayStr = DateUtils.formatYYYYMMDD(new Date());
       var occupiedToday = 0;
-      var newCheckinsToday = 0;
 
       for (var b = 1; b <= AppState.busCount; b++) {
         var isBusBusyToday = false;
@@ -4353,9 +4337,6 @@
             var end = DateUtils.addDays(start, bk.nights);
             if (todayStr >= start && todayStr < end) {
               isBusBusyToday = true;
-              if (todayStr === start) {
-                newCheckinsToday++;
-              }
               break;
             }
           }
@@ -4369,7 +4350,6 @@
       document.getElementById('stat-total-buses').textContent = AppState.busCount + ' ' + t('buses_word');
       document.getElementById('stat-occupancy-rate').textContent = rate + '%';
       document.getElementById('stat-occupied-count').textContent = t('stat_occupied_today')(occupiedToday);
-      document.getElementById('stat-new-today').textContent = t('stat_new_today_text')(newCheckinsToday);
       document.getElementById('stat-available-today').textContent = availableToday + ' ' + t('bus_word');
     }
 
@@ -4808,15 +4788,13 @@
       var checkoutDateStr = DateUtils.addDays(booking.startDate, booking.nights);
       var checkoutObj = DateUtils.parseYYYYMMDD(checkoutDateStr);
 
-      var statusText = t('view_status_new');
-      if (booking.status === 'confirmed') statusText = t('view_status_confirmed');
-      if (booking.status === 'unregistered') statusText = t('view_status_unconfirmed');
+      var statusText = (booking.status === 'unregistered') ? t('view_status_unconfirmed') : t('view_status_confirmed');
 
       var html = '';
       html += '<div style="text-align: center; margin-bottom: 20px;">';
       html += '  <div style="font-size: 13px; color: var(--gold-light); font-weight: 700;">' + t('print_header_title') + '</div>';
       html += '  <h2 style="font-size: 22px; font-weight: 800; color: var(--text-white); margin: 6px 0;">' + escapeHtml(booking.company) + '</h2>';
-      html += '  <span class="badge-status-tag" style="padding: 4px 14px; font-size: 13px; background: ' + (booking.status === 'confirmed' ? '#059669' : (booking.status === 'new' ? '#D97706' : '#DC2626')) + ';">' + statusText + '</span>';
+      html += '  <span class="badge-status-tag" style="padding: 4px 14px; font-size: 13px; background: ' + (booking.status === 'unregistered' ? '#DC2626' : '#059669') + ';">' + statusText + '</span>';
       html += '</div>';
 
       html += '<div style="background: #F1F3F8; border: 1px solid var(--gold-border); border-radius: var(--radius-md); padding: 14px;">';
