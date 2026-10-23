@@ -2,6 +2,9 @@
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <meta name="viewport" id="viewport-meta" content="width=device-width, initial-scale=1.0">
   <title>هتل مدینة العطاء - نجف اشرف | جدول رزرو اتوبوس‌ها</title>
   
@@ -2603,13 +2606,11 @@
         filter_all: 'همه وضعیت‌ها',
         status_confirmed: 'تأیید شده',
         status_unconfirmed: 'تأیید نشده',
-        status_new: 'ورود جدید',
         filter_avail_only: 'فقط خالی',
         days_7: 'نمایش ۷ روز',
         days_14: 'نمایش ۱۴ روز',
         days_21: 'نمایش ۲۱ روز',
         days_30: 'نمایش یک ماه کامل',
-        legend_new: '<strong>ورود جدید:</strong> کادر نارنجی (پذیرش تازه)',
         legend_confirmed: '<strong>تأیید شده:</strong> کادر سبز (رزرو قطعی با تعهد ثبت‌شده)',
         legend_unconfirmed: '<strong>تأیید نشده:</strong> کادر قرمز (رزرو در انتظار تأیید)',
         legend_available: '<strong>آزاد:</strong> اتوبوس خالی آماده پذیرش',
@@ -2680,7 +2681,6 @@
         cont_stay: 'ادامه اقامت',
         night_x_of_y: function(x, y) { return 'شب ' + x + ' از ' + y; },
         stat_occupied_today: function(n) { return n + ' اتوبوس پر شده امروز'; },
-        stat_new_today_text: function(n) { return n + ' ورود جدید'; },
         print_date_prefix: 'تاریخ چاپ: ',
         modal_add_bus_title: function(busId) { return 'افزودن رزرو جدید - اتوبوس ' + busId; },
         modal_edit_bus_title: function(busId) { return 'ویرایش اطلاعات رزرو - اتوبوس ' + busId; },
@@ -2688,7 +2688,6 @@
         hint_avail_up_to: function(n) { return '✅ قابل رزرو تا ' + n + ' شب'; },
         view_status_confirmed: 'رزرو تأیید شده',
         view_status_unconfirmed: 'رزرو تأیید نشده',
-        view_status_new: 'ورود جدید',
         view_bus_num: 'شماره اتوبوس:',
         view_checkin: 'تاریخ ورود (میلادی):',
         view_commitment: 'تعهد (تاریخ فارسی):',
@@ -2770,8 +2769,6 @@
         stat_total_title: 'إجمالي الباصات',
         stat_total_sub: 'سعة أسطول الفندق بالكامل',
         stat_occ_title: 'نسبة الإشغال اليوم',
-        stat_new_title: 'وصول جديد اليوم',
-        stat_new_sub: 'حملات تسجل دخول اليوم',
         stat_avail_title: 'باصات شاغرة اليوم',
         stat_avail_sub: 'متاحة لتسكين أفواج جديدة',
         nav_prev_week: 'الأسبوع السابق',
@@ -2784,13 +2781,11 @@
         filter_all: 'جميع الحالات',
         status_confirmed: 'مؤكد',
         status_unconfirmed: 'غير مؤكد',
-        status_new: 'دخول جديد',
         filter_avail_only: 'متاح فقط',
         days_7: 'عرض 7 أيام',
         days_14: 'عرض 14 يوماً',
         days_21: 'عرض 21 يوماً',
         days_30: 'عرض شهر كامل',
-        legend_new: '<strong>دخول جديد:</strong> إطار برتقالي (تسجيل وصول حديث)',
         legend_confirmed: '<strong>مؤكد:</strong> إطار أخضر (حجز مؤكد مع التزام مثبت)',
         legend_unconfirmed: '<strong>غير مؤكد:</strong> إطار أحمر (حجز بانتظار التأكيد)',
         legend_available: '<strong>متاح:</strong> باص شاغر جاهز للتسكين',
@@ -2861,7 +2856,6 @@
         cont_stay: 'استمرار الإقامة',
         night_x_of_y: function(x, y) { return 'ليلة ' + x + ' من ' + y; },
         stat_occupied_today: function(n) { return n + ' باصات مشغولة اليوم'; },
-        stat_new_today_text: function(n) { return n + ' دخول جديد'; },
         print_date_prefix: 'تاريخ الطباعة: ',
         modal_add_bus_title: function(busId) { return 'إضافة حجز جديد - باص ' + busId; },
         modal_edit_bus_title: function(busId) { return 'تعديل بيانات الحجز - باص ' + busId; },
@@ -2869,7 +2863,6 @@
         hint_avail_up_to: function(n) { return '✅ متاح حتى ' + n + ' ليلة'; },
         view_status_confirmed: 'حجز مؤكد',
         view_status_unconfirmed: 'حجز غير مؤكد',
-        view_status_new: 'دخول جديد',
         view_bus_num: 'رقم الحافلة:',
         view_checkin: 'تاريخ الدخول (الميلادي):',
         view_commitment: 'الالتزام (التاريخ الفارسي):',
@@ -4392,6 +4385,8 @@
 
     function openNewBookingModalWithParams(busId, startDateStr) {
       populateBusDropdown(busId);
+      var staleNewOpts = document.querySelectorAll('#form-status option[value="new"], #status-filter option[value="new"]');
+      staleNewOpts.forEach(function(o) { o.remove(); });
       document.getElementById('booking-modal-title').innerHTML = '<i class="fa-solid fa-plus" style="color: var(--gold-bright);"></i> ' + t('modal_add_bus_title')(busId);
       document.getElementById('form-booking-id').value = '';
       document.getElementById('form-bus-id').value = busId;
@@ -4417,10 +4412,12 @@
       if (!booking) return;
 
       populateBusDropdown(booking.busId);
+      var staleNewOpts = document.querySelectorAll('#form-status option[value="new"], #status-filter option[value="new"]');
+      staleNewOpts.forEach(function(o) { o.remove(); });
       document.getElementById('booking-modal-title').innerHTML = '<i class="fa-solid fa-pen-to-square" style="color: var(--gold-bright);"></i> ' + t('modal_edit_bus_title')(booking.busId);
       document.getElementById('form-booking-id').value = booking.id;
       document.getElementById('form-bus-id').value = booking.busId;
-      document.getElementById('form-status').value = booking.status;
+      document.getElementById('form-status').value = (booking.status === 'unregistered') ? 'unregistered' : 'confirmed';
       document.getElementById('form-company').value = booking.company;
       document.getElementById('form-start-date').value = booking.startDate;
       document.getElementById('form-persian-date').value = booking.persianDate || '';
