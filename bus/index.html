@@ -15,6 +15,8 @@
   
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- html2pdf.js for RTL PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>
 
   <style>
     /* ==========================================================================
@@ -950,7 +952,8 @@
 
     /* State A: Available (متاح) */
     .cell-available {
-      height: 85px;
+      min-height: 85px;
+      height: 100%;
       background: var(--status-available-bg);
       border: 1px dashed var(--status-available-border);
       border-radius: var(--radius-md);
@@ -992,12 +995,14 @@
 
     /* State B: Booked Main Card (دخول / أول يوم) */
     .booking-card {
-      height: 85px;
+      min-height: 85px;
+      height: 100%;
       border-radius: var(--radius-md);
       padding: 6px 8px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      gap: 3px;
       text-align: right;
       position: relative;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
@@ -1093,9 +1098,33 @@
     .status-confirmed .card-substatus { color: #34D399; }
     .status-unregistered .card-substatus { color: #F87171; }
 
+    .card-finance-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 2px;
+      padding-top: 4px;
+      border-top: 1px dashed rgba(201, 168, 76, 0.25);
+    }
+    .card-finance-chip {
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: rgba(15, 23, 42, 0.55);
+      color: var(--text-white);
+      border: 1px solid rgba(201, 168, 76, 0.25);
+      white-space: nowrap;
+    }
+    .card-finance-chip.chip-total {
+      color: #FBBF24;
+      border-color: rgba(251, 191, 36, 0.45);
+    }
+
     /* State C: Continuation Cell (استمرار الحجز للأيام التالية) */
     .continuation-cell {
-      height: 85px;
+      min-height: 85px;
+      height: 100%;
       border-radius: var(--radius-md);
       padding: 6px 8px;
       display: flex;
@@ -1335,8 +1364,62 @@
       gap: 16px;
       margin-bottom: 16px;
     }
+    .form-row-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .meals-box {
+      background: rgba(10, 22, 40, 0.45);
+      border: 1px solid rgba(201, 168, 76, 0.28);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      margin-bottom: 16px;
+    }
+    .meals-box-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-gold);
+      margin-bottom: 10px;
+    }
+    .meal-price-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .meal-price-presets {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .meal-preset-btn {
+      border: 1px solid rgba(201, 168, 76, 0.45);
+      background: rgba(201, 168, 76, 0.1);
+      color: var(--text-gold);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .meal-preset-btn:hover {
+      border-color: var(--gold-primary);
+      background: rgba(201, 168, 76, 0.22);
+    }
+    .meal-preset-btn.active {
+      background: var(--gold-primary);
+      color: #0A1628;
+      border-color: var(--gold-bright);
+      box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.25);
+    }
     @media (max-width: 600px) {
-      .form-row {
+      .form-row, .form-row-3 {
         grid-template-columns: 1fr;
       }
     }
@@ -1391,6 +1474,175 @@
     .detail-value {
       color: var(--text-white);
       font-weight: 700;
+    }
+
+    /* Admin Calculation Report Modal */
+    .report-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      background: rgba(10, 22, 40, 0.45);
+      border: 1px solid rgba(201, 168, 76, 0.28);
+    }
+    .report-mode-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .report-mode-tab {
+      border: 1px solid rgba(201, 168, 76, 0.45);
+      background: rgba(201, 168, 76, 0.1);
+      color: var(--text-gold);
+      border-radius: var(--radius-sm);
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .report-mode-tab.active {
+      background: var(--gold-primary);
+      color: #0A1628;
+      border-color: var(--gold-bright);
+    }
+    .report-date-panel {
+      width: 100%;
+      display: none;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+      align-items: end;
+      padding-top: 10px;
+      margin-top: 2px;
+      border-top: 1px dashed rgba(201, 168, 76, 0.28);
+    }
+    .report-date-panel.open {
+      display: grid;
+    }
+    .card-pending-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 5px;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 800;
+      background: rgba(245, 158, 11, 0.22);
+      border: 1px solid rgba(251, 191, 36, 0.7);
+      color: #FDE68A;
+    }
+    .admin-pending-review-box {
+      margin-bottom: 14px;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      background: rgba(217, 119, 6, 0.14);
+      border: 1px solid rgba(251, 191, 36, 0.65);
+    }
+    .admin-pending-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #FCD34D;
+      margin-bottom: 8px;
+    }
+    .admin-pending-diff-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+    .admin-pending-diff-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      background: rgba(10, 22, 40, 0.35);
+      padding: 5px 8px;
+      border-radius: 6px;
+    }
+    .admin-pending-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .report-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .report-summary-card {
+      background: rgba(10, 22, 40, 0.45);
+      border: 1px solid rgba(201, 168, 76, 0.25);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+    }
+    .report-summary-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .report-summary-value {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--gold-bright);
+    }
+    .report-table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid rgba(201, 168, 76, 0.3);
+      border-radius: var(--radius-md);
+    }
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: center;
+    }
+    .report-table thead th {
+      background: rgba(201, 168, 76, 0.16);
+      color: var(--gold-bright);
+      padding: 10px 8px;
+      font-weight: 800;
+      border-bottom: 1px solid rgba(201, 168, 76, 0.3);
+      white-space: nowrap;
+    }
+    .report-table tbody td {
+      padding: 9px 8px;
+      border-bottom: 1px solid rgba(201, 168, 76, 0.14);
+      color: var(--text-white);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .report-table tbody tr:hover {
+      background: rgba(201, 168, 76, 0.08);
+    }
+    .report-table tfoot td {
+      background: rgba(201, 168, 76, 0.2);
+      color: var(--gold-bright);
+      padding: 11px 8px;
+      font-weight: 800;
+      border-top: 2px solid var(--gold-primary);
+      white-space: nowrap;
+    }
+    .report-empty-state {
+      text-align: center;
+      padding: 28px 12px;
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 14px;
     }
 
     /* Toast Notification System */
@@ -1461,10 +1713,70 @@
         overflow: visible !important;
       }
 
-      #login-page, .main-header, #admin-bar, .controls-section, .modal-overlay,
+      #login-page, .main-header, #admin-bar, .controls-section, body:not(.printing-admin-report) .modal-overlay,
       #toast-container, .main-footer, .available-action-hint, .stats-section,
       #back-to-top-btn, .legend-section {
         display: none !important;
+      }
+
+      body.printing-admin-report #app,
+      body.printing-admin-report .modal-overlay:not(#admin-report-modal) {
+        display: none !important;
+      }
+      body.printing-admin-report #admin-report-modal {
+        display: block !important;
+        position: static !important;
+        background: #FFFFFF !important;
+        padding: 0 !important;
+      }
+      body.printing-admin-report #admin-report-modal .modal-content {
+        max-width: 100% !important;
+        width: 100% !important;
+        box-shadow: none !important;
+        border: none !important;
+        background: #FFFFFF !important;
+      }
+      body.printing-admin-report #admin-report-modal .modal-header {
+        background: #FFFFFF !important;
+        border-bottom: 2px solid #000000 !important;
+        padding: 8px 0 !important;
+      }
+      body.printing-admin-report #admin-report-modal .modal-header h3 {
+        color: #000000 !important;
+      }
+      body.printing-admin-report #admin-report-modal .modal-body {
+        max-height: none !important;
+        overflow: visible !important;
+        padding: 10px 0 !important;
+      }
+      body.printing-admin-report #admin-report-modal .modal-close-btn,
+      body.printing-admin-report #admin-report-modal .report-toolbar,
+      body.printing-admin-report #admin-report-modal .modal-footer {
+        display: none !important;
+      }
+      body.printing-admin-report .report-summary-card {
+        background: #F8FAFC !important;
+        border: 1px solid #000000 !important;
+      }
+      body.printing-admin-report .report-summary-label,
+      body.printing-admin-report .report-summary-value {
+        color: #000000 !important;
+      }
+      body.printing-admin-report .report-table-wrap {
+        border: 1px solid #000000 !important;
+      }
+      body.printing-admin-report .report-table thead th,
+      body.printing-admin-report .report-table tbody td,
+      body.printing-admin-report .report-table tfoot td {
+        color: #000000 !important;
+        background: #FFFFFF !important;
+        border: 1px solid #000000 !important;
+        font-size: 9pt !important;
+        padding: 5px 4px !important;
+      }
+      body.printing-admin-report .report-table thead th,
+      body.printing-admin-report .report-table tfoot td {
+        background: #E5E7EB !important;
       }
 
       #app, body.pc-layout-active #app {
@@ -1644,6 +1956,20 @@
       }
       .card-meta-row, .persian-date-indicator { color: #333333 !important; font-size: 6pt !important; }
       .persian-date-indicator i, .card-substatus { display: none !important; }
+      .card-finance-row {
+        justify-content: center !important;
+        gap: 2px !important;
+        margin-top: 1px !important;
+        padding-top: 1px !important;
+        border-top-color: #CBD5E1 !important;
+      }
+      .card-finance-chip {
+        font-size: 5.5pt !important;
+        padding: 0 2px !important;
+        background: #F8FAFC !important;
+        color: #111827 !important;
+        border-color: #CBD5E1 !important;
+      }
 
       .continuation-cell {
         border: 1px dashed #9CA3AF !important;
@@ -1834,6 +2160,9 @@
       .company-title { color: #0F1528; }
       .nights-pill { background: #FFFFFF; color: #0F1528; border-color: rgba(15, 21, 40, 0.15); }
       .card-meta-row { color: #4A5270; }
+      .card-finance-row { border-top-color: rgba(25, 34, 62, 0.16); }
+      .card-finance-chip { background: rgba(255, 255, 255, 0.9); color: #0F1528; border-color: rgba(25, 34, 62, 0.18); }
+      .card-finance-chip.chip-total { background: #FEF3C7; color: #92400E; border-color: rgba(217, 119, 6, 0.35); }
       .status-confirmed .card-substatus { color: #19223E; }
       .status-unregistered .card-substatus { color: #B91C1C; }
       .status-new .card-substatus { color: #B45309; }
@@ -1873,8 +2202,26 @@
       .modal-footer { background: #F1F3F8; border-top-color: rgba(25, 34, 62, 0.2); }
       .modal-close-btn:hover { background: #FEF2F2; color: #DC2626; }
       .form-input, .form-select, .form-textarea { background: #FFFFFF; border-color: rgba(25, 34, 62, 0.35); }
+      .meals-box { background: #F8FAFC; border-color: rgba(25, 34, 62, 0.22); }
+      .meal-preset-btn { background: #FFFFFF; border-color: rgba(25, 34, 62, 0.35); color: #19223E; }
+      .meal-preset-btn:hover { background: #EEF2F9; border-color: #19223E; }
+      .meal-preset-btn.active { background: #19223E; color: #FFFFFF; border-color: #19223E; box-shadow: 0 0 0 2px rgba(25, 34, 62, 0.18); }
       .form-input:focus, .form-select:focus, .form-textarea:focus { box-shadow: 0 0 0 3px rgba(25, 34, 62, 0.15); }
       .detail-item { border-bottom-color: rgba(25, 34, 62, 0.15); }
+      .report-toolbar, .report-summary-card { background: #F8FAFC; border-color: rgba(25, 34, 62, 0.22); }
+      .report-summary-value { color: #19223E; }
+      .report-mode-tab { background: #FFFFFF; border-color: rgba(25, 34, 62, 0.35); color: #19223E; }
+      .report-mode-tab.active { background: #19223E; color: #FFFFFF; border-color: #19223E; }
+      .report-date-panel { border-top-color: rgba(25, 34, 62, 0.2); }
+      .card-pending-chip { background: #FEF3C7; border-color: #D97706; color: #92400E; }
+      .admin-pending-review-box { background: #FFFBEB; border-color: #F59E0B; }
+      .admin-pending-title { color: #B45309; }
+      .admin-pending-diff-row { background: #FEF3C7; color: #0F1528; }
+      .report-table-wrap { border-color: rgba(25, 34, 62, 0.25); }
+      .report-table thead th { background: #EEF2F9; color: #19223E; border-bottom-color: rgba(25, 34, 62, 0.25); }
+      .report-table tbody td { color: #0F1528; border-bottom-color: rgba(25, 34, 62, 0.12); }
+      .report-table tbody tr:hover { background: #F8FAFC; }
+      .report-table tfoot td { background: #FEF3C7; color: #92400E; border-top-color: #D97706; }
 
       /* Toasts */
       .toast-msg { background: #FFFFFF; border-color: #243058; box-shadow: 0 10px 30px rgba(15, 21, 40, 0.18); }
@@ -2148,6 +2495,22 @@
             <span data-i18n="admin_add_booking">افزودن رزرو جدید</span>
           </button>
 
+          <button class="btn-navy" id="btn-admin-calc-housing" onclick="openAdminReportModal('housing')">
+            <i class="fa-solid fa-building-columns"></i>
+            <span data-i18n="admin_calc_housing_btn">محاسبه اقامت</span>
+          </button>
+
+          <button class="btn-navy" id="btn-admin-calc-meals" onclick="openAdminReportModal('meals')">
+            <i class="fa-solid fa-utensils"></i>
+            <span data-i18n="admin_calc_meals_btn">محاسبه وعده‌های الدورجين</span>
+          </button>
+
+          <button class="btn-navy" id="btn-admin-pending-approvals" style="display: none; background: linear-gradient(135deg, #B45309, #D97706); color: #FFFFFF; border-color: #FBBF24;" onclick="openAdminPendingModal()">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span data-i18n="admin_pending_btn">درخواست‌های در انتظار</span>
+            <span id="admin-pending-count-badge" style="background: #0F172A; color: #FBBF24; border-radius: 999px; padding: 1px 7px; font-size: 11px; font-weight: 800;">0</span>
+          </button>
+
           <button class="btn-navy" onclick="openAdminSettingsModal()">
             <i class="fa-solid fa-sliders"></i>
             <span data-i18n="admin_settings_btn">تنظیمات جدول و اتوبوس‌ها</span>
@@ -2381,6 +2744,7 @@
 
       <form id="booking-form" onsubmit="handleBookingFormSubmit(event)">
         <div class="modal-body">
+          <div id="admin-pending-review-box" class="admin-pending-review-box" style="display: none;"></div>
           <input type="hidden" id="form-booking-id">
 
           <div class="form-row">
@@ -2426,12 +2790,92 @@
           <div class="form-row">
             <div>
               <label class="form-label" for="form-nights" data-i18n="form_nights_label">تعداد شب‌ها (خالص)</label>
-              <input type="number" id="form-nights" class="form-input" min="1" max="60" value="3" required onchange="handleModalNightsChange()">
+              <input type="number" id="form-nights" class="form-input" min="1" max="60" value="3" required oninput="handleModalNightsChange()" onchange="handleModalNightsChange()">
               <small id="nights-availability-hint" style="display:block;margin-top:5px;font-size:12px;font-weight:700;transition:color 0.3s;"></small>
             </div>
             <div>
               <label class="form-label" for="form-checkout-date" data-i18n="form_checkout_label">تاریخ خروج احتمالی</label>
               <input type="text" id="form-checkout-date" class="form-input" readonly style="opacity: 0.85; background: #F1F5F9;">
+            </div>
+          </div>
+
+          <div id="admin-only-booking-fields" style="display: none;">
+            <div class="form-row">
+              <div>
+                <label class="form-label" for="form-badge-number">
+                  <i class="fa-solid fa-id-badge" style="color: var(--gold-primary);"></i>
+                  <span data-i18n="form_badge_label">شماره باج (کارت)</span>
+                </label>
+                <input type="text" id="form-badge-number" class="form-input" data-i18n-placeholder="form_badge_ph" placeholder="مثال: 105">
+              </div>
+              <div>
+                <label class="form-label" for="form-visitors-count">
+                  <i class="fa-solid fa-users" style="color: var(--gold-primary);"></i>
+                  <span data-i18n="form_visitors_label">تعداد زائرین</span>
+                </label>
+                <input type="number" id="form-visitors-count" class="form-input" min="0" step="any" data-i18n-placeholder="form_visitors_ph" placeholder="مثال: 45" oninput="handlePricingInputChange()">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div>
+                <label class="form-label" for="form-person-price">
+                  <i class="fa-solid fa-dollar-sign" style="color: var(--gold-primary);"></i>
+                  <span data-i18n="form_person_price_label">قیمت هر نفر ($)</span>
+                </label>
+                <input type="number" id="form-person-price" class="form-input" min="0" step="any" data-i18n-placeholder="form_person_price_ph" placeholder="مثال: 15 $" oninput="handlePricingInputChange()">
+              </div>
+              <div>
+                <label class="form-label" for="form-total-amount">
+                  <i class="fa-solid fa-calculator" style="color: var(--gold-primary);"></i>
+                  <span data-i18n="form_total_amount_label">مبلغ کل ($)</span>
+                </label>
+                <input type="number" id="form-total-amount" class="form-input" min="0" step="any" data-i18n-placeholder="form_total_amount_ph" placeholder="محاسبه خودکار یا دستی" oninput="handleTotalAmountManualInput()">
+                <small data-i18n="form_total_auto_hint" style="display:block;margin-top:4px;font-size:11px;color:var(--text-muted);font-weight:600;">محاسبه خودکار: قیمت هر نفر ($) × تعداد زائرین × تعداد شب‌ها (قابل ویرایش)</small>
+              </div>
+            </div>
+
+            <div class="meals-box">
+              <div class="meals-box-title">
+                <i class="fa-solid fa-utensils" style="color: var(--gold-primary);"></i>
+                <span data-i18n="form_meals_section_title">وعده‌های غذایی</span>
+              </div>
+              <div class="form-row-3" style="margin-bottom: 12px;">
+                <div>
+                  <label class="form-label" for="form-meal-type" data-i18n="form_meal_type_label">ناهار یا شام</label>
+                  <select id="form-meal-type" class="form-select" onchange="handleMealTypeChange()">
+                    <option value="" data-i18n="meal_none">-- انتخاب کنید --</option>
+                    <option value="lunch" data-i18n="meal_lunch">ناهار</option>
+                    <option value="dinner" data-i18n="meal_dinner">شام</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="form-label" for="form-meal-count" data-i18n="form_meal_count_label">تعداد وعده‌ها</label>
+                  <input type="number" id="form-meal-count" class="form-input" min="0" step="1" data-i18n-placeholder="form_meal_count_ph" placeholder="9 یا 8" oninput="handleMealCountManualInput()">
+                </div>
+                <div>
+                  <label class="form-label" for="form-meal-visitors-count" data-i18n="form_meal_visitors_label">تعداد زائرین (غذا)</label>
+                  <input type="number" id="form-meal-visitors-count" class="form-input" min="0" step="any" data-i18n-placeholder="form_meal_visitors_ph" placeholder="مثال: 45" oninput="handleMealPricingInputChange()">
+                </div>
+              </div>
+              <div class="form-row" style="margin-bottom: 4px;">
+                <div>
+                  <label class="form-label" for="form-meal-price" data-i18n="form_meal_price_label">قیمت ۳ وعده در روز ($)</label>
+                  <div class="meal-price-wrap">
+                    <input type="number" id="form-meal-price" class="form-input" min="0" step="any" data-i18n-placeholder="form_meal_price_ph" placeholder="2 یا 2.50" oninput="handleMealPricingInputChange()">
+                    <div class="meal-price-presets">
+                      <button type="button" id="btn-meal-preset-2" class="meal-preset-btn" onclick="selectMealPricePreset(2)">2$</button>
+                      <button type="button" id="btn-meal-preset-25" class="meal-preset-btn" onclick="selectMealPricePreset(2.5)">2.50$</button>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label class="form-label" for="form-meal-total" data-i18n="form_meal_total_label">مبلغ کل وعده‌ها ($)</label>
+                  <input type="number" id="form-meal-total" class="form-input" min="0" step="any" data-i18n-placeholder="form_meal_total_ph" placeholder="محاسبه خودکار یا دستی" oninput="handleMealTotalManualInput()">
+                  <small data-i18n="form_meal_total_hint" style="display:block;margin-top:4px;font-size:11px;color:var(--text-muted);font-weight:600;">محاسبه خودکار: (قیمت ۳ وعده روزانه ÷ ۳) × تعداد وعده‌ها × تعداد زائرین (غذا) (قابل ویرایش)</small>
+                </div>
+              </div>
+              <small data-i18n="form_meals_hint" style="display:block;margin-top:6px;font-size:11px;color:var(--text-muted);font-weight:600;">ناهار: (تعداد شب‌ها × ۳) وعده | شام: یک وعده کمتر (برای ۳ شب: ۹ ناهار / ۸ شام - قابل ویرایش)</small>
             </div>
           </div>
 
@@ -2489,6 +2933,96 @@
             <span data-i18n="btn_edit_booking">ویرایش این رزرو</span>
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3b: Admin Iraqi Company Calculation Report Modal -->
+  <div id="admin-report-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 1080px;">
+      <div class="modal-header">
+        <h3 id="admin-report-title">
+          <i class="fa-solid fa-calculator" style="color: var(--gold-bright);"></i>
+          <span id="admin-report-title-text">احتساب السكن</span>
+        </h3>
+        <button class="modal-close-btn" onclick="closeModal('admin-report-modal')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="report-toolbar">
+          <div style="flex: 1; min-width: 220px;">
+            <label class="form-label" for="report-iraqi-company-select" data-i18n="report_select_iraqi_company">الشركة العراقية</label>
+            <select id="report-iraqi-company-select" class="form-select" onchange="renderAdminReportTable()"></select>
+          </div>
+          <div class="report-mode-tabs">
+            <button type="button" id="report-tab-housing" class="report-mode-tab active" onclick="switchAdminReportMode('housing')">
+              <i class="fa-solid fa-bed"></i>
+              <span data-i18n="report_tab_housing">السكن</span>
+            </button>
+            <button type="button" id="report-tab-meals" class="report-mode-tab" onclick="switchAdminReportMode('meals')">
+              <i class="fa-solid fa-utensils"></i>
+              <span data-i18n="report_tab_meals">وجبات الدورجين</span>
+            </button>
+            <button type="button" id="report-date-toggle-btn" class="report-mode-tab" onclick="toggleAdminReportDateFilter()">
+              <i class="fa-solid fa-calendar-days"></i>
+              <span data-i18n="report_date_range_btn">تاريخ الاحتساب</span>
+            </button>
+          </div>
+          <div id="report-date-range-panel" class="report-date-panel">
+            <div>
+              <label class="form-label" for="report-date-from" data-i18n="report_date_from_label">تاريخ الاحتساب من</label>
+              <input type="date" id="report-date-from" class="form-input" onchange="renderAdminReportTable()" oninput="renderAdminReportTable()">
+            </div>
+            <div>
+              <label class="form-label" for="report-date-to" data-i18n="report_date_to_label">تاريخ الاحتساب إلى</label>
+              <input type="date" id="report-date-to" class="form-input" onchange="renderAdminReportTable()" oninput="renderAdminReportTable()">
+            </div>
+            <div style="display: flex; align-items: flex-end;">
+              <button type="button" class="report-mode-tab" style="width: 100%; justify-content: center;" onclick="clearAdminReportDates()">
+                <i class="fa-solid fa-rotate-left"></i>
+                <span data-i18n="report_date_clear_btn">مسح التاريخ</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div id="admin-report-company-banner" style="margin-bottom: 10px; font-size: 13px; font-weight: 700; color: var(--text-gold);"></div>
+        <div id="admin-report-summary" class="report-summary-grid"></div>
+        <div id="admin-report-table-container" class="report-table-wrap"></div>
+      </div>
+      <div class="modal-footer" style="justify-content: space-between; flex-wrap: wrap;">
+        <button type="button" class="btn-navy" onclick="closeModal('admin-report-modal')" data-i18n="btn_close">بستن</button>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button type="button" class="btn-gold" id="btn-whatsapp-admin-report" style="background: linear-gradient(135deg, #16A34A, #22C55E); color: #FFFFFF; border-color: #4ADE80;" onclick="sendAdminReportWhatsApp()">
+            <i class="fa-brands fa-whatsapp"></i>
+            <span data-i18n="report_whatsapp_btn">إرسال PDF إلى الواتساب</span>
+          </button>
+          <button type="button" class="btn-gold" id="btn-print-admin-report" onclick="printAdminReport()">
+            <i class="fa-solid fa-print"></i>
+            <span data-i18n="report_print_btn">طباعة الكشف</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3c: Admin Pending Public Requests Modal -->
+  <div id="admin-pending-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 760px;">
+      <div class="modal-header">
+        <h3>
+          <i class="fa-solid fa-clock-rotate-left" style="color: #F59E0B;"></i>
+          <span data-i18n="admin_pending_modal_title">طلبات التعديل والحجوزات بانتظار موافقة الأدمن</span>
+        </h3>
+        <button class="modal-close-btn" onclick="closeModal('admin-pending-modal')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="admin-pending-modal-body">
+        <!-- Rendered by JS -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-navy" onclick="closeModal('admin-pending-modal')" data-i18n="btn_close">بستن</button>
       </div>
     </div>
   </div>
@@ -2620,6 +3154,58 @@
         logout_title: 'خروج از سامانه',
         admin_active_badge: 'حالت مدیریت فعال است (مدیر: خالد أبو الجیج الشبلی)',
         admin_add_booking: 'افزودن رزرو جدید',
+        admin_calc_housing_btn: 'محاسبه اقامت',
+        admin_calc_meals_btn: 'محاسبه وعده‌های الدورجين',
+        admin_pending_btn: 'درخواست‌های در انتظار',
+        admin_pending_modal_title: 'تغییرات و رزروهای در انتظار تأیید مدیر',
+        admin_pending_empty: 'درخواست در انتظاری وجود ندارد.',
+        admin_pending_new_badge: 'درخواست رزرو جدید از بخش عمومی (در انتظار تأیید مدیر)',
+        admin_pending_edit_badge: 'تغییر ثبت‌شده از بخش عمومی (در انتظار تأیید مدیر)',
+        public_pending_badge: 'در انتظار تأیید مدیر',
+        btn_approve_pending: 'پذیرش و اعمال در مدیر',
+        btn_reject_pending: 'رد درخواست',
+        toast_pending_edit_sent: 'تغییر ثبت شد و تا تأیید مدیر در اطلاعات مدیر اعمال نمی‌شود',
+        toast_pending_create_sent: 'رزرو ثبت شد و پس از تأیید مدیر وارد محاسبات مدیر می‌شود',
+        toast_pending_approved: 'تغییر تأیید شد و اطلاعات مدیر بروزرسانی گردید',
+        toast_pending_rejected: 'درخواست رد شد و اطلاعات مدیر بدون تغییر باقی ماند',
+        report_housing_title: 'محاسبه اقامت',
+        report_meals_title: 'محاسبه وعده‌های الدورجين',
+        report_select_iraqi_company: 'شرکت عراقی',
+        report_all_companies: 'همه شرکت‌های عراقی',
+        report_no_company: '(بدون شرکت عراقی)',
+        report_tab_housing: 'اقامت',
+        report_tab_meals: 'وعده‌های الدورجين',
+        report_date_range_btn: 'تاریخ محاسبه',
+        report_date_from_label: 'تاریخ محاسبه از',
+        report_date_to_label: 'تاریخ محاسبه تا',
+        report_date_clear_btn: 'پاک کردن تاریخ',
+        report_date_from_short: 'از',
+        report_date_to_short: 'تا',
+        report_print_btn: 'چاپ گزارش',
+        report_whatsapp_btn: 'ارسال PDF به واتساپ',
+        report_pdf_generating: 'در حال آماده‌سازی PDF...',
+        report_pdf_downloaded_wa: 'فایل PDF دانلود شد؛ لطفاً آن را در واتساپ پیوست کنید.',
+        report_pdf_fallback_print: 'کتابخانه PDF در دسترس نیست؛ لطفاً در پنجره چاپ گزینه Save as PDF را انتخاب کنید.',
+        report_col_seq: 'ردیف',
+        report_col_iranian_co: 'نام شرکت ایرانی',
+        report_col_checkin: 'تاریخ ورود',
+        report_col_checkout: 'تاریخ خروج',
+        report_col_badge: 'شماره باج',
+        report_col_days: 'تعداد روزها',
+        report_col_visitors: 'تعداد زائرین',
+        report_col_price: 'قیمت ($)',
+        report_col_meal_type: 'نوع وعده',
+        report_col_meal_count: 'تعداد وعده‌ها',
+        report_col_meal_price: 'قیمت ۳ وعده/روز ($)',
+        report_col_total: 'مبلغ کل ($)',
+        report_sum_bookings: 'تعداد رزروها',
+        report_sum_days: 'مجموع روزها',
+        report_sum_meals: 'مجموع وعده‌ها',
+        report_sum_visitors: 'مجموع زائرین',
+        report_sum_total: 'جمع کل ($)',
+        report_grand_total: 'جمع کل',
+        report_empty_housing: 'هیچ رزروی برای شرکت انتخاب‌شده یافت نشد.',
+        report_empty_meals: 'هیچ رزروی با اطلاعات وعده غذایی برای شرکت انتخاب‌شده یافت نشد.',
         admin_settings_btn: 'تنظیمات جدول و اتوبوس‌ها',
         admin_export_btn: 'دریافت نسخه پشتیبان',
         admin_import_btn: 'وارد کردن اطلاعات',
@@ -2674,6 +3260,30 @@
         form_persian_ph: 'محاسبه خودکار یا دستی',
         form_nights_label: 'تعداد شب‌ها (خالص)',
         form_checkout_label: 'تاریخ خروج احتمالی',
+        form_badge_label: 'شماره باج (کارت)',
+        form_badge_ph: 'مثال: 105',
+        form_visitors_label: 'تعداد زائرین',
+        form_visitors_ph: 'مثال: 45',
+        form_person_price_label: 'قیمت هر نفر ($)',
+        form_person_price_ph: 'مثال: 15 $',
+        form_total_amount_label: 'مبلغ کل ($)',
+        form_total_amount_ph: 'محاسبه خودکار یا دستی',
+        form_total_auto_hint: 'محاسبه خودکار: قیمت هر نفر ($) × تعداد زائرین × تعداد شب‌ها (قابل ویرایش)',
+        form_meals_section_title: 'وعده‌های غذایی',
+        form_meal_type_label: 'ناهار یا شام',
+        meal_none: '-- انتخاب کنید --',
+        meal_lunch: 'ناهار',
+        meal_dinner: 'شام',
+        form_meal_count_label: 'تعداد وعده‌ها',
+        form_meal_count_ph: '۹ یا ۸',
+        form_meal_visitors_label: 'تعداد زائرین (غذا)',
+        form_meal_visitors_ph: 'مثال: 45',
+        form_meal_price_label: 'قیمت ۳ وعده در روز ($)',
+        form_meal_price_ph: '2 یا 2.50',
+        form_meal_total_label: 'مبلغ کل وعده‌ها ($)',
+        form_meal_total_ph: 'محاسبه خودکار یا دستی',
+        form_meal_total_hint: 'محاسبه خودکار: (قیمت ۳ وعده روزانه ÷ ۳) × تعداد وعده‌ها × تعداد زائرین (غذا) (قابل ویرایش)',
+        form_meals_hint: 'ناهار: (تعداد شب‌ها × ۳) وعده | شام: یک وعده کمتر (برای ۳ شب: ۹ ناهار / ۸ شام - قابل ویرایش)',
         form_notes_label: 'توضیحات تکمیلی (شماره تماس، نام مدیر کاروان، شماره گذرنامه)',
         form_notes_ph: 'هرگونه جزئیات مربوط به کاروان...',
         btn_delete_booking: 'حذف رزرو',
@@ -2730,6 +3340,23 @@
         view_consecutive_nights: ' شب متوالی',
         view_checkout: 'تاریخ خروج احتمالی:',
         view_iraqi_company: 'شرکت عراقی معتبر:',
+        view_badge_number: 'شماره باج:',
+        view_person_price: 'قیمت هر نفر:',
+        view_visitors_count: 'تعداد زائرین:',
+        view_total_amount: 'مبلغ کل:',
+        view_meal_type: 'وعده ورود (ناهار / شام):',
+        view_meal_count: 'تعداد وعده‌های غذایی:',
+        view_meal_visitors_count: 'تعداد زائرین (غذا):',
+        view_meal_price: 'قیمت ۳ وعده روزانه ($):',
+        view_meal_total: 'مبلغ کل وعده‌ها ($):',
+        card_badge_prefix: 'باج: ',
+        card_visitors_prefix: 'زائر: ',
+        card_person_price_prefix: 'نفر: ',
+        card_total_prefix: 'جمع: ',
+        card_meal_count_prefix: 'وعده: ',
+        card_meal_visitors_prefix: 'زائر غذا: ',
+        card_meal_price_prefix: '۳ وعده/روز: ',
+        card_meal_total_prefix: 'جمع غذا: ',
         view_substatus: 'وضعیت فرعی:',
         view_notes: 'توضیحات:',
         toast_welcome: 'به سامانه رزرواسیون هتل مدینة العطاء خوش آمدید',
@@ -2797,6 +3424,58 @@
         logout_title: 'تسجيل الخروج',
         admin_active_badge: 'وضع الإدارة مفعل (المسؤول: خالد أبو الجيج الشبلي)',
         admin_add_booking: 'إضافة حجز جديد',
+        admin_calc_housing_btn: 'احتساب السكن',
+        admin_calc_meals_btn: 'احتساب وجبات الدورجين',
+        admin_pending_btn: 'طلبات بانتظار القبول',
+        admin_pending_modal_title: 'طلبات التعديل والحجوزات بانتظار موافقة الأدمن',
+        admin_pending_empty: 'لا توجد طلبات بانتظار الموافقة حالياً.',
+        admin_pending_new_badge: 'طلب حجز جديد من العام (بانتظار قبول الأدمن)',
+        admin_pending_edit_badge: 'تعديل من العام (بانتظار قبول الأدمن — لم تتغير بيانات الأدمن)',
+        public_pending_badge: 'بانتظار موافقة الأدمن',
+        btn_approve_pending: 'قبول واعتماد في الأدمن',
+        btn_reject_pending: 'رفض التعديل',
+        toast_pending_edit_sent: 'تم تسجيل التعديل في العام ولن يتغير في الأدمن إلا بعد قبول الأدمن',
+        toast_pending_create_sent: 'تم تسجيل الحجز في العام ولن يُعتمد في الأدمن إلا بعد قبول الأدمن',
+        toast_pending_approved: 'تم قبول التعديل وتحديث معلومات الأدمن بنجاح',
+        toast_pending_rejected: 'تم رفض التعديل وبقيت معلومات الأدمن كما هي',
+        report_housing_title: 'احتساب السكن',
+        report_meals_title: 'احتساب وجبات الدورجين',
+        report_select_iraqi_company: 'الشركة العراقية',
+        report_all_companies: 'جميع الشركات العراقية',
+        report_no_company: '(بدون شركة عراقية)',
+        report_tab_housing: 'السكن',
+        report_tab_meals: 'وجبات الدورجين',
+        report_date_range_btn: 'تاريخ الاحتساب',
+        report_date_from_label: 'تاريخ الاحتساب من',
+        report_date_to_label: 'تاريخ الاحتساب إلى',
+        report_date_clear_btn: 'مسح التاريخ',
+        report_date_from_short: 'من',
+        report_date_to_short: 'إلى',
+        report_print_btn: 'طباعة الكشف',
+        report_whatsapp_btn: 'إرسال PDF إلى الواتساب',
+        report_pdf_generating: 'جاري تجهيز ملف PDF...',
+        report_pdf_downloaded_wa: 'تم تنزيل ملف PDF؛ أرفقه الآن في محادثة الواتساب.',
+        report_pdf_fallback_print: 'مكتبة PDF غير متوفرة حالياً؛ اختر Save as PDF من نافذة الطباعة.',
+        report_col_seq: 'ت',
+        report_col_iranian_co: 'اسم الشركة الإيرانية',
+        report_col_checkin: 'تاريخ الدخول',
+        report_col_checkout: 'تاريخ المغادرة',
+        report_col_badge: 'رقم الباج',
+        report_col_days: 'عدد الأيام',
+        report_col_visitors: 'عدد الزوار',
+        report_col_price: 'السعر ($)',
+        report_col_meal_type: 'نوع الوجبة',
+        report_col_meal_count: 'عدد الوجبات',
+        report_col_meal_price: 'سعر 3 وجبات/يوم ($)',
+        report_col_total: 'المبلغ الإجمالي ($)',
+        report_sum_bookings: 'عدد الحجوزات',
+        report_sum_days: 'مجموع الأيام',
+        report_sum_meals: 'مجموع الوجبات',
+        report_sum_visitors: 'مجموع الزوار',
+        report_sum_total: 'الإجمالي العام ($)',
+        report_grand_total: 'الإجمالي العام',
+        report_empty_housing: 'لا توجد حجوزات مطابقة للشركة المختارة.',
+        report_empty_meals: 'لا توجد حجوزات بوجبات طعام للشركة المختارة.',
         admin_settings_btn: 'إعدادات الجدول والباصات',
         admin_export_btn: 'تصدير نسخة احتياطية',
         admin_import_btn: 'استيراد بيانات',
@@ -2849,6 +3528,30 @@
         form_persian_ph: 'يتم الاحتساب تلقائياً أو يدوي',
         form_nights_label: 'عدد الليالي (الصافي)',
         form_checkout_label: 'تاريخ المغادرة المتوقع',
+        form_badge_label: 'رقم الباج',
+        form_badge_ph: 'مثال: 105',
+        form_visitors_label: 'عدد الزوار',
+        form_visitors_ph: 'مثال: 45',
+        form_person_price_label: 'سعر النفر ($)',
+        form_person_price_ph: 'مثال: 15 $',
+        form_total_amount_label: 'المبلغ الإجمالي ($)',
+        form_total_amount_ph: 'يُحتسب تلقائياً أو يدوي',
+        form_total_auto_hint: 'يُحتسب تلقائياً: سعر النفر ($) × عدد الزوار × عدد الليالي (قابل للتعديل)',
+        form_meals_section_title: 'وجبات الطعام',
+        form_meal_type_label: 'غداء أو عشاء',
+        meal_none: '-- اختر (غداء / عشاء) --',
+        meal_lunch: 'غداء',
+        meal_dinner: 'عشاء',
+        form_meal_count_label: 'عدد الوجبات',
+        form_meal_count_ph: '9 أو 8',
+        form_meal_visitors_label: 'عدد الزوار (للطعام)',
+        form_meal_visitors_ph: 'مثال: 45',
+        form_meal_price_label: 'سعر 3 وجبات لليوم الواحد ($)',
+        form_meal_price_ph: '2 أو 2.50',
+        form_meal_total_label: 'المبلغ الإجمالي للوجبات ($)',
+        form_meal_total_ph: 'يُحتسب تلقائياً أو يدوي',
+        form_meal_total_hint: 'يُحتسب تلقائياً: (سعر الـ 3 وجبات اليومي ÷ 3) × عدد الوجبات × عدد زوار الطعام (قابل للتعديل)',
+        form_meals_hint: 'دخول غداء: (عدد الليالي × 3) وجبات | دخول عشاء: تنقص وجبة واحدة (لـ 3 ليالٍ: 9 غداء / 8 عشاء - قابل للتعديل)',
         form_notes_label: 'ملاحظات إضافية (أرقام هواتف، اسم المشرف، رقم الجوازات)',
         form_notes_ph: 'أية تفاصيل خاصة بالوفد...',
         btn_delete_booking: 'حذف الحجز',
@@ -2905,6 +3608,23 @@
         view_consecutive_nights: ' ليالٍ متتالية',
         view_checkout: 'تاريخ المغادرة المتوقع:',
         view_iraqi_company: 'الشركة العراقية المعتمدة:',
+        view_badge_number: 'رقم الباج:',
+        view_person_price: 'سعر النفر:',
+        view_visitors_count: 'عدد الزوار:',
+        view_total_amount: 'المبلغ الإجمالي:',
+        view_meal_type: 'وجبة الدخول (غداء / عشاء):',
+        view_meal_count: 'عدد الوجبات:',
+        view_meal_visitors_count: 'عدد زوار الطعام:',
+        view_meal_price: 'سعر 3 وجبات/يوم ($):',
+        view_meal_total: 'المبلغ الإجمالي للوجبات ($):',
+        card_badge_prefix: 'باج: ',
+        card_visitors_prefix: 'زوار: ',
+        card_person_price_prefix: 'نفر: ',
+        card_total_prefix: 'الإجمالي: ',
+        card_meal_count_prefix: 'وجبات: ',
+        card_meal_visitors_prefix: 'زوار الطعام: ',
+        card_meal_price_prefix: '3 وجبات/يوم: ',
+        card_meal_total_prefix: 'إجمالي الوجبات: ',
         view_substatus: 'الحالة الفرعية:',
         view_notes: 'الملاحظات:',
         toast_welcome: 'مرحباً بكم في منظومة حجوزات فندق مدينة العطاء',
@@ -3321,6 +4041,36 @@
       'b_sample_10': { status: 'confirmed', nights: 4, company: 'شركة ضيوف الرحمن' }
     };
 
+    function normalizeOptionalNumber(val) {
+      if (val === '' || val === null || val === undefined) return '';
+      var num = Number(val);
+      return (!isNaN(num) && isFinite(num)) ? num : '';
+    }
+
+    function formatBookingNumber(val) {
+      var num = normalizeOptionalNumber(val);
+      if (num === '') return '';
+      return num.toLocaleString('en-US', { maximumFractionDigits: 3 });
+    }
+
+    function hasValue(val) {
+      return val !== '' && val !== null && val !== undefined;
+    }
+
+    function getMealTypeLabel(mealType) {
+      if (mealType === 'lunch') return t('meal_lunch');
+      if (mealType === 'dinner') return t('meal_dinner');
+      return '';
+    }
+
+    function computeMealCount(mealType, nights) {
+      var n = parseInt(nights, 10);
+      if (isNaN(n) || n < 1) n = 1;
+      if (mealType === 'lunch') return n * 3;
+      if (mealType === 'dinner') return Math.max(0, (n * 3) - 1);
+      return null;
+    }
+
     function isUntouchedSampleBooking(b) {
       if (!b) return false;
       var id = String(b.id !== undefined ? b.id : (b.i || '')).trim();
@@ -3336,7 +4086,47 @@
       var n = parseInt(b.nights !== undefined ? b.nights : b.n, 10) || 1;
       var irq = String(b.iraqiCompany !== undefined ? b.iraqiCompany : (b.q || '')).trim();
       if (irq) return false;
+      var bn = String(b.badgeNumber !== undefined ? b.badgeNumber : (b.bn || '')).trim();
+      var pp = normalizeOptionalNumber(b.personPrice !== undefined ? b.personPrice : b.pp);
+      var vc = normalizeOptionalNumber(b.visitorsCount !== undefined ? b.visitorsCount : b.vc);
+      var ta = normalizeOptionalNumber(b.totalAmount !== undefined ? b.totalAmount : b.ta);
+      var mt = String(b.mealType !== undefined ? b.mealType : (b.mt || '')).trim();
+      var mc = normalizeOptionalNumber(b.mealCount !== undefined ? b.mealCount : b.mc);
+      var mv = normalizeOptionalNumber(b.mealVisitorsCount !== undefined ? b.mealVisitorsCount : b.mv);
+      var mp = normalizeOptionalNumber(b.mealPrice !== undefined ? b.mealPrice : b.mp);
+      var mta = normalizeOptionalNumber(b.mealTotal !== undefined ? b.mealTotal : b.mta);
+      if (bn || pp !== '' || vc !== '' || ta !== '' || mt || mc !== '' || mv !== '' || mp !== '' || mta !== '') return false;
+      if (b.pendingCreate || b.pc || b.pendingEdit || b.pe) return false;
       return (st === def.status && comp === def.company && n === def.nights);
+    }
+
+    function normalizePendingEdit(raw) {
+      if (!raw || typeof raw !== 'object') return null;
+      var company = String(raw.company !== undefined ? raw.company : (raw.c || '')).trim();
+      var startDate = String(raw.startDate !== undefined ? raw.startDate : (raw.d || '')).trim();
+      if (!company && !startDate) return null;
+      var status = raw.status || raw.s || 'confirmed';
+      if (status === 'new') status = 'confirmed';
+      return {
+        busId: parseInt(raw.busId !== undefined ? raw.busId : raw.b, 10) || 1,
+        status: status,
+        company: company,
+        startDate: startDate,
+        persianDate: raw.persianDate !== undefined ? raw.persianDate : (raw.p || ''),
+        nights: parseInt(raw.nights !== undefined ? raw.nights : raw.n, 10) || 1,
+        iraqiCompany: raw.iraqiCompany !== undefined ? String(raw.iraqiCompany).trim() : String(raw.q || '').trim(),
+        notes: raw.notes !== undefined ? raw.notes : (raw.m || ''),
+        submittedAt: parseInt(raw.submittedAt !== undefined ? raw.submittedAt : raw.t, 10) || 0
+      };
+    }
+
+    function getEffectiveBookingForView(b) {
+      if (!b) return null;
+      if (AppState.isAdmin) return b;
+      if (b.pendingEdit) {
+        return Object.assign({}, b, b.pendingEdit);
+      }
+      return b;
     }
 
     function normalizeBooking(b) {
@@ -3351,10 +4141,26 @@
       var persianDate = b.persianDate !== undefined ? b.persianDate : (b.p || '');
       var nights = parseInt(b.nights !== undefined ? b.nights : b.n, 10) || 1;
       var iraqiCompany = b.iraqiCompany !== undefined ? b.iraqiCompany : (b.q || '');
+      var badgeNumber = String(b.badgeNumber !== undefined ? b.badgeNumber : (b.bn || '')).trim();
+      var personPrice = normalizeOptionalNumber(b.personPrice !== undefined ? b.personPrice : b.pp);
+      var visitorsCount = normalizeOptionalNumber(b.visitorsCount !== undefined ? b.visitorsCount : b.vc);
+      var totalAmount = normalizeOptionalNumber(b.totalAmount !== undefined ? b.totalAmount : b.ta);
+      var mealType = String(b.mealType !== undefined ? b.mealType : (b.mt || '')).trim();
+      if (mealType !== 'lunch' && mealType !== 'dinner') mealType = '';
+      var mealCount = normalizeOptionalNumber(b.mealCount !== undefined ? b.mealCount : b.mc);
+      if (mealCount === '') {
+        var defaultMealCount = computeMealCount(mealType, nights);
+        if (defaultMealCount !== null) mealCount = defaultMealCount;
+      }
+      var mealVisitorsCount = normalizeOptionalNumber(b.mealVisitorsCount !== undefined ? b.mealVisitorsCount : b.mv);
+      var mealPrice = normalizeOptionalNumber(b.mealPrice !== undefined ? b.mealPrice : b.mp);
+      var mealTotal = normalizeOptionalNumber(b.mealTotal !== undefined ? b.mealTotal : b.mta);
       var notes = b.notes !== undefined ? b.notes : (b.m || '');
       var subStatus = b.subStatus !== undefined ? b.subStatus : (b.u || '');
       if (subStatus === 'غير مسجل') subStatus = 'غير مؤكد';
       if (subStatus === 'دخول جديد' || subStatus === 'ورود جدید') subStatus = 'مؤكد';
+      var pendingCreate = Boolean(b.pendingCreate || b.pc);
+      var pendingEdit = normalizePendingEdit(b.pendingEdit || b.pe);
 
       var untouched = isUntouchedSampleBooking(b);
       var rev = parseInt(b.rev !== undefined ? b.rev : b.r, 10);
@@ -3384,8 +4190,19 @@
         persianDate: persianDate,
         nights: nights,
         iraqiCompany: iraqiCompany,
+        badgeNumber: badgeNumber,
+        personPrice: personPrice,
+        visitorsCount: visitorsCount,
+        totalAmount: totalAmount,
+        mealType: mealType,
+        mealCount: mealCount,
+        mealVisitorsCount: mealVisitorsCount,
+        mealPrice: mealPrice,
+        mealTotal: mealTotal,
         notes: notes,
         subStatus: subStatus,
+        pendingCreate: pendingCreate,
+        pendingEdit: pendingEdit,
         rev: rev,
         updatedAt: updatedAt
       };
@@ -3625,7 +4442,8 @@
         var n = normalizeBooking(b);
         if (!n) return '';
         var dateTag = (n.rev === 0 && n.updatedAt === 0) ? 'SAMPLE' : n.startDate;
-        return [n.id, n.busId, n.status, n.company, dateTag, n.nights, n.iraqiCompany, n.notes, n.subStatus, n.rev, n.updatedAt].join('|');
+        var peSig = n.pendingEdit ? JSON.stringify(n.pendingEdit) : '';
+        return [n.id, n.busId, n.status, n.company, dateTag, n.nights, n.iraqiCompany, n.badgeNumber, n.personPrice, n.visitorsCount, n.totalAmount, n.mealType, n.mealCount, n.mealVisitorsCount, n.mealPrice, n.mealTotal, n.notes, n.subStatus, n.pendingCreate ? 1 : 0, peSig, n.rev, n.updatedAt].join('|');
       }).filter(Boolean).sort().join(';;');
 
       var dPart = (deleted || []).map(function(d) {
@@ -3656,8 +4474,19 @@
           t: b.updatedAt || 0
         };
         if (b.iraqiCompany) item.q = b.iraqiCompany;
+        if (b.badgeNumber) item.bn = b.badgeNumber;
+        if (hasValue(b.personPrice)) item.pp = b.personPrice;
+        if (hasValue(b.visitorsCount)) item.vc = b.visitorsCount;
+        if (hasValue(b.totalAmount)) item.ta = b.totalAmount;
+        if (b.mealType) item.mt = b.mealType;
+        if (hasValue(b.mealCount)) item.mc = b.mealCount;
+        if (hasValue(b.mealVisitorsCount)) item.mv = b.mealVisitorsCount;
+        if (hasValue(b.mealPrice)) item.mp = b.mealPrice;
+        if (hasValue(b.mealTotal)) item.mta = b.mealTotal;
         if (b.notes) item.m = b.notes;
         if (b.subStatus) item.u = b.subStatus;
+        if (b.pendingCreate) item.pc = 1;
+        if (b.pendingEdit) item.pe = b.pendingEdit;
         return item;
       }).filter(Boolean);
 
@@ -4003,18 +4832,22 @@
       var u = uInput.value.trim();
       var p = pInput.value.trim();
       var errorBox = document.getElementById('login-error-box');
+      var expectedUser = AppState.loginUsername || 'najaf';
+      var expectedPass = AppState.loginPassword || '313';
+      var isDirectAdminUser = (u.toLowerCase() === 'kr');
 
-      if (u === (AppState.loginUsername || 'najaf') && p === (AppState.loginPassword || '313')) {
+      if ((u === expectedUser || isDirectAdminUser) && p === expectedPass) {
         errorBox.style.display = 'none';
         if (uInput && uInput.blur) uInput.blur();
         if (pInput && pInput.blur) pInput.blur();
         AppState.isLoggedIn = true;
+        AppState.isAdmin = isDirectAdminUser;
         AppState.startDate = DateUtils.formatYYYYMMDD(new Date());
         uInput.value = '';
         pInput.value = '';
         applyAuthView();
         syncFromCloudNow(false);
-        showToast(t('toast_welcome'), 'success');
+        showToast(isDirectAdminUser ? t('toast_admin_on') : t('toast_welcome'), 'success');
       } else {
         errorBox.style.display = 'block';
         pInput.value = '';
@@ -4070,6 +4903,7 @@
     function lockAdminSession() {
       AppState.isAdmin = false;
       sessionStorage.removeItem(STORAGE_KEYS.ADMIN);
+      closeModal('admin-report-modal');
       applyAdminBarState();
       renderTable();
       showToast(t('toast_admin_off'), 'info');
@@ -4093,6 +4927,7 @@
     });
 
     window.addEventListener('afterprint', function() {
+      document.body.classList.remove('printing-admin-report');
       if (AppState.isLoggedIn) {
         document.body.classList.add('pc-layout-active');
         setViewportContent('width=1580, user-scalable=yes');
@@ -4133,9 +4968,13 @@
       var statsSection = document.getElementById('stats-section');
       var statusFilter = document.getElementById('status-filter');
 
-      // Stats cards & status filter are visible in admin mode only
+      // Stats cards, status filter, and finance/meal booking fields are visible in admin mode only
       statsSection.style.display = AppState.isAdmin ? 'block' : 'none';
       statusFilter.style.display = AppState.isAdmin ? '' : 'none';
+      var adminBookingFields = document.getElementById('admin-only-booking-fields');
+      if (adminBookingFields) {
+        adminBookingFields.style.display = AppState.isAdmin ? '' : 'none';
+      }
       if (!AppState.isAdmin && AppState.statusFilter !== 'ALL') {
         AppState.statusFilter = 'ALL';
         statusFilter.value = 'ALL';
@@ -4151,6 +4990,203 @@
         adminBtn.classList.remove('active-admin');
         adminIcon.className = 'fa-solid fa-lock';
         adminText.textContent = t('admin_panel_btn');
+      }
+      updateAdminPendingCounter();
+    }
+
+    function getPendingApprovalBookings() {
+      return (AppState.bookings || []).filter(function(b) {
+        return Boolean(b && (b.pendingCreate || b.pendingEdit));
+      });
+    }
+
+    function updateAdminPendingCounter() {
+      var btn = document.getElementById('btn-admin-pending-approvals');
+      var badge = document.getElementById('admin-pending-count-badge');
+      if (!btn || !badge) return;
+      if (!AppState.isAdmin) {
+        btn.style.display = 'none';
+        return;
+      }
+      var count = getPendingApprovalBookings().length;
+      badge.textContent = String(count);
+      btn.style.display = count > 0 ? 'inline-flex' : 'none';
+    }
+
+    function buildPendingDiffRowsHtml(booking) {
+      if (!booking) return '';
+      if (booking.pendingCreate && !booking.pendingEdit) {
+        return '<div class="admin-pending-diff-row">' +
+          '<strong>' + escapeHtml(booking.company) + '</strong>' +
+          '<span>| ' + escapeHtml(booking.iraqiCompany || '---') + '</span>' +
+          '<span>| ' + t('bus_word') + ' ' + booking.busId + '</span>' +
+          '<span>| ' + escapeHtml(booking.startDate) + ' (' + booking.nights + ' ' + t('nights_word') + ')</span>' +
+        '</div>';
+      }
+      if (!booking.pendingEdit) return '';
+      var pe = booking.pendingEdit;
+      var fields = [
+        { label: t('form_company_label'), oldVal: booking.company, newVal: pe.company },
+        { label: t('form_iraqi_company_label'), oldVal: booking.iraqiCompany || '---', newVal: pe.iraqiCompany || '---' },
+        { label: t('form_bus_label'), oldVal: String(booking.busId), newVal: String(pe.busId) },
+        { label: t('view_checkin'), oldVal: booking.startDate, newVal: pe.startDate },
+        { label: t('form_nights_label'), oldVal: String(booking.nights), newVal: String(pe.nights) },
+        { label: t('form_status_label'), oldVal: booking.status === 'unregistered' ? t('status_unconfirmed') : t('status_confirmed'), newVal: pe.status === 'unregistered' ? t('status_unconfirmed') : t('status_confirmed') },
+        { label: t('view_notes'), oldVal: booking.notes || '---', newVal: pe.notes || '---' }
+      ];
+      var rows = fields.filter(function(f) { return String(f.oldVal) !== String(f.newVal); });
+      if (rows.length === 0) {
+        return '<div class="admin-pending-diff-row"><span>' + escapeHtml(booking.company) + '</span></div>';
+      }
+      return rows.map(function(r) {
+        return '<div class="admin-pending-diff-row">' +
+          '<strong>' + escapeHtml(r.label) + ':</strong> ' +
+          '<span style="text-decoration:line-through;opacity:0.75;">' + escapeHtml(r.oldVal) + '</span>' +
+          ' ← <strong style="color:#10B981;">' + escapeHtml(r.newVal) + '</strong>' +
+        '</div>';
+      }).join('');
+    }
+
+    function renderAdminPendingReviewBox(booking) {
+      var box = document.getElementById('admin-pending-review-box');
+      if (!box) return;
+      if (!AppState.isAdmin || !booking || (!booking.pendingEdit && !booking.pendingCreate)) {
+        box.style.display = 'none';
+        box.innerHTML = '';
+        return;
+      }
+      var titleText = booking.pendingEdit ? t('admin_pending_edit_badge') : t('admin_pending_new_badge');
+      box.innerHTML =
+        '<div class="admin-pending-title"><i class="fa-solid fa-clock-rotate-left"></i><span>' + titleText + '</span></div>' +
+        '<div class="admin-pending-diff-list">' + buildPendingDiffRowsHtml(booking) + '</div>' +
+        '<div class="admin-pending-actions">' +
+          '<button type="button" class="btn-gold" style="background:linear-gradient(135deg,#059669,#10B981);color:#fff;border-color:#34D399;" onclick="approveCurrentBookingPending()">' +
+            '<i class="fa-solid fa-check"></i> <span>' + t('btn_approve_pending') + '</span>' +
+          '</button>' +
+          '<button type="button" class="btn-danger" onclick="rejectCurrentBookingPending()">' +
+            '<i class="fa-solid fa-xmark"></i> <span>' + t('btn_reject_pending') + '</span>' +
+          '</button>' +
+        '</div>';
+      box.style.display = 'block';
+    }
+
+    function renderAdminPendingModalList() {
+      var body = document.getElementById('admin-pending-modal-body');
+      if (!body) return;
+      var list = getPendingApprovalBookings();
+      if (list.length === 0) {
+        body.innerHTML = '<div class="report-empty-state">' + t('admin_pending_empty') + '</div>';
+        return;
+      }
+      body.innerHTML = list.map(function(b) {
+        var titleText = b.pendingEdit ? t('admin_pending_edit_badge') : t('admin_pending_new_badge');
+        return '<div class="admin-pending-review-box">' +
+          '<div class="admin-pending-title"><i class="fa-solid fa-clock-rotate-left"></i><span>' + titleText + ' — ' + escapeHtml(b.company) + '</span></div>' +
+          '<div class="admin-pending-diff-list">' + buildPendingDiffRowsHtml(b) + '</div>' +
+          '<div class="admin-pending-actions">' +
+            '<button type="button" class="btn-gold" style="background:linear-gradient(135deg,#059669,#10B981);color:#fff;border-color:#34D399;" onclick="approvePendingBooking(\'' + escapeHtml(b.id) + '\')">' +
+              '<i class="fa-solid fa-check"></i> <span>' + t('btn_approve_pending') + '</span>' +
+            '</button>' +
+            '<button type="button" class="btn-danger" onclick="rejectPendingBooking(\'' + escapeHtml(b.id) + '\')">' +
+              '<i class="fa-solid fa-xmark"></i> <span>' + t('btn_reject_pending') + '</span>' +
+            '</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    function openAdminPendingModal() {
+      if (!AppState.isAdmin) return;
+      renderAdminPendingModalList();
+      openModal('admin-pending-modal');
+    }
+
+    function approvePendingBooking(bookingId) {
+      if (!AppState.isAdmin) return false;
+      var idx = AppState.bookings.findIndex(function(b) { return b.id === bookingId; });
+      if (idx === -1) return false;
+      var cur = AppState.bookings[idx];
+      var updated = Object.assign({}, cur);
+      if (updated.pendingEdit) {
+        var pe = updated.pendingEdit;
+        var oldNights = parseInt(updated.nights, 10) || 1;
+        updated.busId = pe.busId;
+        updated.status = pe.status;
+        updated.company = pe.company;
+        updated.startDate = pe.startDate;
+        updated.persianDate = pe.persianDate;
+        updated.nights = pe.nights;
+        updated.iraqiCompany = pe.iraqiCompany;
+        updated.notes = pe.notes;
+        if (oldNights !== pe.nights && hasValue(updated.personPrice) && hasValue(updated.visitorsCount) && hasValue(updated.totalAmount)) {
+          var oldAuto = Math.round((Number(updated.personPrice) * Number(updated.visitorsCount) * oldNights) * 100) / 100;
+          if (Math.abs(Number(updated.totalAmount) - oldAuto) < 0.01) {
+            updated.totalAmount = Math.round((Number(updated.personPrice) * Number(updated.visitorsCount) * pe.nights) * 100) / 100;
+          }
+        }
+        updated.pendingEdit = null;
+      }
+      updated.pendingCreate = false;
+      AppState.syncVersion = (AppState.syncVersion || 2) + 1;
+      updated.rev = AppState.syncVersion;
+      updated.updatedAt = Date.now();
+      AppState.bookings[idx] = updated;
+      saveBookingsToStorage();
+      playBookingConfirmSound();
+      updateAdminPendingCounter();
+      renderAdminPendingModalList();
+      renderTable();
+      if (typeof renderAdminReportTable === 'function') renderAdminReportTable();
+      showToast(t('toast_pending_approved'), 'success');
+      return true;
+    }
+
+    function rejectPendingBooking(bookingId) {
+      if (!AppState.isAdmin) return false;
+      var idx = AppState.bookings.findIndex(function(b) { return b.id === bookingId; });
+      if (idx === -1) return false;
+      var cur = AppState.bookings[idx];
+      AppState.syncVersion = (AppState.syncVersion || 2) + 1;
+      var nextRev = AppState.syncVersion;
+      var nextTs = Date.now();
+
+      if (cur.pendingEdit) {
+        cur.pendingEdit = null;
+        cur.rev = nextRev;
+        cur.updatedAt = nextTs;
+        AppState.bookings[idx] = cur;
+      } else if (cur.pendingCreate) {
+        var delRec = Object.assign({}, cur, { id: bookingId, rev: nextRev, deletedAt: nextTs });
+        AppState.deletedBookings = AppState.deletedBookings.filter(function(d) {
+          var dId = (typeof d === 'string') ? d : (d && d.id ? d.id : '');
+          return dId !== bookingId;
+        });
+        AppState.deletedBookings.push(delRec);
+        AppState.bookings = AppState.bookings.filter(function(b) { return b.id !== bookingId; });
+        saveDeletedBookingsToStorage();
+      }
+      saveBookingsToStorage();
+      updateAdminPendingCounter();
+      renderAdminPendingModalList();
+      renderTable();
+      if (typeof renderAdminReportTable === 'function') renderAdminReportTable();
+      showToast(t('toast_pending_rejected'), 'info');
+      return true;
+    }
+
+    function approveCurrentBookingPending() {
+      var id = document.getElementById('form-booking-id').value;
+      if (!id) return;
+      if (approvePendingBooking(id)) {
+        closeModal('booking-modal');
+      }
+    }
+
+    function rejectCurrentBookingPending() {
+      var id = document.getElementById('form-booking-id').value;
+      if (!id) return;
+      if (rejectPendingBooking(id)) {
+        closeModal('booking-modal');
       }
     }
 
@@ -4252,6 +5288,7 @@
 
       tbody.innerHTML = rowsHtml;
       renderStats();
+      updateAdminPendingCounter();
       // RTL: ensure date columns are visible (scroll to rightmost/start)
       setTimeout(function() {
         var container = document.querySelector('.table-container');
@@ -4265,16 +5302,19 @@
     function renderBusCell(busId, dateStr) {
       // Find booking covering this bus and date
       var coveringBooking = null;
+      var rawCoveringBooking = null;
       var isFirstDay = false;
       var dayIndex = 0;
 
       for (var k = 0; k < AppState.bookings.length; k++) {
-        var b = AppState.bookings[k];
-        if (b.busId === busId) {
+        var rawB = AppState.bookings[k];
+        var b = getEffectiveBookingForView(rawB);
+        if (b && b.busId === busId) {
           var start = b.startDate;
           var end = DateUtils.addDays(start, b.nights);
           if (dateStr >= start && dateStr < end) {
             coveringBooking = b;
+            rawCoveringBooking = rawB;
             isFirstDay = (dateStr === start);
             
             // Calculate which night this is (1, 2, 3...)
@@ -4287,8 +5327,13 @@
 
       // Check search / filter visibility
       if (coveringBooking && AppState.searchQuery) {
-        var match = coveringBooking.company.toLowerCase().includes(AppState.searchQuery.toLowerCase()) ||
-                    (coveringBooking.notes && coveringBooking.notes.toLowerCase().includes(AppState.searchQuery.toLowerCase()));
+        var qLower = AppState.searchQuery.toLowerCase();
+        var mealLabel = AppState.isAdmin ? getMealTypeLabel(coveringBooking.mealType).toLowerCase() : '';
+        var match = coveringBooking.company.toLowerCase().includes(qLower) ||
+                    (coveringBooking.iraqiCompany && coveringBooking.iraqiCompany.toLowerCase().includes(qLower)) ||
+                    (AppState.isAdmin && coveringBooking.badgeNumber && String(coveringBooking.badgeNumber).toLowerCase().includes(qLower)) ||
+                    (mealLabel && mealLabel.includes(qLower)) ||
+                    (coveringBooking.notes && coveringBooking.notes.toLowerCase().includes(qLower));
         if (!match) {
           coveringBooking = null; // dimmed or hidden by search
         }
@@ -4333,6 +5378,44 @@
         cellHtml += '    </div>';
         cellHtml += '    <div class="card-substatus">' + escapeHtml(subStatusTranslated) + '</div>';
         cellHtml += '  </div>';
+        var hasFinance = AppState.isAdmin && (coveringBooking.badgeNumber || hasValue(coveringBooking.visitorsCount) || hasValue(coveringBooking.personPrice) || hasValue(coveringBooking.totalAmount) || coveringBooking.mealType || hasValue(coveringBooking.mealCount) || hasValue(coveringBooking.mealVisitorsCount) || hasValue(coveringBooking.mealPrice) || hasValue(coveringBooking.mealTotal));
+        if (hasFinance) {
+          cellHtml += '  <div class="card-finance-row">';
+          if (coveringBooking.badgeNumber) {
+            cellHtml += '    <span class="card-finance-chip">' + t('card_badge_prefix') + escapeHtml(coveringBooking.badgeNumber) + '</span>';
+          }
+          if (hasValue(coveringBooking.visitorsCount)) {
+            cellHtml += '    <span class="card-finance-chip">' + t('card_visitors_prefix') + formatBookingNumber(coveringBooking.visitorsCount) + '</span>';
+          }
+          if (hasValue(coveringBooking.personPrice)) {
+            cellHtml += '    <span class="card-finance-chip">' + t('card_person_price_prefix') + formatBookingNumber(coveringBooking.personPrice) + ' $</span>';
+          }
+          if (hasValue(coveringBooking.totalAmount)) {
+            cellHtml += '    <span class="card-finance-chip chip-total">' + t('card_total_prefix') + formatBookingNumber(coveringBooking.totalAmount) + ' $</span>';
+          }
+          if (coveringBooking.mealType) {
+            cellHtml += '    <span class="card-finance-chip">' + escapeHtml(getMealTypeLabel(coveringBooking.mealType)) + '</span>';
+          }
+          if (hasValue(coveringBooking.mealCount)) {
+            cellHtml += '    <span class="card-finance-chip">' + t('card_meal_count_prefix') + formatBookingNumber(coveringBooking.mealCount) + '</span>';
+          }
+          if (hasValue(coveringBooking.mealVisitorsCount)) {
+            cellHtml += '    <span class="card-finance-chip">' + t('card_meal_visitors_prefix') + formatBookingNumber(coveringBooking.mealVisitorsCount) + '</span>';
+          }
+          if (hasValue(coveringBooking.mealPrice)) {
+            cellHtml += '    <span class="card-finance-chip">' + t('card_meal_price_prefix') + formatBookingNumber(coveringBooking.mealPrice) + ' $</span>';
+          }
+          if (hasValue(coveringBooking.mealTotal)) {
+            cellHtml += '    <span class="card-finance-chip chip-total">' + t('card_meal_total_prefix') + formatBookingNumber(coveringBooking.mealTotal) + ' $</span>';
+          }
+          cellHtml += '  </div>';
+        }
+        if (rawCoveringBooking && (rawCoveringBooking.pendingEdit || rawCoveringBooking.pendingCreate)) {
+          var pendText = AppState.isAdmin
+            ? (rawCoveringBooking.pendingEdit ? t('admin_pending_edit_badge') : t('admin_pending_new_badge'))
+            : t('public_pending_badge');
+          cellHtml += '  <div class="card-pending-chip"><i class="fa-solid fa-clock-rotate-left"></i> <span>' + escapeHtml(pendText) + '</span></div>';
+        }
         cellHtml += '</div>';
       } else {
         // Continuation Cell
@@ -4371,8 +5454,8 @@
       for (var b = 1; b <= AppState.busCount; b++) {
         var isBusBusyToday = false;
         for (var k = 0; k < AppState.bookings.length; k++) {
-          var bk = AppState.bookings[k];
-          if (bk.busId === b) {
+          var bk = getEffectiveBookingForView(AppState.bookings[k]);
+          if (bk && bk.busId === b) {
             var start = bk.startDate;
             var end = DateUtils.addDays(start, bk.nights);
             if (todayStr >= start && todayStr < end) {
@@ -4430,6 +5513,132 @@
       openNewBookingModalWithParams(1, AppState.startDate);
     }
 
+    var _manualTotalAmountOverride = false;
+    var _manualMealCountOverride = false;
+    var _manualMealTotalOverride = false;
+
+    function recalculateModalTotalAmount() {
+      if (_manualTotalAmountOverride) return;
+      var priceStr = document.getElementById('form-person-price').value.trim();
+      var visitorsStr = document.getElementById('form-visitors-count').value.trim();
+      var nights = parseInt(document.getElementById('form-nights').value, 10) || 1;
+      var totalEl = document.getElementById('form-total-amount');
+      if (priceStr !== '' && visitorsStr !== '') {
+        var price = parseFloat(priceStr);
+        var visitors = parseFloat(visitorsStr);
+        if (!isNaN(price) && !isNaN(visitors) && isFinite(price) && isFinite(visitors)) {
+          var total = Math.round((price * visitors * nights) * 100) / 100;
+          totalEl.value = total;
+          return;
+        }
+      }
+      totalEl.value = '';
+    }
+
+    function recalculateModalMealTotal() {
+      if (_manualMealTotalOverride) return;
+      var mealPriceStr = document.getElementById('form-meal-price').value.trim();
+      var mealCountStr = document.getElementById('form-meal-count').value.trim();
+      var mealVisitorsStr = document.getElementById('form-meal-visitors-count').value.trim();
+      var mealTotalEl = document.getElementById('form-meal-total');
+      if (mealPriceStr !== '' && mealCountStr !== '' && mealVisitorsStr !== '') {
+        var mPrice = parseFloat(mealPriceStr);
+        var mCount = parseFloat(mealCountStr);
+        var mVisitors = parseFloat(mealVisitorsStr);
+        if (!isNaN(mPrice) && !isNaN(mCount) && !isNaN(mVisitors) && isFinite(mPrice) && isFinite(mCount) && isFinite(mVisitors)) {
+          var mTotal = Math.round(((mPrice * mCount * mVisitors) / 3) * 1000) / 1000;
+          mealTotalEl.value = mTotal;
+          return;
+        }
+      }
+      mealTotalEl.value = '';
+    }
+
+    function handlePricingInputChange() {
+      _manualTotalAmountOverride = false;
+      recalculateModalTotalAmount();
+    }
+
+    function handleTotalAmountManualInput() {
+      var val = document.getElementById('form-total-amount').value.trim();
+      _manualTotalAmountOverride = (val !== '');
+    }
+
+    function syncMealPricePresetButtons() {
+      var priceEl = document.getElementById('form-meal-price');
+      var btn2 = document.getElementById('btn-meal-preset-2');
+      var btn25 = document.getElementById('btn-meal-preset-25');
+      if (!priceEl || !btn2 || !btn25) return;
+      var raw = priceEl.value.trim();
+      var num = raw === '' ? NaN : parseFloat(raw);
+      btn2.classList.toggle('active', !isNaN(num) && Math.abs(num - 2) < 0.0001);
+      btn25.classList.toggle('active', !isNaN(num) && Math.abs(num - 2.5) < 0.0001);
+    }
+
+    function selectMealPricePreset(price) {
+      var priceEl = document.getElementById('form-meal-price');
+      if (!priceEl) return;
+      priceEl.value = (price === 2.5) ? '2.50' : String(price);
+      handleMealPricingInputChange();
+    }
+
+    function handleMealPricingInputChange() {
+      syncMealPricePresetButtons();
+      _manualMealTotalOverride = false;
+      recalculateModalMealTotal();
+    }
+
+    function handleMealTotalManualInput() {
+      var val = document.getElementById('form-meal-total').value.trim();
+      _manualMealTotalOverride = (val !== '');
+    }
+
+    function handleMealCountManualInput() {
+      var mealType = document.getElementById('form-meal-type').value;
+      var val = document.getElementById('form-meal-count').value.trim();
+      var nights = parseInt(document.getElementById('form-nights').value, 10) || 1;
+      var defaultCount = computeMealCount(mealType, nights);
+      _manualMealCountOverride = (val !== '' && (defaultCount === null || parseFloat(val) !== defaultCount));
+      _manualMealTotalOverride = false;
+      recalculateModalMealTotal();
+    }
+
+    function syncSuggestedMealCount(mealType, nights, forceUpdate) {
+      var countEl = document.getElementById('form-meal-count');
+      countEl.readOnly = false;
+      countEl.style.opacity = '';
+      countEl.style.background = '';
+      countEl.style.cursor = '';
+      if (!forceUpdate && _manualMealCountOverride) return;
+      var effectiveNights = nights !== undefined ? nights : (parseInt(document.getElementById('form-nights').value, 10) || 1);
+      var defaultCount = computeMealCount(mealType, effectiveNights);
+      if (defaultCount !== null) {
+        countEl.value = String(defaultCount);
+      }
+    }
+
+    function handleMealTypeChange() {
+      var mealType = document.getElementById('form-meal-type').value;
+      var priceEl = document.getElementById('form-meal-price');
+      _manualMealCountOverride = false;
+      syncSuggestedMealCount(mealType, undefined, true);
+      if (mealType === 'lunch' || mealType === 'dinner') {
+        if (priceEl.value.trim() === '') {
+          priceEl.value = '2';
+        }
+        syncMealPricePresetButtons();
+        _manualMealTotalOverride = false;
+        recalculateModalMealTotal();
+      } else {
+        document.getElementById('form-meal-count').value = '';
+        document.getElementById('form-meal-visitors-count').value = '';
+        priceEl.value = '';
+        syncMealPricePresetButtons();
+        document.getElementById('form-meal-total').value = '';
+        _manualMealTotalOverride = false;
+      }
+    }
+
     function openNewBookingModalWithParams(busId, startDateStr) {
       populateBusDropdown(busId);
       var staleNewOpts = document.querySelectorAll('#form-status option[value="new"], #status-filter option[value="new"]');
@@ -4443,6 +5652,20 @@
       document.getElementById('form-nights').value = '3';
       document.getElementById('form-notes').value = '';
       document.getElementById('form-iraqi-company').value = '';
+      document.getElementById('form-badge-number').value = '';
+      document.getElementById('form-visitors-count').value = '';
+      document.getElementById('form-person-price').value = '';
+      document.getElementById('form-total-amount').value = '';
+      document.getElementById('form-meal-type').value = '';
+      document.getElementById('form-meal-count').value = '';
+      document.getElementById('form-meal-visitors-count').value = '';
+      document.getElementById('form-meal-price').value = '';
+      document.getElementById('form-meal-total').value = '';
+      _manualMealCountOverride = false;
+      syncSuggestedMealCount('', undefined, true);
+      syncMealPricePresetButtons();
+      _manualTotalAmountOverride = false;
+      _manualMealTotalOverride = false;
 
       // Auto calculate Persian date
       var dateObj = DateUtils.parseYYYYMMDD(startDateStr);
@@ -4450,19 +5673,23 @@
       document.getElementById('form-checkout-date').value = DateUtils.addDays(startDateStr, 3);
       updateMaxNightsHint(startDateStr);
 
+      var adminFieldsNew = document.getElementById('admin-only-booking-fields');
+      if (adminFieldsNew) adminFieldsNew.style.display = AppState.isAdmin ? '' : 'none';
+      renderAdminPendingReviewBox(null);
       document.getElementById('btn-delete-booking').style.display = 'none';
       openModal('booking-modal');
     }
 
     function openEditBookingModal(bookingId) {
-      var booking = AppState.bookings.find(function(b) { return b.id === bookingId; });
-      if (!booking) return;
+      var rawBooking = AppState.bookings.find(function(b) { return b.id === bookingId; });
+      if (!rawBooking) return;
+      var booking = getEffectiveBookingForView(rawBooking);
 
       populateBusDropdown(booking.busId);
       var staleNewOpts = document.querySelectorAll('#form-status option[value="new"], #status-filter option[value="new"]');
       staleNewOpts.forEach(function(o) { o.remove(); });
       document.getElementById('booking-modal-title').innerHTML = '<i class="fa-solid fa-pen-to-square" style="color: var(--gold-bright);"></i> ' + t('modal_edit_bus_title')(booking.busId);
-      document.getElementById('form-booking-id').value = booking.id;
+      document.getElementById('form-booking-id').value = rawBooking.id;
       document.getElementById('form-bus-id').value = booking.busId;
       document.getElementById('form-status').value = (booking.status === 'unregistered') ? 'unregistered' : 'confirmed';
       document.getElementById('form-company').value = booking.company;
@@ -4472,7 +5699,47 @@
       document.getElementById('form-checkout-date').value = DateUtils.addDays(booking.startDate, booking.nights);
       document.getElementById('form-notes').value = booking.notes || '';
       document.getElementById('form-iraqi-company').value = booking.iraqiCompany || '';
+      document.getElementById('form-badge-number').value = booking.badgeNumber || '';
+      document.getElementById('form-visitors-count').value = hasValue(booking.visitorsCount) ? booking.visitorsCount : '';
+      document.getElementById('form-person-price').value = hasValue(booking.personPrice) ? booking.personPrice : '';
+      document.getElementById('form-total-amount').value = hasValue(booking.totalAmount) ? booking.totalAmount : '';
+      document.getElementById('form-meal-type').value = booking.mealType || '';
+      document.getElementById('form-meal-count').value = hasValue(booking.mealCount) ? booking.mealCount : '';
+      document.getElementById('form-meal-visitors-count').value = hasValue(booking.mealVisitorsCount) ? booking.mealVisitorsCount : '';
+      document.getElementById('form-meal-price').value = hasValue(booking.mealPrice) ? booking.mealPrice : '';
+      document.getElementById('form-meal-total').value = hasValue(booking.mealTotal) ? booking.mealTotal : '';
+      var defaultEditMealCount = computeMealCount(booking.mealType || '', booking.nights);
+      _manualMealCountOverride = (defaultEditMealCount !== null && hasValue(booking.mealCount) && Number(booking.mealCount) !== defaultEditMealCount);
+      syncSuggestedMealCount(booking.mealType || '', booking.nights, !hasValue(booking.mealCount));
+      syncMealPricePresetButtons();
 
+      if (hasValue(booking.totalAmount)) {
+        if (hasValue(booking.personPrice) && hasValue(booking.visitorsCount)) {
+          var expectedTotal = Math.round((Number(booking.personPrice) * Number(booking.visitorsCount) * (parseInt(booking.nights, 10) || 1)) * 100) / 100;
+          _manualTotalAmountOverride = (Math.abs(Number(booking.totalAmount) - expectedTotal) > 0.001);
+        } else {
+          _manualTotalAmountOverride = true;
+        }
+      } else {
+        _manualTotalAmountOverride = false;
+      }
+
+      if (hasValue(booking.mealTotal)) {
+        var effectiveMealCount = hasValue(booking.mealCount) ? Number(booking.mealCount) : defaultEditMealCount;
+        var effectiveMealVisitors = hasValue(booking.mealVisitorsCount) ? Number(booking.mealVisitorsCount) : (hasValue(booking.visitorsCount) ? Number(booking.visitorsCount) : null);
+        if (hasValue(booking.mealPrice) && effectiveMealCount !== null && effectiveMealVisitors !== null) {
+          var expectedMealTotal = Math.round(((Number(booking.mealPrice) * effectiveMealCount * effectiveMealVisitors) / 3) * 1000) / 1000;
+          _manualMealTotalOverride = (Math.abs(Number(booking.mealTotal) - expectedMealTotal) > 0.001);
+        } else {
+          _manualMealTotalOverride = true;
+        }
+      } else {
+        _manualMealTotalOverride = false;
+      }
+
+      var adminFieldsEdit = document.getElementById('admin-only-booking-fields');
+      if (adminFieldsEdit) adminFieldsEdit.style.display = AppState.isAdmin ? '' : 'none';
+      renderAdminPendingReviewBox(rawBooking);
       document.getElementById('btn-delete-booking').style.display = AppState.isAdmin ? 'inline-flex' : 'none';
       openModal('booking-modal');
     }
@@ -4495,6 +5762,9 @@
         document.getElementById('form-checkout-date').value = DateUtils.addDays(dStr, nights);
         updateMaxNightsHint(dStr);
       }
+      recalculateModalTotalAmount();
+      syncSuggestedMealCount(document.getElementById('form-meal-type').value, nights, false);
+      recalculateModalMealTotal();
     }
 
     function updateMaxNightsHint(dStr) {
@@ -4525,8 +5795,9 @@
       var newEnd   = DateUtils.parseYYYYMMDD(DateUtils.addDays(startDate, nights)).getTime();
 
       var conflict = null;
-      AppState.bookings.forEach(function(b) {
-        if (b.busId !== busId) return;
+      AppState.bookings.forEach(function(rawB) {
+        var b = getEffectiveBookingForView(rawB);
+        if (!b || b.busId !== busId) return;
         if (excludeId && b.id === excludeId) return;
         var bStart = DateUtils.parseYYYYMMDD(b.startDate).getTime();
         var bEnd   = DateUtils.parseYYYYMMDD(DateUtils.addDays(b.startDate, b.nights)).getTime();
@@ -4545,8 +5816,9 @@
       var count = 0;
       for (var i = 0; i < 365; i++) {
         var ts = DateUtils.parseYYYYMMDD(day).getTime();
-        var blocked = AppState.bookings.some(function(b) {
-          if (b.busId !== busId) return false;
+        var blocked = AppState.bookings.some(function(rawB) {
+          var b = getEffectiveBookingForView(rawB);
+          if (!b || b.busId !== busId) return false;
           if (excludeId && b.id === excludeId) return false;
           var bStart = DateUtils.parseYYYYMMDD(b.startDate).getTime();
           var bEnd   = DateUtils.parseYYYYMMDD(DateUtils.addDays(b.startDate, b.nights)).getTime();
@@ -4571,6 +5843,41 @@
       var subStatus = '';
       var notes = document.getElementById('form-notes').value.trim();
       var iraqiCompany = document.getElementById('form-iraqi-company').value.trim();
+      var existingBooking = id ? AppState.bookings.find(function(b) { return b.id === id; }) : null;
+      var badgeNumber = '';
+      var visitorsCount = '';
+      var personPrice = '';
+      var totalAmount = '';
+      var mealType = '';
+      var mealCount = '';
+      var mealVisitorsCount = '';
+      var mealPrice = '';
+      var mealTotal = '';
+      if (AppState.isAdmin) {
+        badgeNumber = document.getElementById('form-badge-number').value.trim();
+        visitorsCount = normalizeOptionalNumber(document.getElementById('form-visitors-count').value.trim());
+        personPrice = normalizeOptionalNumber(document.getElementById('form-person-price').value.trim());
+        totalAmount = normalizeOptionalNumber(document.getElementById('form-total-amount').value.trim());
+        mealType = document.getElementById('form-meal-type').value;
+        mealCount = normalizeOptionalNumber(document.getElementById('form-meal-count').value.trim());
+        if (mealCount === '') {
+          var defaultSubmitMealCount = computeMealCount(mealType, nights);
+          if (defaultSubmitMealCount !== null) mealCount = defaultSubmitMealCount;
+        }
+        mealVisitorsCount = normalizeOptionalNumber(document.getElementById('form-meal-visitors-count').value.trim());
+        mealPrice = normalizeOptionalNumber(document.getElementById('form-meal-price').value.trim());
+        mealTotal = normalizeOptionalNumber(document.getElementById('form-meal-total').value.trim());
+      } else if (existingBooking) {
+        badgeNumber = existingBooking.badgeNumber || '';
+        visitorsCount = hasValue(existingBooking.visitorsCount) ? existingBooking.visitorsCount : '';
+        personPrice = hasValue(existingBooking.personPrice) ? existingBooking.personPrice : '';
+        totalAmount = hasValue(existingBooking.totalAmount) ? existingBooking.totalAmount : '';
+        mealType = existingBooking.mealType || '';
+        mealCount = hasValue(existingBooking.mealCount) ? existingBooking.mealCount : '';
+        mealVisitorsCount = hasValue(existingBooking.mealVisitorsCount) ? existingBooking.mealVisitorsCount : '';
+        mealPrice = hasValue(existingBooking.mealPrice) ? existingBooking.mealPrice : '';
+        mealTotal = hasValue(existingBooking.mealTotal) ? existingBooking.mealTotal : '';
+      }
 
       if (!company) {
         showToast(t('err_enter_company'), 'error');
@@ -4603,6 +5910,9 @@
         document.getElementById('form-nights').value = maxNights;
         document.getElementById('form-checkout-date').value = DateUtils.addDays(startDate, maxNights);
         nights = maxNights;
+        recalculateModalTotalAmount();
+        syncSuggestedMealCount(mealType, maxNights, false);
+        recalculateModalMealTotal();
         showToast(t('toast_auto_nights')(maxNights), 'info');
         return;
       }
@@ -4615,21 +5925,54 @@
       if (id) {
         var idx = AppState.bookings.findIndex(function(b) { return b.id === id; });
         if (idx !== -1) {
-          AppState.bookings[idx] = {
-            id: id,
-            busId: busId,
-            status: status,
-            company: company,
-            startDate: startDate,
-            persianDate: persianDate,
-            nights: nights,
-            subStatus: subStatus,
-            notes: notes,
-            iraqiCompany: iraqiCompany,
-            rev: nowRev,
-            updatedAt: nowTs
-          };
-          showToast(t('toast_booking_updated'), 'success');
+          if (!AppState.isAdmin) {
+            // Public mode edit: keep official Admin booking intact and queue pendingEdit until Admin approves
+            var curBooking = AppState.bookings[idx];
+            var pendingDraft = {
+              busId: busId,
+              status: status,
+              company: company,
+              startDate: startDate,
+              persianDate: persianDate,
+              nights: nights,
+              iraqiCompany: iraqiCompany || curBooking.iraqiCompany || '',
+              notes: notes,
+              submittedAt: nowTs
+            };
+            AppState.bookings[idx] = Object.assign({}, curBooking, {
+              pendingEdit: pendingDraft,
+              rev: nowRev,
+              updatedAt: nowTs
+            });
+            showToast(t('toast_pending_edit_sent'), 'info');
+          } else {
+            AppState.bookings[idx] = {
+              id: id,
+              busId: busId,
+              status: status,
+              company: company,
+              startDate: startDate,
+              persianDate: persianDate,
+              nights: nights,
+              subStatus: subStatus,
+              notes: notes,
+              iraqiCompany: iraqiCompany,
+              badgeNumber: badgeNumber,
+              personPrice: personPrice,
+              visitorsCount: visitorsCount,
+              totalAmount: totalAmount,
+              mealType: mealType,
+              mealCount: mealCount,
+              mealVisitorsCount: mealVisitorsCount,
+              mealPrice: mealPrice,
+              mealTotal: mealTotal,
+              pendingCreate: false,
+              pendingEdit: null,
+              rev: nowRev,
+              updatedAt: nowTs
+            };
+            showToast(t('toast_booking_updated'), 'success');
+          }
         }
       } else {
         var newId = 'b_' + nowTs + '_' + Math.floor(Math.random() * 1000);
@@ -4644,15 +5987,27 @@
           subStatus: subStatus,
           notes: notes,
           iraqiCompany: iraqiCompany,
+          badgeNumber: badgeNumber,
+          personPrice: personPrice,
+          visitorsCount: visitorsCount,
+          totalAmount: totalAmount,
+          mealType: mealType,
+          mealCount: mealCount,
+          mealVisitorsCount: mealVisitorsCount,
+          mealPrice: mealPrice,
+          mealTotal: mealTotal,
+          pendingCreate: !AppState.isAdmin,
+          pendingEdit: null,
           rev: nowRev,
           updatedAt: nowTs
         });
-        showToast(t('toast_booking_added'), 'success');
+        showToast(AppState.isAdmin ? t('toast_booking_added') : t('toast_pending_create_sent'), 'success');
       }
 
       saveBookingsToStorage();
       playBookingConfirmSound();
       closeModal('booking-modal');
+      updateAdminPendingCounter();
       renderTable();
     }
 
@@ -4823,10 +6178,11 @@
     }
 
     function openViewBookingModal(bookingId) {
-      var booking = AppState.bookings.find(function(b) { return b.id === bookingId; });
-      if (!booking) return;
+      var rawBooking = AppState.bookings.find(function(b) { return b.id === bookingId; });
+      if (!rawBooking) return;
+      var booking = getEffectiveBookingForView(rawBooking);
 
-      AppState.currentViewingBooking = booking;
+      AppState.currentViewingBooking = rawBooking;
 
       var checkinObj = DateUtils.parseYYYYMMDD(booking.startDate);
       var checkoutDateStr = DateUtils.addDays(booking.startDate, booking.nights);
@@ -4839,6 +6195,12 @@
       html += '  <div style="font-size: 13px; color: var(--gold-light); font-weight: 700;">' + t('print_header_title') + '</div>';
       html += '  <h2 style="font-size: 22px; font-weight: 800; color: var(--text-white); margin: 6px 0;">' + escapeHtml(booking.company) + '</h2>';
       html += '  <span class="badge-status-tag" style="padding: 4px 14px; font-size: 13px; background: ' + (booking.status === 'unregistered' ? '#DC2626' : '#059669') + ';">' + statusText + '</span>';
+      if (rawBooking.pendingEdit || rawBooking.pendingCreate) {
+        var viewPendMsg = AppState.isAdmin
+          ? (rawBooking.pendingEdit ? t('admin_pending_edit_badge') : t('admin_pending_new_badge'))
+          : t('public_pending_badge');
+        html += '  <div style="margin-top:8px;"><span class="card-pending-chip"><i class="fa-solid fa-clock-rotate-left"></i> ' + escapeHtml(viewPendMsg) + '</span></div>';
+      }
       html += '</div>';
 
       html += '<div style="background: #F1F3F8; border: 1px solid var(--gold-border); border-radius: var(--radius-md); padding: 14px;">';
@@ -4849,6 +6211,35 @@
       html += '  <div class="detail-item"><span class="detail-label">' + t('view_checkout') + '</span><span class="detail-value">' + checkoutDateStr + ' (' + DateUtils.getDayName(checkoutObj) + ')</span></div>';
       if (booking.iraqiCompany) {
         html += '  <div class="detail-item"><span class="detail-label"><i class="fa-solid fa-building" style="color:var(--gold-primary)"></i> ' + t('view_iraqi_company') + '</span><span class="detail-value" style="color: var(--gold-light); font-weight: 700;">' + escapeHtml(booking.iraqiCompany) + '</span></div>';
+      }
+      if (AppState.isAdmin) {
+        if (booking.badgeNumber) {
+          html += '  <div class="detail-item"><span class="detail-label"><i class="fa-solid fa-id-badge" style="color:var(--gold-primary)"></i> ' + t('view_badge_number') + '</span><span class="detail-value">' + escapeHtml(booking.badgeNumber) + '</span></div>';
+        }
+        if (hasValue(booking.visitorsCount)) {
+          html += '  <div class="detail-item"><span class="detail-label"><i class="fa-solid fa-users" style="color:var(--gold-primary)"></i> ' + t('view_visitors_count') + '</span><span class="detail-value">' + formatBookingNumber(booking.visitorsCount) + '</span></div>';
+        }
+        if (hasValue(booking.personPrice)) {
+          html += '  <div class="detail-item"><span class="detail-label"><i class="fa-solid fa-dollar-sign" style="color:var(--gold-primary)"></i> ' + t('view_person_price') + '</span><span class="detail-value">' + formatBookingNumber(booking.personPrice) + ' $</span></div>';
+        }
+        if (hasValue(booking.totalAmount)) {
+          html += '  <div class="detail-item"><span class="detail-label"><i class="fa-solid fa-calculator" style="color:var(--gold-primary)"></i> ' + t('view_total_amount') + '</span><span class="detail-value" style="color: var(--gold-bright); font-weight: 800;">' + formatBookingNumber(booking.totalAmount) + ' $</span></div>';
+        }
+        if (booking.mealType) {
+          html += '  <div class="detail-item"><span class="detail-label"><i class="fa-solid fa-utensils" style="color:var(--gold-primary)"></i> ' + t('view_meal_type') + '</span><span class="detail-value">' + escapeHtml(getMealTypeLabel(booking.mealType)) + '</span></div>';
+        }
+        if (hasValue(booking.mealCount)) {
+          html += '  <div class="detail-item"><span class="detail-label"><i class="fa-solid fa-bowl-food" style="color:var(--gold-primary)"></i> ' + t('view_meal_count') + '</span><span class="detail-value">' + formatBookingNumber(booking.mealCount) + '</span></div>';
+        }
+        if (hasValue(booking.mealVisitorsCount)) {
+          html += '  <div class="detail-item"><span class="detail-label"><i class="fa-solid fa-users" style="color:var(--gold-primary)"></i> ' + t('view_meal_visitors_count') + '</span><span class="detail-value">' + formatBookingNumber(booking.mealVisitorsCount) + '</span></div>';
+        }
+        if (hasValue(booking.mealPrice)) {
+          html += '  <div class="detail-item"><span class="detail-label"><i class="fa-solid fa-dollar-sign" style="color:var(--gold-primary)"></i> ' + t('view_meal_price') + '</span><span class="detail-value">' + formatBookingNumber(booking.mealPrice) + ' $</span></div>';
+        }
+        if (hasValue(booking.mealTotal)) {
+          html += '  <div class="detail-item"><span class="detail-label"><i class="fa-solid fa-calculator" style="color:var(--gold-primary)"></i> ' + t('view_meal_total') + '</span><span class="detail-value" style="color: var(--gold-bright); font-weight: 800;">' + formatBookingNumber(booking.mealTotal) + ' $</span></div>';
+        }
       }
       if (booking.subStatus) {
         html += '  <div class="detail-item"><span class="detail-label">' + t('view_substatus') + '</span><span class="detail-value">' + escapeHtml(translateSubStatus(booking.subStatus, booking.status)) + '</span></div>';
@@ -4878,14 +6269,42 @@
       if (idx === -1) return;
 
       AppState.syncVersion = (AppState.syncVersion || 2) + 1;
+      var nowTs = Date.now();
+      if (!AppState.isAdmin) {
+        var cur = AppState.bookings[idx];
+        var baseView = getEffectiveBookingForView(cur);
+        AppState.bookings[idx] = Object.assign({}, cur, {
+          pendingEdit: {
+            busId: baseView.busId,
+            status: 'confirmed',
+            company: baseView.company,
+            startDate: baseView.startDate,
+            persianDate: baseView.persianDate || '',
+            nights: baseView.nights,
+            iraqiCompany: baseView.iraqiCompany || '',
+            notes: baseView.notes || '',
+            submittedAt: nowTs
+          },
+          rev: AppState.syncVersion,
+          updatedAt: nowTs
+        });
+        saveBookingsToStorage();
+        closeModal('view-booking-modal');
+        renderTable();
+        showToast(t('toast_pending_edit_sent'), 'info');
+        return;
+      }
+
       AppState.bookings[idx].status = 'confirmed';
       AppState.bookings[idx].subStatus = 'مؤكد';
+      AppState.bookings[idx].pendingCreate = false;
       AppState.bookings[idx].rev = AppState.syncVersion;
-      AppState.bookings[idx].updatedAt = Date.now();
+      AppState.bookings[idx].updatedAt = nowTs;
 
       saveBookingsToStorage();
       playBookingConfirmSound();
       closeModal('view-booking-modal');
+      updateAdminPendingCounter();
       renderTable();
       showToast(t('toast_booking_confirmed_now'), 'success');
     }
@@ -4934,6 +6353,496 @@
     function handleFilterChange() {
       AppState.statusFilter = document.getElementById('status-filter').value;
       renderTable();
+    }
+
+    /* ==========================================================================
+       H2. Admin Iraqi Company Calculation Reports (Housing & Meals)
+       ========================================================================== */
+    var _adminReportMode = 'housing';
+
+    function populateReportCompanyOptions() {
+      var select = document.getElementById('report-iraqi-company-select');
+      if (!select) return;
+      var prev = select.value || '__ALL__';
+      var map = Object.create(null);
+      var hasEmpty = false;
+      AppState.bookings.forEach(function(b) {
+        var co = String(b.iraqiCompany || '').trim();
+        if (co) map[co] = true;
+        else hasEmpty = true;
+      });
+      var companies = Object.keys(map).sort(function(a, b) { return a.localeCompare(b); });
+      select.innerHTML = '';
+      var optAll = document.createElement('option');
+      optAll.value = '__ALL__';
+      optAll.textContent = t('report_all_companies');
+      select.appendChild(optAll);
+      companies.forEach(function(co) {
+        var opt = document.createElement('option');
+        opt.value = co;
+        opt.textContent = co;
+        select.appendChild(opt);
+      });
+      if (hasEmpty) {
+        var optEmpty = document.createElement('option');
+        optEmpty.value = '__NONE__';
+        optEmpty.textContent = t('report_no_company');
+        select.appendChild(optEmpty);
+      }
+      var valid = (prev === '__ALL__' || (prev === '__NONE__' && hasEmpty) || !!map[prev]);
+      select.value = valid ? prev : '__ALL__';
+    }
+
+    function getEffectiveMealVisitors(booking) {
+      if (hasValue(booking.mealVisitorsCount)) return Number(booking.mealVisitorsCount);
+      if (hasValue(booking.visitorsCount)) return Number(booking.visitorsCount);
+      return null;
+    }
+
+    function getReportRowTotal(booking, mode) {
+      if (mode === 'meals') {
+        if (hasValue(booking.mealTotal)) return Number(booking.mealTotal);
+        var effVisitors = getEffectiveMealVisitors(booking);
+        if (hasValue(booking.mealPrice) && hasValue(booking.mealCount) && effVisitors !== null) {
+          return Math.round(((Number(booking.mealPrice) * Number(booking.mealCount) * effVisitors) / 3) * 1000) / 1000;
+        }
+        return null;
+      }
+      if (hasValue(booking.totalAmount)) return Number(booking.totalAmount);
+      if (hasValue(booking.personPrice) && hasValue(booking.visitorsCount)) {
+        return Math.round((Number(booking.personPrice) * Number(booking.visitorsCount) * (parseInt(booking.nights, 10) || 1)) * 100) / 100;
+      }
+      return null;
+    }
+
+    function getAdminReportDateRange() {
+      var fromEl = document.getElementById('report-date-from');
+      var toEl = document.getElementById('report-date-to');
+      return {
+        fromDate: fromEl ? String(fromEl.value || '').trim() : '',
+        toDate: toEl ? String(toEl.value || '').trim() : ''
+      };
+    }
+
+    function formatAdminReportDateLabel(fromDate, toDate) {
+      if (fromDate && toDate) {
+        return t('report_date_from_short') + ' ' + fromDate + ' ' + t('report_date_to_short') + ' ' + toDate;
+      }
+      if (fromDate) return t('report_date_from_short') + ' ' + fromDate;
+      if (toDate) return t('report_date_to_short') + ' ' + toDate;
+      return '';
+    }
+
+    function updateAdminReportDateButtonState() {
+      var btn = document.getElementById('report-date-toggle-btn');
+      var panel = document.getElementById('report-date-range-panel');
+      if (!btn) return;
+      var range = getAdminReportDateRange();
+      var isOpen = panel ? panel.classList.contains('open') : false;
+      btn.classList.toggle('active', isOpen || Boolean(range.fromDate || range.toDate));
+    }
+
+    function toggleAdminReportDateFilter() {
+      if (!AppState.isAdmin) return;
+      var panel = document.getElementById('report-date-range-panel');
+      if (!panel) return;
+      var isOpen = panel.classList.toggle('open');
+      updateAdminReportDateButtonState();
+      if (isOpen) {
+        var fromEl = document.getElementById('report-date-from');
+        if (fromEl) fromEl.focus();
+      }
+    }
+
+    function clearAdminReportDates() {
+      if (!AppState.isAdmin) return;
+      var fromEl = document.getElementById('report-date-from');
+      var toEl = document.getElementById('report-date-to');
+      if (fromEl) fromEl.value = '';
+      if (toEl) toEl.value = '';
+      renderAdminReportTable();
+    }
+
+    function getFilteredReportBookings(selectedCompany, mode, fromDate, toDate) {
+      return AppState.bookings.filter(function(b) {
+        if (b.pendingCreate) return false;
+        var co = String(b.iraqiCompany || '').trim();
+        if (selectedCompany === '__NONE__') {
+          if (co !== '') return false;
+        } else if (selectedCompany !== '__ALL__' && co !== selectedCompany) {
+          return false;
+        }
+        var bDate = String(b.startDate || '');
+        if (fromDate && bDate < fromDate) return false;
+        if (toDate && bDate > toDate) return false;
+        if (mode === 'meals') {
+          return Boolean(b.mealType || hasValue(b.mealCount) || hasValue(b.mealPrice) || hasValue(b.mealTotal));
+        }
+        return true;
+      }).sort(function(a, b) {
+        if (a.startDate !== b.startDate) return a.startDate < b.startDate ? -1 : 1;
+        return (a.busId || 0) - (b.busId || 0);
+      });
+    }
+
+    function buildAdminReportSummary(rows, mode, totalMetric, totalVisitors, grandTotal) {
+      var metricLabel = mode === 'meals' ? t('report_sum_meals') : t('report_sum_days');
+      var cards = [
+        { label: t('report_sum_bookings'), val: formatBookingNumber(rows.length) },
+        { label: metricLabel, val: formatBookingNumber(totalMetric) },
+        { label: t('report_sum_visitors'), val: formatBookingNumber(totalVisitors) },
+        { label: t('report_sum_total'), val: formatBookingNumber(Math.round(grandTotal * 1000) / 1000) + ' $' }
+      ];
+      return cards.map(function(c) {
+        return '<div class="report-summary-card"><div class="report-summary-label">' + c.label + '</div><div class="report-summary-value">' + c.val + '</div></div>';
+      }).join('');
+    }
+
+    function getAdminReportContext() {
+      var select = document.getElementById('report-iraqi-company-select');
+      var selectedCompany = select ? select.value : '__ALL__';
+      var isMeals = (_adminReportMode === 'meals');
+      var companyLabel = selectedCompany === '__ALL__'
+        ? t('report_all_companies')
+        : (selectedCompany === '__NONE__' ? t('report_no_company') : selectedCompany);
+      var range = getAdminReportDateRange();
+      var dateRangeText = formatAdminReportDateLabel(range.fromDate, range.toDate);
+      var rows = getFilteredReportBookings(selectedCompany, _adminReportMode, range.fromDate, range.toDate);
+      return {
+        selectedCompany: selectedCompany,
+        companyLabel: companyLabel,
+        mode: _adminReportMode,
+        isMeals: isMeals,
+        fromDate: range.fromDate,
+        toDate: range.toDate,
+        dateRangeText: dateRangeText,
+        rows: rows
+      };
+    }
+
+    function computeAdminReportTotals(rows, mode) {
+      var isMeals = (mode === 'meals');
+      var totalMetric = 0;
+      var totalVisitors = 0;
+      var grandTotal = 0;
+      rows.forEach(function(b) {
+        totalMetric += isMeals ? (Number(b.mealCount) || 0) : (parseInt(b.nights, 10) || 0);
+        if (isMeals) {
+          var mv = getEffectiveMealVisitors(b);
+          if (mv !== null) totalVisitors += mv;
+        } else {
+          totalVisitors += hasValue(b.visitorsCount) ? Number(b.visitorsCount) : 0;
+        }
+        var rowTotal = getReportRowTotal(b, mode);
+        if (rowTotal !== null && !isNaN(rowTotal)) grandTotal += rowTotal;
+      });
+      return {
+        totalMetric: Math.round(totalMetric * 1000) / 1000,
+        totalVisitors: Math.round(totalVisitors * 1000) / 1000,
+        grandTotal: Math.round(grandTotal * 1000) / 1000
+      };
+    }
+
+    function renderAdminReportTable() {
+      var ctx = getAdminReportContext();
+      var isMeals = ctx.isMeals;
+      var rows = ctx.rows;
+
+      document.getElementById('admin-report-title-text').textContent = isMeals ? t('report_meals_title') : t('report_housing_title');
+      document.getElementById('report-tab-housing').classList.toggle('active', !isMeals);
+      document.getElementById('report-tab-meals').classList.toggle('active', isMeals);
+      updateAdminReportDateButtonState();
+      var bannerText = t('report_select_iraqi_company') + ': ' + ctx.companyLabel;
+      if (ctx.dateRangeText) bannerText += ' | ' + t('report_date_range_btn') + ': ' + ctx.dateRangeText;
+      document.getElementById('admin-report-company-banner').textContent = bannerText;
+
+      var totals = computeAdminReportTotals(rows, ctx.mode);
+      var totalMetric = totals.totalMetric;
+      var totalVisitors = totals.totalVisitors;
+      var grandTotal = totals.grandTotal;
+
+      document.getElementById('admin-report-summary').innerHTML = buildAdminReportSummary(rows, _adminReportMode, totalMetric, totalVisitors, grandTotal);
+
+      var container = document.getElementById('admin-report-table-container');
+      if (rows.length === 0) {
+        container.innerHTML = '<div class="report-empty-state">' + (isMeals ? t('report_empty_meals') : t('report_empty_housing')) + '</div>';
+        return;
+      }
+
+      var headers = isMeals
+        ? [t('report_col_seq'), t('report_col_iranian_co'), t('report_col_checkin'), t('report_col_checkout'), t('report_col_badge'), t('report_col_meal_type'), t('report_col_meal_count'), t('report_col_visitors'), t('report_col_meal_price'), t('report_col_total')]
+        : [t('report_col_seq'), t('report_col_iranian_co'), t('report_col_checkin'), t('report_col_checkout'), t('report_col_badge'), t('report_col_days'), t('report_col_visitors'), t('report_col_price'), t('report_col_total')];
+
+      var html = '<table class="report-table"><thead><tr>' + headers.map(function(h) { return '<th>' + h + '</th>'; }).join('') + '</tr></thead><tbody>';
+
+      rows.forEach(function(b, idx) {
+        var checkoutStr = DateUtils.addDays(b.startDate, b.nights);
+        var badgeText = b.badgeNumber ? escapeHtml(b.badgeNumber) : '---';
+        var rowVisitorsVal = isMeals ? getEffectiveMealVisitors(b) : (hasValue(b.visitorsCount) ? Number(b.visitorsCount) : null);
+        var visitorsText = rowVisitorsVal !== null ? formatBookingNumber(rowVisitorsVal) : '---';
+        var rowTotal = getReportRowTotal(b, _adminReportMode);
+        var totalText = rowTotal !== null ? formatBookingNumber(rowTotal) + ' $' : '---';
+
+        html += '<tr>';
+        html += '<td>' + (idx + 1) + '</td>';
+        html += '<td>' + escapeHtml(b.company) + '</td>';
+        html += '<td>' + escapeHtml(b.startDate) + '</td>';
+        html += '<td>' + escapeHtml(checkoutStr) + '</td>';
+        html += '<td>' + badgeText + '</td>';
+        if (isMeals) {
+          var mealTypeText = b.mealType ? escapeHtml(getMealTypeLabel(b.mealType)) : '---';
+          var mealCountText = hasValue(b.mealCount) ? formatBookingNumber(b.mealCount) : '---';
+          var mealPriceText = hasValue(b.mealPrice) ? formatBookingNumber(b.mealPrice) + ' $' : '---';
+          html += '<td>' + mealTypeText + '</td>';
+          html += '<td>' + mealCountText + '</td>';
+          html += '<td>' + visitorsText + '</td>';
+          html += '<td>' + mealPriceText + '</td>';
+        } else {
+          var priceText = hasValue(b.personPrice) ? formatBookingNumber(b.personPrice) + ' $' : '---';
+          html += '<td>' + formatBookingNumber(b.nights) + '</td>';
+          html += '<td>' + visitorsText + '</td>';
+          html += '<td>' + priceText + '</td>';
+        }
+        html += '<td>' + totalText + '</td>';
+        html += '</tr>';
+      });
+
+      html += '</tbody><tfoot><tr>';
+      if (isMeals) {
+        html += '<td colspan="6">' + t('report_grand_total') + '</td>';
+        html += '<td>' + formatBookingNumber(totalMetric) + '</td>';
+        html += '<td>' + formatBookingNumber(totalVisitors) + '</td>';
+        html += '<td>---</td>';
+        html += '<td>' + formatBookingNumber(grandTotal) + ' $</td>';
+      } else {
+        html += '<td colspan="5">' + t('report_grand_total') + '</td>';
+        html += '<td>' + formatBookingNumber(totalMetric) + '</td>';
+        html += '<td>' + formatBookingNumber(totalVisitors) + '</td>';
+        html += '<td>---</td>';
+        html += '<td>' + formatBookingNumber(grandTotal) + ' $</td>';
+      }
+      html += '</tr></tfoot></table>';
+
+      container.innerHTML = html;
+    }
+
+    function openAdminReportModal(mode) {
+      if (!AppState.isAdmin) return;
+      _adminReportMode = (mode === 'meals') ? 'meals' : 'housing';
+      populateReportCompanyOptions();
+      renderAdminReportTable();
+      openModal('admin-report-modal');
+    }
+
+    function switchAdminReportMode(mode) {
+      if (!AppState.isAdmin) return;
+      _adminReportMode = (mode === 'meals') ? 'meals' : 'housing';
+      renderAdminReportTable();
+    }
+
+    function printAdminReport() {
+      if (!AppState.isAdmin) return;
+      document.body.classList.add('printing-admin-report');
+      try {
+        window.print();
+      } finally {
+        setTimeout(function() {
+          document.body.classList.remove('printing-admin-report');
+        }, 500);
+      }
+    }
+
+    function buildAdminReportWhatsAppText() {
+      var ctx = getAdminReportContext();
+      var isMeals = ctx.isMeals;
+      var rows = ctx.rows;
+      var totals = computeAdminReportTotals(rows, ctx.mode);
+      var title = isMeals ? t('report_meals_title') : t('report_housing_title');
+      var lines = [
+        '*' + title + '*',
+        t('report_select_iraqi_company') + ': ' + ctx.companyLabel
+      ];
+      if (ctx.dateRangeText) {
+        lines.push(t('report_date_range_btn') + ': ' + ctx.dateRangeText);
+      }
+      lines.push('──────────────');
+
+      rows.forEach(function(b, idx) {
+        var checkoutStr = DateUtils.addDays(b.startDate, b.nights);
+        var badgeStr = b.badgeNumber ? ' | ' + t('report_col_badge') + ': ' + b.badgeNumber : '';
+        var rowVisitorsVal = isMeals ? getEffectiveMealVisitors(b) : (hasValue(b.visitorsCount) ? Number(b.visitorsCount) : null);
+        var visitorsStr = rowVisitorsVal !== null ? formatBookingNumber(rowVisitorsVal) : '---';
+        var rowTotal = getReportRowTotal(b, ctx.mode);
+        var totalStr = rowTotal !== null ? formatBookingNumber(rowTotal) + ' $' : '---';
+
+        lines.push((idx + 1) + '. ' + b.company + badgeStr);
+        lines.push('   ' + t('report_col_checkin') + ': ' + b.startDate + ' ← ' + t('report_col_checkout') + ': ' + checkoutStr);
+        if (isMeals) {
+          var mTypeStr = b.mealType ? getMealTypeLabel(b.mealType) : '---';
+          var mCountStr = hasValue(b.mealCount) ? formatBookingNumber(b.mealCount) : '---';
+          var mPriceStr = hasValue(b.mealPrice) ? formatBookingNumber(b.mealPrice) + ' $' : '---';
+          lines.push('   ' + mTypeStr + ' | ' + t('report_col_meal_count') + ': ' + mCountStr + ' | ' + t('report_col_visitors') + ': ' + visitorsStr + ' | ' + t('report_col_meal_price') + ': ' + mPriceStr);
+        } else {
+          var pPriceStr = hasValue(b.personPrice) ? formatBookingNumber(b.personPrice) + ' $' : '---';
+          lines.push('   ' + t('report_col_days') + ': ' + formatBookingNumber(b.nights) + ' | ' + t('report_col_visitors') + ': ' + visitorsStr + ' | ' + t('report_col_price') + ': ' + pPriceStr);
+        }
+        lines.push('   ' + t('report_col_total') + ': *' + totalStr + '*');
+      });
+
+      lines.push('──────────────');
+      lines.push(t('report_sum_bookings') + ': ' + formatBookingNumber(rows.length));
+      lines.push((isMeals ? t('report_sum_meals') : t('report_sum_days')) + ': ' + formatBookingNumber(totals.totalMetric));
+      lines.push(t('report_sum_visitors') + ': ' + formatBookingNumber(totals.totalVisitors));
+      lines.push('*' + t('report_grand_total') + ': ' + formatBookingNumber(totals.grandTotal) + ' $*');
+      return lines.join('\n');
+    }
+
+    function buildAdminReportPdfFilename(ctx) {
+      var prefix = ctx.isMeals ? 'meals-report' : 'housing-report';
+      var rawCompany = (ctx.selectedCompany && ctx.selectedCompany !== '__ALL__')
+        ? String(ctx.selectedCompany)
+        : 'all-companies';
+      var safeCompany = rawCompany.replace(/[\\/:*?"<>|\s]+/g, '_').replace(/^_+|_+$/g, '') || 'report';
+      var dateStamp = new Date().toISOString().slice(0, 10);
+      return prefix + '-' + safeCompany + '-' + dateStamp + '.pdf';
+    }
+
+    function buildAdminReportWhatsAppCaption(ctx, title) {
+      var totals = computeAdminReportTotals(ctx.rows, ctx.mode);
+      var lines = [
+        '*' + title + '*',
+        t('report_select_iraqi_company') + ': ' + ctx.companyLabel
+      ];
+      if (ctx.dateRangeText) {
+        lines.push(t('report_date_range_btn') + ': ' + ctx.dateRangeText);
+      }
+      lines.push(t('report_sum_bookings') + ': ' + formatBookingNumber(ctx.rows.length));
+      lines.push(t('report_grand_total') + ': ' + formatBookingNumber(totals.grandTotal) + ' $');
+      return lines.join('\n');
+    }
+
+    function buildAdminReportPdfElement(ctx, title) {
+      var summaryEl = document.getElementById('admin-report-summary');
+      var tableWrapEl = document.getElementById('admin-report-table-container');
+      var bannerEl = document.getElementById('admin-report-company-banner');
+      var dateStamp = new Date().toISOString().slice(0, 10);
+
+      var container = document.createElement('div');
+      container.className = 'pdf-report-sheet';
+      container.setAttribute('dir', 'rtl');
+      container.style.cssText = 'position:fixed; left:-10000px; top:0; width:1040px; padding:20px; background:#ffffff; color:#0f172a; font-family:Cairo,Tajawal,sans-serif; z-index:-1;';
+
+      container.innerHTML =
+        '<style>' +
+          '.pdf-report-sheet, .pdf-report-sheet * { box-sizing: border-box; letter-spacing: normal !important; font-family: Cairo, Tajawal, sans-serif; }' +
+          '.pdf-report-header { display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #0f172a; padding-bottom:10px; margin-bottom:12px; }' +
+          '.pdf-report-title { font-size:20px; font-weight:800; color:#0f172a; margin:0; }' +
+          '.pdf-report-date { font-size:12px; color:#475569; font-weight:600; }' +
+          '.pdf-report-banner { font-size:14px; font-weight:700; color:#1e293b; margin-bottom:12px; padding:8px 12px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; }' +
+          '.pdf-report-summary { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; margin-bottom:14px; }' +
+          '.pdf-report-summary .report-summary-card { background:#f8fafc !important; border:1px solid #cbd5e1 !important; border-radius:8px; padding:10px 12px; text-align:right; }' +
+          '.pdf-report-summary .report-summary-label { font-size:11px; color:#475569 !important; font-weight:600; margin-bottom:4px; }' +
+          '.pdf-report-summary .report-summary-value { font-size:16px; color:#0f172a !important; font-weight:800; }' +
+          '.pdf-report-sheet table { width:100%; border-collapse:collapse; font-size:12px; color:#0f172a; background:#ffffff; }' +
+          '.pdf-report-sheet th, .pdf-report-sheet td { border:1px solid #cbd5e1; padding:7px 8px; text-align:center; color:#0f172a !important; }' +
+          '.pdf-report-sheet thead th { background:#e2e8f0 !important; font-weight:800; color:#0f172a !important; }' +
+          '.pdf-report-sheet tfoot td { background:#fef3c7 !important; color:#92400e !important; font-weight:800; }' +
+        '</style>' +
+        '<div class="pdf-report-header">' +
+          '<h2 class="pdf-report-title">' + escapeHtml(title) + '</h2>' +
+          '<span class="pdf-report-date">' + escapeHtml(dateStamp) + '</span>' +
+        '</div>' +
+        '<div class="pdf-report-banner">' + (bannerEl ? bannerEl.innerHTML : escapeHtml(t('report_select_iraqi_company') + ': ' + ctx.companyLabel)) + '</div>' +
+        '<div class="pdf-report-summary">' + (summaryEl ? summaryEl.innerHTML : '') + '</div>' +
+        '<div class="pdf-report-table">' + (tableWrapEl ? tableWrapEl.innerHTML : '') + '</div>';
+
+      return container;
+    }
+
+    function downloadPdfBlob(blob, filename) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function() {
+        URL.revokeObjectURL(url);
+      }, 1500);
+    }
+
+    async function sendAdminReportWhatsApp() {
+      if (!AppState.isAdmin) return;
+      var ctx = getAdminReportContext();
+      if (ctx.rows.length === 0) {
+        showToast(ctx.isMeals ? t('report_empty_meals') : t('report_empty_housing'), 'info');
+        return;
+      }
+
+      if (typeof html2pdf === 'undefined') {
+        showToast(t('report_pdf_fallback_print'), 'info');
+        printAdminReport();
+        return;
+      }
+
+      var title = ctx.isMeals ? t('report_meals_title') : t('report_housing_title');
+      var filename = buildAdminReportPdfFilename(ctx);
+      var caption = buildAdminReportWhatsAppCaption(ctx, title);
+      var btn = document.getElementById('btn-whatsapp-admin-report');
+      var btnLabel = btn ? btn.querySelector('span') : null;
+      var prevLabel = btnLabel ? btnLabel.textContent : '';
+      var pdfContainer = null;
+
+      if (btn) btn.disabled = true;
+      if (btnLabel) btnLabel.textContent = t('report_pdf_generating');
+
+      try {
+        pdfContainer = buildAdminReportPdfElement(ctx, title);
+        document.body.appendChild(pdfContainer);
+
+        var pdfBlob = await html2pdf()
+          .set({
+            margin: [8, 8, 8, 8],
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+          })
+          .from(pdfContainer)
+          .outputPdf('blob');
+
+        var sharedNatively = false;
+        if (typeof File !== 'undefined' && typeof navigator !== 'undefined' &&
+            typeof navigator.share === 'function' && typeof navigator.canShare === 'function') {
+          var pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' });
+          if (navigator.canShare({ files: [pdfFile] })) {
+            try {
+              await navigator.share({ files: [pdfFile], title: title, text: caption });
+              sharedNatively = true;
+            } catch (shareErr) {
+              if (shareErr && shareErr.name === 'AbortError') {
+                return;
+              }
+            }
+          }
+        }
+
+        if (!sharedNatively) {
+          downloadPdfBlob(pdfBlob, filename);
+          showToast(t('report_pdf_downloaded_wa'), 'success');
+          window.open('https://wa.me/?text=' + encodeURIComponent(caption), '_blank', 'noopener');
+        }
+      } catch (err) {
+        console.error('PDF export failed:', err);
+        showToast(t('report_pdf_fallback_print'), 'error');
+      } finally {
+        if (pdfContainer && pdfContainer.parentNode) {
+          pdfContainer.parentNode.removeChild(pdfContainer);
+        }
+        if (btn) btn.disabled = false;
+        if (btnLabel) btnLabel.textContent = prevLabel || t('report_whatsapp_btn');
+      }
     }
 
     /* ==========================================================================
