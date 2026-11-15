@@ -2952,7 +2952,7 @@
       <div class="modal-body">
         <div class="report-toolbar">
           <div style="flex: 1; min-width: 220px;">
-            <label class="form-label" for="report-iraqi-company-select" data-i18n="report_select_iraqi_company">الشركة العراقية</label>
+            <label class="form-label" for="report-iraqi-company-select" data-i18n="report_select_iraqi_company">الشركة العراقية أو الشركة الإيرانية</label>
             <select id="report-iraqi-company-select" class="form-select" onchange="renderAdminReportTable()"></select>
           </div>
           <div class="report-mode-tabs">
@@ -3170,8 +3170,10 @@
         toast_pending_rejected: 'درخواست رد شد و اطلاعات مدیر بدون تغییر باقی ماند',
         report_housing_title: 'محاسبه اقامت',
         report_meals_title: 'محاسبه وعده‌های الدورجين',
-        report_select_iraqi_company: 'شرکت عراقی',
-        report_all_companies: 'همه شرکت‌های عراقی',
+        report_select_iraqi_company: 'شرکت عراقی یا شرکت ایرانی',
+        report_group_iraqi_companies: 'شرکت عراقی',
+        report_group_iranian_companies: 'شرکت ایرانی',
+        report_all_companies: 'همه شرکت‌ها',
         report_no_company: '(بدون شرکت عراقی)',
         report_tab_housing: 'اقامت',
         report_tab_meals: 'وعده‌های الدورجين',
@@ -3440,8 +3442,10 @@
         toast_pending_rejected: 'تم رفض التعديل وبقيت معلومات الأدمن كما هي',
         report_housing_title: 'احتساب السكن',
         report_meals_title: 'احتساب وجبات الدورجين',
-        report_select_iraqi_company: 'الشركة العراقية',
-        report_all_companies: 'جميع الشركات العراقية',
+        report_select_iraqi_company: 'الشركة العراقية أو الشركة الإيرانية',
+        report_group_iraqi_companies: 'الشركة العراقية',
+        report_group_iranian_companies: 'الشركة الإيرانية',
+        report_all_companies: 'جميع الشركات',
         report_no_company: '(بدون شركة عراقية)',
         report_tab_housing: 'السكن',
         report_tab_meals: 'وجبات الدورجين',
@@ -3887,6 +3891,11 @@
       syncControlsInputs();
       if (AppState.isLoggedIn) {
         renderTable();
+        var reportModal = document.getElementById('admin-report-modal');
+        if (reportModal && reportModal.classList.contains('active')) {
+          populateReportCompanyOptions();
+          renderAdminReportTable();
+        }
       }
     }
 
@@ -6364,33 +6373,63 @@
       var select = document.getElementById('report-iraqi-company-select');
       if (!select) return;
       var prev = select.value || '__ALL__';
-      var map = Object.create(null);
-      var hasEmpty = false;
+      var iraqiMap = Object.create(null);
+      var iranianMap = Object.create(null);
+      var hasEmptyIraqi = false;
       AppState.bookings.forEach(function(b) {
-        var co = String(b.iraqiCompany || '').trim();
-        if (co) map[co] = true;
-        else hasEmpty = true;
+        if (b.pendingCreate) return;
+        var iraqiCo = String(b.iraqiCompany || '').trim();
+        if (iraqiCo) iraqiMap[iraqiCo] = true;
+        else hasEmptyIraqi = true;
+        var iranianCo = String(b.company || '').trim();
+        if (iranianCo) iranianMap[iranianCo] = true;
       });
-      var companies = Object.keys(map).sort(function(a, b) { return a.localeCompare(b); });
+      var iraqiCompanies = Object.keys(iraqiMap).sort(function(a, b) { return a.localeCompare(b); });
+      var iranianCompanies = Object.keys(iranianMap).sort(function(a, b) { return a.localeCompare(b); });
+
       select.innerHTML = '';
       var optAll = document.createElement('option');
       optAll.value = '__ALL__';
       optAll.textContent = t('report_all_companies');
       select.appendChild(optAll);
-      companies.forEach(function(co) {
-        var opt = document.createElement('option');
-        opt.value = co;
-        opt.textContent = co;
-        select.appendChild(opt);
-      });
-      if (hasEmpty) {
-        var optEmpty = document.createElement('option');
-        optEmpty.value = '__NONE__';
-        optEmpty.textContent = t('report_no_company');
-        select.appendChild(optEmpty);
+
+      var validValues = Object.create(null);
+      validValues['__ALL__'] = true;
+
+      if (iraqiCompanies.length > 0 || hasEmptyIraqi) {
+        var grpIrq = document.createElement('optgroup');
+        grpIrq.label = t('report_group_iraqi_companies');
+        iraqiCompanies.forEach(function(co) {
+          var opt = document.createElement('option');
+          opt.value = 'irq:' + co;
+          opt.textContent = co;
+          grpIrq.appendChild(opt);
+          validValues[opt.value] = true;
+        });
+        if (hasEmptyIraqi) {
+          var optEmpty = document.createElement('option');
+          optEmpty.value = '__NONE__';
+          optEmpty.textContent = t('report_no_company');
+          grpIrq.appendChild(optEmpty);
+          validValues['__NONE__'] = true;
+        }
+        select.appendChild(grpIrq);
       }
-      var valid = (prev === '__ALL__' || (prev === '__NONE__' && hasEmpty) || !!map[prev]);
-      select.value = valid ? prev : '__ALL__';
+
+      if (iranianCompanies.length > 0) {
+        var grpIrn = document.createElement('optgroup');
+        grpIrn.label = t('report_group_iranian_companies');
+        iranianCompanies.forEach(function(co) {
+          var opt = document.createElement('option');
+          opt.value = 'irn:' + co;
+          opt.textContent = co;
+          grpIrn.appendChild(opt);
+          validValues[opt.value] = true;
+        });
+        select.appendChild(grpIrn);
+      }
+
+      select.value = validValues[prev] ? prev : '__ALL__';
     }
 
     function getEffectiveMealVisitors(booking) {
@@ -6466,11 +6505,16 @@
     function getFilteredReportBookings(selectedCompany, mode, fromDate, toDate) {
       return AppState.bookings.filter(function(b) {
         if (b.pendingCreate) return false;
-        var co = String(b.iraqiCompany || '').trim();
+        var iraqiCo = String(b.iraqiCompany || '').trim();
+        var iranianCo = String(b.company || '').trim();
         if (selectedCompany === '__NONE__') {
-          if (co !== '') return false;
-        } else if (selectedCompany !== '__ALL__' && co !== selectedCompany) {
-          return false;
+          if (iraqiCo !== '') return false;
+        } else if (selectedCompany && selectedCompany.indexOf('irq:') === 0) {
+          if (iraqiCo !== selectedCompany.slice(4)) return false;
+        } else if (selectedCompany && selectedCompany.indexOf('irn:') === 0) {
+          if (iranianCo !== selectedCompany.slice(4)) return false;
+        } else if (selectedCompany !== '__ALL__') {
+          if (iraqiCo !== selectedCompany && iranianCo !== selectedCompany) return false;
         }
         var bDate = String(b.startDate || '');
         if (fromDate && bDate < fromDate) return false;
@@ -6502,15 +6546,27 @@
       var select = document.getElementById('report-iraqi-company-select');
       var selectedCompany = select ? select.value : '__ALL__';
       var isMeals = (_adminReportMode === 'meals');
+      var isIraqiSelection = selectedCompany.indexOf('irq:') === 0;
+      var isIranianSelection = selectedCompany.indexOf('irn:') === 0;
+      var companyFieldLabel = isIraqiSelection
+        ? t('report_group_iraqi_companies')
+        : (isIranianSelection ? t('report_group_iranian_companies') : t('report_select_iraqi_company'));
       var companyLabel = selectedCompany === '__ALL__'
         ? t('report_all_companies')
-        : (selectedCompany === '__NONE__' ? t('report_no_company') : selectedCompany);
+        : (selectedCompany === '__NONE__'
+          ? t('report_no_company')
+          : ((isIraqiSelection || isIranianSelection) ? selectedCompany.slice(4) : selectedCompany));
+      var rawCompanyForFilename = selectedCompany === '__ALL__'
+        ? 'all-companies'
+        : (selectedCompany === '__NONE__' ? 'no-company' : companyLabel);
       var range = getAdminReportDateRange();
       var dateRangeText = formatAdminReportDateLabel(range.fromDate, range.toDate);
       var rows = getFilteredReportBookings(selectedCompany, _adminReportMode, range.fromDate, range.toDate);
       return {
         selectedCompany: selectedCompany,
+        companyFieldLabel: companyFieldLabel,
         companyLabel: companyLabel,
+        rawCompanyForFilename: rawCompanyForFilename,
         mode: _adminReportMode,
         isMeals: isMeals,
         fromDate: range.fromDate,
@@ -6552,7 +6608,7 @@
       document.getElementById('report-tab-housing').classList.toggle('active', !isMeals);
       document.getElementById('report-tab-meals').classList.toggle('active', isMeals);
       updateAdminReportDateButtonState();
-      var bannerText = t('report_select_iraqi_company') + ': ' + ctx.companyLabel;
+      var bannerText = ctx.companyFieldLabel + ': ' + ctx.companyLabel;
       if (ctx.dateRangeText) bannerText += ' | ' + t('report_date_range_btn') + ': ' + ctx.dateRangeText;
       document.getElementById('admin-report-company-banner').textContent = bannerText;
 
@@ -6660,7 +6716,7 @@
       var title = isMeals ? t('report_meals_title') : t('report_housing_title');
       var lines = [
         '*' + title + '*',
-        t('report_select_iraqi_company') + ': ' + ctx.companyLabel
+        ctx.companyFieldLabel + ': ' + ctx.companyLabel
       ];
       if (ctx.dateRangeText) {
         lines.push(t('report_date_range_btn') + ': ' + ctx.dateRangeText);
@@ -6699,9 +6755,7 @@
 
     function buildAdminReportPdfFilename(ctx) {
       var prefix = ctx.isMeals ? 'meals-report' : 'housing-report';
-      var rawCompany = (ctx.selectedCompany && ctx.selectedCompany !== '__ALL__')
-        ? String(ctx.selectedCompany)
-        : 'all-companies';
+      var rawCompany = ctx.rawCompanyForFilename || 'all-companies';
       var safeCompany = rawCompany.replace(/[\\/:*?"<>|\s]+/g, '_').replace(/^_+|_+$/g, '') || 'report';
       var dateStamp = new Date().toISOString().slice(0, 10);
       return prefix + '-' + safeCompany + '-' + dateStamp + '.pdf';
@@ -6711,7 +6765,7 @@
       var totals = computeAdminReportTotals(ctx.rows, ctx.mode);
       var lines = [
         '*' + title + '*',
-        t('report_select_iraqi_company') + ': ' + ctx.companyLabel
+        ctx.companyFieldLabel + ': ' + ctx.companyLabel
       ];
       if (ctx.dateRangeText) {
         lines.push(t('report_date_range_btn') + ': ' + ctx.dateRangeText);
@@ -6752,7 +6806,7 @@
           '<h2 class="pdf-report-title">' + escapeHtml(title) + '</h2>' +
           '<span class="pdf-report-date">' + escapeHtml(dateStamp) + '</span>' +
         '</div>' +
-        '<div class="pdf-report-banner">' + (bannerEl ? bannerEl.innerHTML : escapeHtml(t('report_select_iraqi_company') + ': ' + ctx.companyLabel)) + '</div>' +
+        '<div class="pdf-report-banner">' + (bannerEl ? bannerEl.innerHTML : escapeHtml(ctx.companyFieldLabel + ': ' + ctx.companyLabel)) + '</div>' +
         '<div class="pdf-report-summary">' + (summaryEl ? summaryEl.innerHTML : '') + '</div>' +
         '<div class="pdf-report-table">' + (tableWrapEl ? tableWrapEl.innerHTML : '') + '</div>';
 
