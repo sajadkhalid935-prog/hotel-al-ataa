@@ -3186,6 +3186,8 @@
         report_img_generating: 'در حال آماده‌سازی تصویر گزارش...',
         report_img_downloaded_wa: 'تصویر گزارش دانلود شد؛ لطفاً آن را در واتساپ پیوست کنید.',
         report_img_fallback_print: 'ایجاد خودکار تصویر با خطا مواجه شد؛ لطفاً از دکمه چاپ استفاده کنید.',
+        report_page_word: 'صفحه',
+        report_of_word: 'از',
         report_col_seq: 'ردیف',
         report_col_iranian_co: 'نام شرکت ایرانی',
         report_col_checkin: 'تاریخ ورود',
@@ -3458,6 +3460,8 @@
         report_img_generating: 'جاري تجهيز صورة الكشف...',
         report_img_downloaded_wa: 'تم تنزيل صورة الكشف؛ أرفقها الآن في محادثة الواتساب.',
         report_img_fallback_print: 'تعذر إنشاء صورة الكشف تلقائياً؛ يمكنك استخدام الطباعة.',
+        report_page_word: 'صفحة',
+        report_of_word: 'من',
         report_col_seq: 'ت',
         report_col_iranian_co: 'اسم الشركة الإيرانية',
         report_col_checkin: 'تاريخ الدخول',
@@ -6751,12 +6755,13 @@
       return lines.join('\n');
     }
 
-    function buildAdminReportImageFilename(ctx) {
+    function buildAdminReportImageFilename(ctx, pageNum, totalPages) {
       var prefix = ctx.isMeals ? 'meals-report' : 'housing-report';
       var rawCompany = ctx.rawCompanyForFilename || 'all-companies';
       var safeCompany = rawCompany.replace(/[\\/:*?"<>|\s]+/g, '_').replace(/^_+|_+$/g, '') || 'report';
       var dateStamp = new Date().toISOString().slice(0, 10);
-      return prefix + '-' + safeCompany + '-' + dateStamp + '.png';
+      var suffix = (totalPages && totalPages > 1) ? ('-p' + pageNum) : '';
+      return prefix + '-' + safeCompany + '-' + dateStamp + suffix + '.png';
     }
 
     function buildAdminReportWhatsAppCaption(ctx, title) {
@@ -6775,7 +6780,7 @@
 
     function fitCanvasText(c2d, text, maxWidth) {
       var str = String(text === null || text === undefined ? '' : text);
-      if (!str || maxWidth <= 8) return str;
+      if (!str || maxWidth <= 10) return str;
       if (c2d.measureText(str).width <= maxWidth) return str;
       var trimmed = str;
       while (trimmed.length > 1 && c2d.measureText(trimmed + '…').width > maxWidth) {
@@ -6799,221 +6804,297 @@
       c2d.closePath();
     }
 
-    function renderAdminReportCanvas(ctxData, title) {
+    function renderAdminReportPageCanvas(ctxData, title, pageRows, startRowNum, pageNum, totalPages, totals) {
       var isMeals = ctxData.isMeals;
-      var rows = ctxData.rows;
-      var totals = computeAdminReportTotals(rows, ctxData.mode);
       var dateStamp = new Date().toISOString().slice(0, 10);
+      var isFirstPage = (pageNum === 1);
+      var isLastPage = (pageNum === totalPages);
 
-      var width = 1120;
-      var pad = 24;
-      var contentW = width - pad * 2; // 1072
-      var headerH = 44;
-      var bannerH = 40;
-      var summaryH = 68;
-      var theadH = 42;
-      var rowH = 34;
-      var tfootH = 40;
-      var totalHeight = pad + headerH + 12 + bannerH + 12 + summaryH + 16 + theadH + (rows.length * rowH) + tfootH + pad;
+      var width = 1400;
+      var pad = 32;
+      var contentW = width - pad * 2; // 1336
+      var headerH = 58;
+      var bannerH = 44;
+      var summaryH = 76;
+      var theadH = 46;
+      var rowH = 38;
+      var tfootH = 46;
 
+      var bodyH = pad + headerH + 14;
+      if (isFirstPage) {
+        bodyH += bannerH + 14 + summaryH + 18;
+      }
+      bodyH += theadH + (pageRows.length * rowH) + (isLastPage ? tfootH : 0) + pad;
+
+      var scale = 2; // 2800px crisp retina landscape width per page
       var maxPixels = 12000000;
-      var scale = 2;
-      if (width * scale * totalHeight * scale > maxPixels) {
-        scale = Math.max(1, Math.floor(Math.sqrt(maxPixels / (width * totalHeight)) * 100) / 100);
+      if (width * scale * bodyH * scale > maxPixels) {
+        scale = Math.max(1, Math.floor(Math.sqrt(maxPixels / (width * bodyH)) * 100) / 100);
       }
 
       var canvas = document.createElement('canvas');
       canvas.width = Math.round(width * scale);
-      canvas.height = Math.round(totalHeight * scale);
+      canvas.height = Math.round(bodyH * scale);
       var c2d = canvas.getContext('2d');
       c2d.scale(scale, scale);
-      c2d.direction = 'rtl';
       c2d.textBaseline = 'middle';
 
-      // Solid white background
+      // Solid pure white sheet
       c2d.fillStyle = '#FFFFFF';
-      c2d.fillRect(0, 0, width, totalHeight);
+      c2d.fillRect(0, 0, width, bodyH);
 
       var y = pad;
 
-      // 1. Report Title + Date Header
+      // 1. Header Bar with Navy/Gold Executive Styling
+      c2d.fillStyle = '#19223E';
+      c2d.fillRect(width - pad - 6, y + 4, 6, 42);
+
+      c2d.direction = 'rtl';
       c2d.fillStyle = '#0F172A';
-      c2d.font = '800 23px Cairo, Tajawal, Tahoma, Arial, sans-serif';
+      c2d.font = '800 24px Cairo, Tajawal, Tahoma, Arial, sans-serif';
       c2d.textAlign = 'right';
-      c2d.fillText(title, width - pad, y + 18);
+      c2d.fillText(title, width - pad - 18, y + 18);
 
       c2d.fillStyle = '#475569';
-      c2d.font = '600 13px Cairo, Tajawal, Tahoma, Arial, sans-serif';
-      c2d.textAlign = 'left';
-      c2d.fillText(dateStamp, pad, y + 18);
+      c2d.font = '700 13px Cairo, Tajawal, Tahoma, Arial, sans-serif';
+      c2d.fillText(t('print_header_title'), width - pad - 18, y + 42);
 
-      c2d.strokeStyle = '#0F172A';
-      c2d.lineWidth = 2;
-      c2d.beginPath();
-      c2d.moveTo(pad, y + headerH - 4);
-      c2d.lineTo(width - pad, y + headerH - 4);
-      c2d.stroke();
-
-      y += headerH + 12;
-
-      // 2. Company & Date Range Banner
-      drawRoundedRectPath(c2d, pad, y, contentW, bannerH, 8);
-      c2d.fillStyle = '#F8FAFC';
+      // Top-left metadata pill (Date + Page X of Y)
+      var metaText = dateStamp;
+      if (totalPages > 1) {
+        metaText = t('report_page_word') + ' ' + pageNum + ' ' + t('report_of_word') + ' ' + totalPages + '   |   ' + dateStamp;
+      }
+      c2d.font = '700 13px Cairo, Tajawal, Tahoma, Arial, sans-serif';
+      var pillW = Math.min(340, c2d.measureText(metaText).width + 28);
+      drawRoundedRectPath(c2d, pad, y + 10, pillW, 32, 8);
+      c2d.fillStyle = '#F1F5F9';
       c2d.fill();
       c2d.strokeStyle = '#CBD5E1';
       c2d.lineWidth = 1;
       c2d.stroke();
 
-      var bannerText = ctxData.companyFieldLabel + ': ' + ctxData.companyLabel;
-      if (ctxData.dateRangeText) {
-        bannerText += '  |  ' + t('report_date_range_btn') + ': ' + ctxData.dateRangeText;
-      }
+      c2d.direction = 'rtl';
       c2d.fillStyle = '#1E293B';
-      c2d.font = '700 14px Cairo, Tajawal, Tahoma, Arial, sans-serif';
-      c2d.textAlign = 'right';
-      c2d.fillText(fitCanvasText(c2d, bannerText, contentW - 24), width - pad - 12, y + bannerH / 2);
+      c2d.textAlign = 'center';
+      c2d.fillText(metaText, pad + pillW / 2, y + 26);
 
-      y += bannerH + 12;
+      c2d.strokeStyle = '#C9A84C';
+      c2d.lineWidth = 2.5;
+      c2d.beginPath();
+      c2d.moveTo(pad, y + headerH);
+      c2d.lineTo(width - pad, y + headerH);
+      c2d.stroke();
 
-      // 3. Summary Cards (4 RTL cards)
-      var summaryCards = [
-        { label: t('report_sum_bookings'), val: formatBookingNumber(rows.length) },
-        { label: isMeals ? t('report_sum_meals') : t('report_sum_days'), val: formatBookingNumber(totals.totalMetric) },
-        { label: t('report_sum_visitors'), val: formatBookingNumber(totals.totalVisitors) },
-        { label: t('report_sum_total'), val: formatBookingNumber(Math.round(totals.grandTotal * 1000) / 1000) + ' $' }
-      ];
-      var cardGap = 12;
-      var cardW = (contentW - cardGap * 3) / 4;
-      summaryCards.forEach(function(card, idx) {
-        var cardRight = (width - pad) - idx * (cardW + cardGap);
-        var cardLeft = cardRight - cardW;
-        drawRoundedRectPath(c2d, cardLeft, y, cardW, summaryH, 8);
+      y += headerH + 14;
+
+      if (isFirstPage) {
+        // 2. Company & Date Range Banner
+        drawRoundedRectPath(c2d, pad, y, contentW, bannerH, 8);
         c2d.fillStyle = '#F8FAFC';
         c2d.fill();
         c2d.strokeStyle = '#CBD5E1';
-        c2d.lineWidth = 1;
+        c2d.lineWidth = 1.2;
         c2d.stroke();
 
-        c2d.fillStyle = '#475569';
-        c2d.font = '600 12px Cairo, Tajawal, Tahoma, Arial, sans-serif';
+        var bannerText = ctxData.companyFieldLabel + ': ' + ctxData.companyLabel;
+        if (ctxData.dateRangeText) {
+          bannerText += '   •   ' + t('report_date_range_btn') + ': ' + ctxData.dateRangeText;
+        }
+        c2d.direction = 'rtl';
+        c2d.fillStyle = '#1E293B';
+        c2d.font = '700 15px Cairo, Tajawal, Tahoma, Arial, sans-serif';
         c2d.textAlign = 'right';
-        c2d.fillText(fitCanvasText(c2d, card.label, cardW - 24), cardRight - 12, y + 20);
+        c2d.fillText(fitCanvasText(c2d, bannerText, contentW - 28), width - pad - 14, y + bannerH / 2);
 
-        c2d.fillStyle = '#0F172A';
-        c2d.font = '800 18px Cairo, Tajawal, Tahoma, Arial, sans-serif';
-        c2d.fillText(fitCanvasText(c2d, card.val, cardW - 24), cardRight - 12, y + 46);
-      });
+        y += bannerH + 14;
 
-      y += summaryH + 16;
+        // 3. Summary Cards (4 crisp RTL cards)
+        var summaryCards = [
+          { label: t('report_sum_bookings'), val: formatBookingNumber(ctxData.rows.length) },
+          { label: isMeals ? t('report_sum_meals') : t('report_sum_days'), val: formatBookingNumber(totals.totalMetric) },
+          { label: t('report_sum_visitors'), val: formatBookingNumber(totals.totalVisitors) },
+          { label: t('report_sum_total'), val: '$ ' + formatBookingNumber(Math.round(totals.grandTotal * 1000) / 1000), highlight: true }
+        ];
+        var cardGap = 14;
+        var cardW = (contentW - cardGap * 3) / 4;
+        summaryCards.forEach(function(card, idx) {
+          var cardRight = (width - pad) - idx * (cardW + cardGap);
+          var cardLeft = cardRight - cardW;
+          drawRoundedRectPath(c2d, cardLeft, y, cardW, summaryH, 10);
+          c2d.fillStyle = card.highlight ? '#FEF3C7' : '#F8FAFC';
+          c2d.fill();
+          c2d.strokeStyle = card.highlight ? '#D97706' : '#CBD5E1';
+          c2d.lineWidth = 1.2;
+          c2d.stroke();
 
-      // 4. Report Table
+          c2d.direction = 'rtl';
+          c2d.fillStyle = card.highlight ? '#92400E' : '#475569';
+          c2d.font = '700 12.5px Cairo, Tajawal, Tahoma, Arial, sans-serif';
+          c2d.textAlign = 'right';
+          c2d.fillText(fitCanvasText(c2d, card.label, cardW - 28), cardRight - 14, y + 23);
+
+          c2d.direction = card.highlight ? 'ltr' : 'rtl';
+          c2d.fillStyle = card.highlight ? '#92400E' : '#0F172A';
+          c2d.font = '800 20px Cairo, Tajawal, Tahoma, Arial, sans-serif';
+          c2d.textAlign = 'right';
+          c2d.fillText(fitCanvasText(c2d, card.val, cardW - 28), cardRight - 14, y + 52);
+        });
+
+        y += summaryH + 18;
+      }
+
+      // 4. Table Columns (1336px total width so ZERO headers truncate)
       var colSpecs = isMeals
         ? [
-            { label: t('report_col_seq'), w: 40 },
-            { label: t('report_col_iranian_co'), w: 220 },
-            { label: t('report_col_checkin'), w: 110 },
-            { label: t('report_col_checkout'), w: 110 },
-            { label: t('report_col_badge'), w: 92 },
-            { label: t('report_col_meal_type'), w: 84 },
-            { label: t('report_col_meal_count'), w: 90 },
-            { label: t('report_col_visitors'), w: 88 },
-            { label: t('report_col_meal_price'), w: 114 },
-            { label: t('report_col_total'), w: 124 }
+            { label: t('report_col_seq'), w: 44, align: 'center', dir: 'ltr' },
+            { label: t('report_col_iranian_co'), w: 246, align: 'right', dir: 'rtl' },
+            { label: t('report_col_checkin'), w: 126, align: 'center', dir: 'ltr' },
+            { label: t('report_col_checkout'), w: 126, align: 'center', dir: 'ltr' },
+            { label: t('report_col_badge'), w: 108, align: 'center', dir: 'ltr' },
+            { label: t('report_col_meal_type'), w: 100, align: 'center', dir: 'rtl' },
+            { label: t('report_col_meal_count'), w: 112, align: 'center', dir: 'ltr' },
+            { label: t('report_col_visitors'), w: 112, align: 'center', dir: 'ltr' },
+            { label: t('report_col_meal_price'), w: 182, align: 'center', dir: 'ltr' },
+            { label: t('report_col_total'), w: 180, align: 'center', dir: 'ltr' }
           ]
         : [
-            { label: t('report_col_seq'), w: 44 },
-            { label: t('report_col_iranian_co'), w: 256 },
-            { label: t('report_col_checkin'), w: 118 },
-            { label: t('report_col_checkout'), w: 118 },
-            { label: t('report_col_badge'), w: 100 },
-            { label: t('report_col_days'), w: 88 },
-            { label: t('report_col_visitors'), w: 98 },
-            { label: t('report_col_price'), w: 108 },
-            { label: t('report_col_total'), w: 142 }
+            { label: t('report_col_seq'), w: 48, align: 'center', dir: 'ltr' },
+            { label: t('report_col_iranian_co'), w: 300, align: 'right', dir: 'rtl' },
+            { label: t('report_col_checkin'), w: 140, align: 'center', dir: 'ltr' },
+            { label: t('report_col_checkout'), w: 140, align: 'center', dir: 'ltr' },
+            { label: t('report_col_badge'), w: 128, align: 'center', dir: 'ltr' },
+            { label: t('report_col_days'), w: 110, align: 'center', dir: 'ltr' },
+            { label: t('report_col_visitors'), w: 130, align: 'center', dir: 'ltr' },
+            { label: t('report_col_price'), w: 150, align: 'center', dir: 'ltr' },
+            { label: t('report_col_total'), w: 190, align: 'center', dir: 'ltr' }
           ];
 
-      function drawCellsRow(rowY, rowHeight, bg, borderColor, textColor, fontStr, cells) {
+      function drawTableRow(rowY, rowHeight, bg, borderColor, textColor, fontStr, cells, isHeaderRow) {
         c2d.fillStyle = bg;
         c2d.fillRect(pad, rowY, contentW, rowHeight);
 
         c2d.strokeStyle = borderColor;
-        c2d.lineWidth = 1;
+        c2d.lineWidth = isHeaderRow ? 1.5 : 1;
         c2d.strokeRect(pad, rowY, contentW, rowHeight);
 
         c2d.font = fontStr;
         c2d.fillStyle = textColor;
-        c2d.textAlign = 'center';
 
         var cursorRight = width - pad;
         cells.forEach(function(cell) {
           var cellW = cell.w;
           var cellLeft = cursorRight - cellW;
           if (cursorRight < width - pad) {
+            c2d.strokeStyle = isHeaderRow ? 'rgba(255,255,255,0.2)' : borderColor;
+            c2d.lineWidth = 1;
             c2d.beginPath();
             c2d.moveTo(cursorRight, rowY);
             c2d.lineTo(cursorRight, rowY + rowHeight);
             c2d.stroke();
           }
-          var txt = fitCanvasText(c2d, cell.text, cellW - 10);
-          c2d.fillText(txt, cellLeft + cellW / 2, rowY + rowHeight / 2 + 1);
+          var alignMode = cell.align || 'center';
+          c2d.direction = cell.dir || 'rtl';
+          c2d.textAlign = alignMode;
+          var textX = (alignMode === 'right') ? (cursorRight - 12) : (cellLeft + cellW / 2);
+          var txt = fitCanvasText(c2d, cell.text, cellW - 18);
+          c2d.fillText(txt, textX, rowY + rowHeight / 2 + 1);
           cursorRight = cellLeft;
         });
+
+        if (isHeaderRow) {
+          c2d.strokeStyle = '#C9A84C';
+          c2d.lineWidth = 2.5;
+          c2d.beginPath();
+          c2d.moveTo(pad, rowY + rowHeight);
+          c2d.lineTo(width - pad, rowY + rowHeight);
+          c2d.stroke();
+        }
       }
 
-      // Table Header
-      drawCellsRow(
-        y, theadH, '#E2E8F0', '#CBD5E1', '#0F172A',
-        '800 12.5px Cairo, Tajawal, Tahoma, Arial, sans-serif',
-        colSpecs.map(function(c) { return { w: c.w, text: c.label }; })
+      // Header Row
+      drawTableRow(
+        y, theadH, '#19223E', '#19223E', '#FFFFFF',
+        '700 13.5px Cairo, Tajawal, Tahoma, Arial, sans-serif',
+        colSpecs.map(function(c) { return { w: c.w, text: c.label, align: 'center', dir: 'rtl' }; }),
+        true
       );
       y += theadH;
 
       // Data Rows
-      rows.forEach(function(b, idx) {
+      pageRows.forEach(function(b, idx) {
+        var rowNum = startRowNum + idx;
         var checkoutStr = DateUtils.addDays(b.startDate, b.nights);
         var badgeStr = b.badgeNumber ? String(b.badgeNumber) : '---';
         var rowVisitorsVal = isMeals ? getEffectiveMealVisitors(b) : (hasValue(b.visitorsCount) ? Number(b.visitorsCount) : null);
         var visitorsStr = rowVisitorsVal !== null ? formatBookingNumber(rowVisitorsVal) : '---';
         var rowTotal = getReportRowTotal(b, ctxData.mode);
-        var totalStr = rowTotal !== null ? formatBookingNumber(rowTotal) + ' $' : '---';
+        var totalStr = rowTotal !== null ? '$ ' + formatBookingNumber(rowTotal) : '---';
 
         var vals;
         if (isMeals) {
           var mTypeStr = b.mealType ? getMealTypeLabel(b.mealType) : '---';
           var mCountStr = hasValue(b.mealCount) ? formatBookingNumber(b.mealCount) : '---';
-          var mPriceStr = hasValue(b.mealPrice) ? formatBookingNumber(b.mealPrice) + ' $' : '---';
-          vals = [idx + 1, b.company, b.startDate, checkoutStr, badgeStr, mTypeStr, mCountStr, visitorsStr, mPriceStr, totalStr];
+          var mPriceStr = hasValue(b.mealPrice) ? '$ ' + formatBookingNumber(b.mealPrice) : '---';
+          vals = [rowNum, b.company, b.startDate, checkoutStr, badgeStr, mTypeStr, mCountStr, visitorsStr, mPriceStr, totalStr];
         } else {
-          var pPriceStr = hasValue(b.personPrice) ? formatBookingNumber(b.personPrice) + ' $' : '---';
-          vals = [idx + 1, b.company, b.startDate, checkoutStr, badgeStr, formatBookingNumber(b.nights), visitorsStr, pPriceStr, totalStr];
+          var pPriceStr = hasValue(b.personPrice) ? '$ ' + formatBookingNumber(b.personPrice) : '---';
+          vals = [rowNum, b.company, b.startDate, checkoutStr, badgeStr, formatBookingNumber(b.nights), visitorsStr, pPriceStr, totalStr];
         }
 
-        drawCellsRow(
+        drawTableRow(
           y, rowH, (idx % 2 === 0 ? '#FFFFFF' : '#F8FAFC'), '#CBD5E1', '#0F172A',
-          '600 12.5px Cairo, Tajawal, Tahoma, Arial, sans-serif',
-          colSpecs.map(function(c, ci) { return { w: c.w, text: vals[ci] }; })
+          '600 13.5px Cairo, Tajawal, Tahoma, Arial, sans-serif',
+          colSpecs.map(function(c, ci) { return { w: c.w, text: vals[ci], align: c.align, dir: c.dir }; }),
+          false
         );
         y += rowH;
       });
 
-      // Totals Footer Row
-      var spanCols = isMeals ? 6 : 5;
-      var spanWidth = 0;
-      for (var si = 0; si < spanCols; si++) spanWidth += colSpecs[si].w;
-      var footerCells = [
-        { w: spanWidth, text: t('report_grand_total') },
-        { w: colSpecs[spanCols].w, text: formatBookingNumber(totals.totalMetric) },
-        { w: colSpecs[spanCols + 1].w, text: formatBookingNumber(totals.totalVisitors) },
-        { w: colSpecs[spanCols + 2].w, text: '---' },
-        { w: colSpecs[spanCols + 3].w, text: formatBookingNumber(totals.grandTotal) + ' $' }
-      ];
-      drawCellsRow(
-        y, tfootH, '#FEF3C7', '#D97706', '#92400E',
-        '800 13.5px Cairo, Tajawal, Tahoma, Arial, sans-serif',
-        footerCells
-      );
+      // Totals Row (on final page)
+      if (isLastPage) {
+        var spanCols = isMeals ? 6 : 5;
+        var spanWidth = 0;
+        for (var si = 0; si < spanCols; si++) spanWidth += colSpecs[si].w;
+        var footerCells = [
+          { w: spanWidth, text: t('report_grand_total'), align: 'center', dir: 'rtl' },
+          { w: colSpecs[spanCols].w, text: formatBookingNumber(totals.totalMetric), align: 'center', dir: 'ltr' },
+          { w: colSpecs[spanCols + 1].w, text: formatBookingNumber(totals.totalVisitors), align: 'center', dir: 'ltr' },
+          { w: colSpecs[spanCols + 2].w, text: '---', align: 'center', dir: 'ltr' },
+          { w: colSpecs[spanCols + 3].w, text: '$ ' + formatBookingNumber(totals.grandTotal), align: 'center', dir: 'ltr' }
+        ];
+        drawTableRow(
+          y, tfootH, '#FEF3C7', '#D97706', '#92400E',
+          '800 15px Cairo, Tajawal, Tahoma, Arial, sans-serif',
+          footerCells,
+          false
+        );
+      }
 
       return canvas;
+    }
+
+    function renderAdminReportCanvases(ctxData, title) {
+      var rows = ctxData.rows || [];
+      var totals = computeAdminReportTotals(rows, ctxData.mode);
+      var firstPageLimit = 20;
+      var nextPageLimit = 24;
+      var chunks = [];
+
+      if (rows.length <= firstPageLimit) {
+        chunks.push({ rows: rows, startRowNum: 1 });
+      } else {
+        chunks.push({ rows: rows.slice(0, firstPageLimit), startRowNum: 1 });
+        for (var i = firstPageLimit; i < rows.length; i += nextPageLimit) {
+          chunks.push({ rows: rows.slice(i, i + nextPageLimit), startRowNum: i + 1 });
+        }
+      }
+
+      var totalPages = chunks.length;
+      return chunks.map(function(chunk, idx) {
+        return renderAdminReportPageCanvas(
+          ctxData, title, chunk.rows, chunk.startRowNum, idx + 1, totalPages, totals
+        );
+      });
     }
 
     function canvasToPngBlob(canvas) {
@@ -7064,7 +7145,6 @@
       }
 
       var title = ctx.isMeals ? t('report_meals_title') : t('report_housing_title');
-      var filename = buildAdminReportImageFilename(ctx);
       var caption = buildAdminReportWhatsAppCaption(ctx, title);
       var btn = document.getElementById('btn-whatsapp-admin-report');
       var btnLabel = btn ? btn.querySelector('span') : null;
@@ -7074,20 +7154,37 @@
       if (btnLabel) btnLabel.textContent = t('report_img_generating');
 
       try {
-        if (document.fonts && document.fonts.ready) {
-          try { await document.fonts.ready; } catch (_) {}
+        if (document.fonts) {
+          if (typeof document.fonts.load === 'function') {
+            try {
+              await Promise.all([
+                document.fonts.load('600 14px Cairo', title),
+                document.fonts.load('700 15px Cairo', title),
+                document.fonts.load('800 24px Cairo', title)
+              ]);
+            } catch (_) {}
+          }
+          if (document.fonts.ready) {
+            try { await document.fonts.ready; } catch (_) {}
+          }
         }
 
-        var canvas = renderAdminReportCanvas(ctx, title);
-        var imgBlob = await canvasToPngBlob(canvas);
+        var canvases = renderAdminReportCanvases(ctx, title);
+        var totalPages = canvases.length;
+        var blobs = await Promise.all(canvases.map(canvasToPngBlob));
+        var filenames = blobs.map(function(_, idx) {
+          return buildAdminReportImageFilename(ctx, idx + 1, totalPages);
+        });
 
         var sharedNatively = false;
         if (typeof File !== 'undefined' && typeof navigator !== 'undefined' &&
             typeof navigator.share === 'function' && typeof navigator.canShare === 'function') {
-          var imgFile = new File([imgBlob], filename, { type: 'image/png' });
-          if (navigator.canShare({ files: [imgFile] })) {
+          var imgFiles = blobs.map(function(b, idx) {
+            return new File([b], filenames[idx], { type: 'image/png' });
+          });
+          if (navigator.canShare({ files: imgFiles })) {
             try {
-              await navigator.share({ files: [imgFile], title: title, text: caption });
+              await navigator.share({ files: imgFiles, title: title, text: caption });
               sharedNatively = true;
             } catch (shareErr) {
               if (shareErr && shareErr.name === 'AbortError') {
@@ -7098,12 +7195,16 @@
         }
 
         if (!sharedNatively) {
-          if (typeof ClipboardItem !== 'undefined' && navigator && navigator.clipboard && typeof navigator.clipboard.write === 'function') {
+          if (blobs.length === 1 && typeof ClipboardItem !== 'undefined' && navigator && navigator.clipboard && typeof navigator.clipboard.write === 'function') {
             try {
-              await navigator.clipboard.write([new ClipboardItem({ 'image/png': imgBlob })]);
+              await navigator.clipboard.write([new ClipboardItem({ 'image/png': blobs[0] })]);
             } catch (_) {}
           }
-          downloadReportBlob(imgBlob, filename);
+          blobs.forEach(function(blob, idx) {
+            setTimeout(function() {
+              downloadReportBlob(blob, filenames[idx]);
+            }, idx * 180);
+          });
           showToast(t('report_img_downloaded_wa'), 'success');
           window.open('https://wa.me/?text=' + encodeURIComponent(caption), '_blank', 'noopener');
         }
