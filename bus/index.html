@@ -15,8 +15,6 @@
   
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <!-- html2pdf.js for RTL PDF export -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>
 
   <style>
     /* ==========================================================================
@@ -2995,7 +2993,7 @@
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
           <button type="button" class="btn-gold" id="btn-whatsapp-admin-report" style="background: linear-gradient(135deg, #16A34A, #22C55E); color: #FFFFFF; border-color: #4ADE80;" onclick="sendAdminReportWhatsApp()">
             <i class="fa-brands fa-whatsapp"></i>
-            <span data-i18n="report_whatsapp_btn">إرسال PDF إلى الواتساب</span>
+            <span data-i18n="report_whatsapp_btn">إرسال صورة إلى الواتساب</span>
           </button>
           <button type="button" class="btn-gold" id="btn-print-admin-report" onclick="printAdminReport()">
             <i class="fa-solid fa-print"></i>
@@ -3184,10 +3182,10 @@
         report_date_from_short: 'از',
         report_date_to_short: 'تا',
         report_print_btn: 'چاپ گزارش',
-        report_whatsapp_btn: 'ارسال PDF به واتساپ',
-        report_pdf_generating: 'در حال آماده‌سازی PDF...',
-        report_pdf_downloaded_wa: 'فایل PDF دانلود شد؛ لطفاً آن را در واتساپ پیوست کنید.',
-        report_pdf_fallback_print: 'کتابخانه PDF در دسترس نیست؛ لطفاً در پنجره چاپ گزینه Save as PDF را انتخاب کنید.',
+        report_whatsapp_btn: 'ارسال تصویر به واتساپ',
+        report_img_generating: 'در حال آماده‌سازی تصویر گزارش...',
+        report_img_downloaded_wa: 'تصویر گزارش دانلود شد؛ لطفاً آن را در واتساپ پیوست کنید.',
+        report_img_fallback_print: 'ایجاد خودکار تصویر با خطا مواجه شد؛ لطفاً از دکمه چاپ استفاده کنید.',
         report_col_seq: 'ردیف',
         report_col_iranian_co: 'نام شرکت ایرانی',
         report_col_checkin: 'تاریخ ورود',
@@ -3456,10 +3454,10 @@
         report_date_from_short: 'من',
         report_date_to_short: 'إلى',
         report_print_btn: 'طباعة الكشف',
-        report_whatsapp_btn: 'إرسال PDF إلى الواتساب',
-        report_pdf_generating: 'جاري تجهيز ملف PDF...',
-        report_pdf_downloaded_wa: 'تم تنزيل ملف PDF؛ أرفقه الآن في محادثة الواتساب.',
-        report_pdf_fallback_print: 'مكتبة PDF غير متوفرة حالياً؛ اختر Save as PDF من نافذة الطباعة.',
+        report_whatsapp_btn: 'إرسال صورة إلى الواتساب',
+        report_img_generating: 'جاري تجهيز صورة الكشف...',
+        report_img_downloaded_wa: 'تم تنزيل صورة الكشف؛ أرفقها الآن في محادثة الواتساب.',
+        report_img_fallback_print: 'تعذر إنشاء صورة الكشف تلقائياً؛ يمكنك استخدام الطباعة.',
         report_col_seq: 'ت',
         report_col_iranian_co: 'اسم الشركة الإيرانية',
         report_col_checkin: 'تاريخ الدخول',
@@ -6753,12 +6751,12 @@
       return lines.join('\n');
     }
 
-    function buildAdminReportPdfFilename(ctx) {
+    function buildAdminReportImageFilename(ctx) {
       var prefix = ctx.isMeals ? 'meals-report' : 'housing-report';
       var rawCompany = ctx.rawCompanyForFilename || 'all-companies';
       var safeCompany = rawCompany.replace(/[\\/:*?"<>|\s]+/g, '_').replace(/^_+|_+$/g, '') || 'report';
       var dateStamp = new Date().toISOString().slice(0, 10);
-      return prefix + '-' + safeCompany + '-' + dateStamp + '.pdf';
+      return prefix + '-' + safeCompany + '-' + dateStamp + '.png';
     }
 
     function buildAdminReportWhatsAppCaption(ctx, title) {
@@ -6775,45 +6773,276 @@
       return lines.join('\n');
     }
 
-    function buildAdminReportPdfElement(ctx, title) {
-      var summaryEl = document.getElementById('admin-report-summary');
-      var tableWrapEl = document.getElementById('admin-report-table-container');
-      var bannerEl = document.getElementById('admin-report-company-banner');
-      var dateStamp = new Date().toISOString().slice(0, 10);
-
-      var container = document.createElement('div');
-      container.className = 'pdf-report-sheet';
-      container.setAttribute('dir', 'rtl');
-      container.style.cssText = 'position:fixed; left:-10000px; top:0; width:1040px; padding:20px; background:#ffffff; color:#0f172a; font-family:Cairo,Tajawal,sans-serif; z-index:-1;';
-
-      container.innerHTML =
-        '<style>' +
-          '.pdf-report-sheet, .pdf-report-sheet * { box-sizing: border-box; letter-spacing: normal !important; font-family: Cairo, Tajawal, sans-serif; }' +
-          '.pdf-report-header { display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #0f172a; padding-bottom:10px; margin-bottom:12px; }' +
-          '.pdf-report-title { font-size:20px; font-weight:800; color:#0f172a; margin:0; }' +
-          '.pdf-report-date { font-size:12px; color:#475569; font-weight:600; }' +
-          '.pdf-report-banner { font-size:14px; font-weight:700; color:#1e293b; margin-bottom:12px; padding:8px 12px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; }' +
-          '.pdf-report-summary { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; margin-bottom:14px; }' +
-          '.pdf-report-summary .report-summary-card { background:#f8fafc !important; border:1px solid #cbd5e1 !important; border-radius:8px; padding:10px 12px; text-align:right; }' +
-          '.pdf-report-summary .report-summary-label { font-size:11px; color:#475569 !important; font-weight:600; margin-bottom:4px; }' +
-          '.pdf-report-summary .report-summary-value { font-size:16px; color:#0f172a !important; font-weight:800; }' +
-          '.pdf-report-sheet table { width:100%; border-collapse:collapse; font-size:12px; color:#0f172a; background:#ffffff; }' +
-          '.pdf-report-sheet th, .pdf-report-sheet td { border:1px solid #cbd5e1; padding:7px 8px; text-align:center; color:#0f172a !important; }' +
-          '.pdf-report-sheet thead th { background:#e2e8f0 !important; font-weight:800; color:#0f172a !important; }' +
-          '.pdf-report-sheet tfoot td { background:#fef3c7 !important; color:#92400e !important; font-weight:800; }' +
-        '</style>' +
-        '<div class="pdf-report-header">' +
-          '<h2 class="pdf-report-title">' + escapeHtml(title) + '</h2>' +
-          '<span class="pdf-report-date">' + escapeHtml(dateStamp) + '</span>' +
-        '</div>' +
-        '<div class="pdf-report-banner">' + (bannerEl ? bannerEl.innerHTML : escapeHtml(ctx.companyFieldLabel + ': ' + ctx.companyLabel)) + '</div>' +
-        '<div class="pdf-report-summary">' + (summaryEl ? summaryEl.innerHTML : '') + '</div>' +
-        '<div class="pdf-report-table">' + (tableWrapEl ? tableWrapEl.innerHTML : '') + '</div>';
-
-      return container;
+    function fitCanvasText(c2d, text, maxWidth) {
+      var str = String(text === null || text === undefined ? '' : text);
+      if (!str || maxWidth <= 8) return str;
+      if (c2d.measureText(str).width <= maxWidth) return str;
+      var trimmed = str;
+      while (trimmed.length > 1 && c2d.measureText(trimmed + '…').width > maxWidth) {
+        trimmed = trimmed.slice(0, -1);
+      }
+      return trimmed + '…';
     }
 
-    function downloadPdfBlob(blob, filename) {
+    function drawRoundedRectPath(c2d, x, y, w, h, r) {
+      var radius = Math.min(r, w / 2, h / 2);
+      c2d.beginPath();
+      c2d.moveTo(x + radius, y);
+      c2d.lineTo(x + w - radius, y);
+      c2d.quadraticCurveTo(x + w, y, x + w, y + radius);
+      c2d.lineTo(x + w, y + h - radius);
+      c2d.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+      c2d.lineTo(x + radius, y + h);
+      c2d.quadraticCurveTo(x, y + h, x, y + h - radius);
+      c2d.lineTo(x, y + radius);
+      c2d.quadraticCurveTo(x, y, x + radius, y);
+      c2d.closePath();
+    }
+
+    function renderAdminReportCanvas(ctxData, title) {
+      var isMeals = ctxData.isMeals;
+      var rows = ctxData.rows;
+      var totals = computeAdminReportTotals(rows, ctxData.mode);
+      var dateStamp = new Date().toISOString().slice(0, 10);
+
+      var width = 1120;
+      var pad = 24;
+      var contentW = width - pad * 2; // 1072
+      var headerH = 44;
+      var bannerH = 40;
+      var summaryH = 68;
+      var theadH = 42;
+      var rowH = 34;
+      var tfootH = 40;
+      var totalHeight = pad + headerH + 12 + bannerH + 12 + summaryH + 16 + theadH + (rows.length * rowH) + tfootH + pad;
+
+      var maxPixels = 12000000;
+      var scale = 2;
+      if (width * scale * totalHeight * scale > maxPixels) {
+        scale = Math.max(1, Math.floor(Math.sqrt(maxPixels / (width * totalHeight)) * 100) / 100);
+      }
+
+      var canvas = document.createElement('canvas');
+      canvas.width = Math.round(width * scale);
+      canvas.height = Math.round(totalHeight * scale);
+      var c2d = canvas.getContext('2d');
+      c2d.scale(scale, scale);
+      c2d.direction = 'rtl';
+      c2d.textBaseline = 'middle';
+
+      // Solid white background
+      c2d.fillStyle = '#FFFFFF';
+      c2d.fillRect(0, 0, width, totalHeight);
+
+      var y = pad;
+
+      // 1. Report Title + Date Header
+      c2d.fillStyle = '#0F172A';
+      c2d.font = '800 23px Cairo, Tajawal, Tahoma, Arial, sans-serif';
+      c2d.textAlign = 'right';
+      c2d.fillText(title, width - pad, y + 18);
+
+      c2d.fillStyle = '#475569';
+      c2d.font = '600 13px Cairo, Tajawal, Tahoma, Arial, sans-serif';
+      c2d.textAlign = 'left';
+      c2d.fillText(dateStamp, pad, y + 18);
+
+      c2d.strokeStyle = '#0F172A';
+      c2d.lineWidth = 2;
+      c2d.beginPath();
+      c2d.moveTo(pad, y + headerH - 4);
+      c2d.lineTo(width - pad, y + headerH - 4);
+      c2d.stroke();
+
+      y += headerH + 12;
+
+      // 2. Company & Date Range Banner
+      drawRoundedRectPath(c2d, pad, y, contentW, bannerH, 8);
+      c2d.fillStyle = '#F8FAFC';
+      c2d.fill();
+      c2d.strokeStyle = '#CBD5E1';
+      c2d.lineWidth = 1;
+      c2d.stroke();
+
+      var bannerText = ctxData.companyFieldLabel + ': ' + ctxData.companyLabel;
+      if (ctxData.dateRangeText) {
+        bannerText += '  |  ' + t('report_date_range_btn') + ': ' + ctxData.dateRangeText;
+      }
+      c2d.fillStyle = '#1E293B';
+      c2d.font = '700 14px Cairo, Tajawal, Tahoma, Arial, sans-serif';
+      c2d.textAlign = 'right';
+      c2d.fillText(fitCanvasText(c2d, bannerText, contentW - 24), width - pad - 12, y + bannerH / 2);
+
+      y += bannerH + 12;
+
+      // 3. Summary Cards (4 RTL cards)
+      var summaryCards = [
+        { label: t('report_sum_bookings'), val: formatBookingNumber(rows.length) },
+        { label: isMeals ? t('report_sum_meals') : t('report_sum_days'), val: formatBookingNumber(totals.totalMetric) },
+        { label: t('report_sum_visitors'), val: formatBookingNumber(totals.totalVisitors) },
+        { label: t('report_sum_total'), val: formatBookingNumber(Math.round(totals.grandTotal * 1000) / 1000) + ' $' }
+      ];
+      var cardGap = 12;
+      var cardW = (contentW - cardGap * 3) / 4;
+      summaryCards.forEach(function(card, idx) {
+        var cardRight = (width - pad) - idx * (cardW + cardGap);
+        var cardLeft = cardRight - cardW;
+        drawRoundedRectPath(c2d, cardLeft, y, cardW, summaryH, 8);
+        c2d.fillStyle = '#F8FAFC';
+        c2d.fill();
+        c2d.strokeStyle = '#CBD5E1';
+        c2d.lineWidth = 1;
+        c2d.stroke();
+
+        c2d.fillStyle = '#475569';
+        c2d.font = '600 12px Cairo, Tajawal, Tahoma, Arial, sans-serif';
+        c2d.textAlign = 'right';
+        c2d.fillText(fitCanvasText(c2d, card.label, cardW - 24), cardRight - 12, y + 20);
+
+        c2d.fillStyle = '#0F172A';
+        c2d.font = '800 18px Cairo, Tajawal, Tahoma, Arial, sans-serif';
+        c2d.fillText(fitCanvasText(c2d, card.val, cardW - 24), cardRight - 12, y + 46);
+      });
+
+      y += summaryH + 16;
+
+      // 4. Report Table
+      var colSpecs = isMeals
+        ? [
+            { label: t('report_col_seq'), w: 40 },
+            { label: t('report_col_iranian_co'), w: 220 },
+            { label: t('report_col_checkin'), w: 110 },
+            { label: t('report_col_checkout'), w: 110 },
+            { label: t('report_col_badge'), w: 92 },
+            { label: t('report_col_meal_type'), w: 84 },
+            { label: t('report_col_meal_count'), w: 90 },
+            { label: t('report_col_visitors'), w: 88 },
+            { label: t('report_col_meal_price'), w: 114 },
+            { label: t('report_col_total'), w: 124 }
+          ]
+        : [
+            { label: t('report_col_seq'), w: 44 },
+            { label: t('report_col_iranian_co'), w: 256 },
+            { label: t('report_col_checkin'), w: 118 },
+            { label: t('report_col_checkout'), w: 118 },
+            { label: t('report_col_badge'), w: 100 },
+            { label: t('report_col_days'), w: 88 },
+            { label: t('report_col_visitors'), w: 98 },
+            { label: t('report_col_price'), w: 108 },
+            { label: t('report_col_total'), w: 142 }
+          ];
+
+      function drawCellsRow(rowY, rowHeight, bg, borderColor, textColor, fontStr, cells) {
+        c2d.fillStyle = bg;
+        c2d.fillRect(pad, rowY, contentW, rowHeight);
+
+        c2d.strokeStyle = borderColor;
+        c2d.lineWidth = 1;
+        c2d.strokeRect(pad, rowY, contentW, rowHeight);
+
+        c2d.font = fontStr;
+        c2d.fillStyle = textColor;
+        c2d.textAlign = 'center';
+
+        var cursorRight = width - pad;
+        cells.forEach(function(cell) {
+          var cellW = cell.w;
+          var cellLeft = cursorRight - cellW;
+          if (cursorRight < width - pad) {
+            c2d.beginPath();
+            c2d.moveTo(cursorRight, rowY);
+            c2d.lineTo(cursorRight, rowY + rowHeight);
+            c2d.stroke();
+          }
+          var txt = fitCanvasText(c2d, cell.text, cellW - 10);
+          c2d.fillText(txt, cellLeft + cellW / 2, rowY + rowHeight / 2 + 1);
+          cursorRight = cellLeft;
+        });
+      }
+
+      // Table Header
+      drawCellsRow(
+        y, theadH, '#E2E8F0', '#CBD5E1', '#0F172A',
+        '800 12.5px Cairo, Tajawal, Tahoma, Arial, sans-serif',
+        colSpecs.map(function(c) { return { w: c.w, text: c.label }; })
+      );
+      y += theadH;
+
+      // Data Rows
+      rows.forEach(function(b, idx) {
+        var checkoutStr = DateUtils.addDays(b.startDate, b.nights);
+        var badgeStr = b.badgeNumber ? String(b.badgeNumber) : '---';
+        var rowVisitorsVal = isMeals ? getEffectiveMealVisitors(b) : (hasValue(b.visitorsCount) ? Number(b.visitorsCount) : null);
+        var visitorsStr = rowVisitorsVal !== null ? formatBookingNumber(rowVisitorsVal) : '---';
+        var rowTotal = getReportRowTotal(b, ctxData.mode);
+        var totalStr = rowTotal !== null ? formatBookingNumber(rowTotal) + ' $' : '---';
+
+        var vals;
+        if (isMeals) {
+          var mTypeStr = b.mealType ? getMealTypeLabel(b.mealType) : '---';
+          var mCountStr = hasValue(b.mealCount) ? formatBookingNumber(b.mealCount) : '---';
+          var mPriceStr = hasValue(b.mealPrice) ? formatBookingNumber(b.mealPrice) + ' $' : '---';
+          vals = [idx + 1, b.company, b.startDate, checkoutStr, badgeStr, mTypeStr, mCountStr, visitorsStr, mPriceStr, totalStr];
+        } else {
+          var pPriceStr = hasValue(b.personPrice) ? formatBookingNumber(b.personPrice) + ' $' : '---';
+          vals = [idx + 1, b.company, b.startDate, checkoutStr, badgeStr, formatBookingNumber(b.nights), visitorsStr, pPriceStr, totalStr];
+        }
+
+        drawCellsRow(
+          y, rowH, (idx % 2 === 0 ? '#FFFFFF' : '#F8FAFC'), '#CBD5E1', '#0F172A',
+          '600 12.5px Cairo, Tajawal, Tahoma, Arial, sans-serif',
+          colSpecs.map(function(c, ci) { return { w: c.w, text: vals[ci] }; })
+        );
+        y += rowH;
+      });
+
+      // Totals Footer Row
+      var spanCols = isMeals ? 6 : 5;
+      var spanWidth = 0;
+      for (var si = 0; si < spanCols; si++) spanWidth += colSpecs[si].w;
+      var footerCells = [
+        { w: spanWidth, text: t('report_grand_total') },
+        { w: colSpecs[spanCols].w, text: formatBookingNumber(totals.totalMetric) },
+        { w: colSpecs[spanCols + 1].w, text: formatBookingNumber(totals.totalVisitors) },
+        { w: colSpecs[spanCols + 2].w, text: '---' },
+        { w: colSpecs[spanCols + 3].w, text: formatBookingNumber(totals.grandTotal) + ' $' }
+      ];
+      drawCellsRow(
+        y, tfootH, '#FEF3C7', '#D97706', '#92400E',
+        '800 13.5px Cairo, Tajawal, Tahoma, Arial, sans-serif',
+        footerCells
+      );
+
+      return canvas;
+    }
+
+    function canvasToPngBlob(canvas) {
+      return new Promise(function(resolve, reject) {
+        if (typeof canvas.toBlob === 'function') {
+          canvas.toBlob(function(blob) {
+            if (blob && blob.size > 0) {
+              resolve(blob);
+            } else {
+              reject(new Error('Empty canvas blob'));
+            }
+          }, 'image/png');
+          return;
+        }
+        try {
+          var dataUrl = canvas.toDataURL('image/png');
+          var parts = dataUrl.split(',');
+          var binStr = atob(parts[1]);
+          var len = binStr.length;
+          var bytes = new Uint8Array(len);
+          for (var i = 0; i < len; i++) bytes[i] = binStr.charCodeAt(i);
+          resolve(new Blob([bytes], { type: 'image/png' }));
+        } catch (err) {
+          reject(err);
+        }
+      });
+    }
+
+    function downloadReportBlob(blob, filename) {
       var url = URL.createObjectURL(blob);
       var a = document.createElement('a');
       a.href = url;
@@ -6834,45 +7063,31 @@
         return;
       }
 
-      if (typeof html2pdf === 'undefined') {
-        showToast(t('report_pdf_fallback_print'), 'info');
-        printAdminReport();
-        return;
-      }
-
       var title = ctx.isMeals ? t('report_meals_title') : t('report_housing_title');
-      var filename = buildAdminReportPdfFilename(ctx);
+      var filename = buildAdminReportImageFilename(ctx);
       var caption = buildAdminReportWhatsAppCaption(ctx, title);
       var btn = document.getElementById('btn-whatsapp-admin-report');
       var btnLabel = btn ? btn.querySelector('span') : null;
       var prevLabel = btnLabel ? btnLabel.textContent : '';
-      var pdfContainer = null;
 
       if (btn) btn.disabled = true;
-      if (btnLabel) btnLabel.textContent = t('report_pdf_generating');
+      if (btnLabel) btnLabel.textContent = t('report_img_generating');
 
       try {
-        pdfContainer = buildAdminReportPdfElement(ctx, title);
-        document.body.appendChild(pdfContainer);
+        if (document.fonts && document.fonts.ready) {
+          try { await document.fonts.ready; } catch (_) {}
+        }
 
-        var pdfBlob = await html2pdf()
-          .set({
-            margin: [8, 8, 8, 8],
-            filename: filename,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-          })
-          .from(pdfContainer)
-          .outputPdf('blob');
+        var canvas = renderAdminReportCanvas(ctx, title);
+        var imgBlob = await canvasToPngBlob(canvas);
 
         var sharedNatively = false;
         if (typeof File !== 'undefined' && typeof navigator !== 'undefined' &&
             typeof navigator.share === 'function' && typeof navigator.canShare === 'function') {
-          var pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' });
-          if (navigator.canShare({ files: [pdfFile] })) {
+          var imgFile = new File([imgBlob], filename, { type: 'image/png' });
+          if (navigator.canShare({ files: [imgFile] })) {
             try {
-              await navigator.share({ files: [pdfFile], title: title, text: caption });
+              await navigator.share({ files: [imgFile], title: title, text: caption });
               sharedNatively = true;
             } catch (shareErr) {
               if (shareErr && shareErr.name === 'AbortError') {
@@ -6883,17 +7098,19 @@
         }
 
         if (!sharedNatively) {
-          downloadPdfBlob(pdfBlob, filename);
-          showToast(t('report_pdf_downloaded_wa'), 'success');
+          if (typeof ClipboardItem !== 'undefined' && navigator && navigator.clipboard && typeof navigator.clipboard.write === 'function') {
+            try {
+              await navigator.clipboard.write([new ClipboardItem({ 'image/png': imgBlob })]);
+            } catch (_) {}
+          }
+          downloadReportBlob(imgBlob, filename);
+          showToast(t('report_img_downloaded_wa'), 'success');
           window.open('https://wa.me/?text=' + encodeURIComponent(caption), '_blank', 'noopener');
         }
       } catch (err) {
-        console.error('PDF export failed:', err);
-        showToast(t('report_pdf_fallback_print'), 'error');
+        console.error('Report image export failed:', err);
+        showToast(t('report_img_fallback_print'), 'error');
       } finally {
-        if (pdfContainer && pdfContainer.parentNode) {
-          pdfContainer.parentNode.removeChild(pdfContainer);
-        }
         if (btn) btn.disabled = false;
         if (btnLabel) btnLabel.textContent = prevLabel || t('report_whatsapp_btn');
       }
