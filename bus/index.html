@@ -15,6 +15,8 @@
   
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- jsPDF for multi-page A4 PDF assembly from crisp report canvases -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
     /* ==========================================================================
@@ -2993,7 +2995,7 @@
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
           <button type="button" class="btn-gold" id="btn-whatsapp-admin-report" style="background: linear-gradient(135deg, #16A34A, #22C55E); color: #FFFFFF; border-color: #4ADE80;" onclick="sendAdminReportWhatsApp()">
             <i class="fa-brands fa-whatsapp"></i>
-            <span data-i18n="report_whatsapp_btn">إرسال صورة إلى الواتساب</span>
+            <span data-i18n="report_whatsapp_btn">إرسال PDF إلى الواتساب</span>
           </button>
           <button type="button" class="btn-gold" id="btn-print-admin-report" onclick="printAdminReport()">
             <i class="fa-solid fa-print"></i>
@@ -3182,10 +3184,10 @@
         report_date_from_short: 'از',
         report_date_to_short: 'تا',
         report_print_btn: 'چاپ گزارش',
-        report_whatsapp_btn: 'ارسال تصویر به واتساپ',
-        report_img_generating: 'در حال آماده‌سازی تصویر گزارش...',
-        report_img_downloaded_wa: 'تصویر گزارش دانلود شد؛ لطفاً آن را در واتساپ پیوست کنید.',
-        report_img_fallback_print: 'ایجاد خودکار تصویر با خطا مواجه شد؛ لطفاً از دکمه چاپ استفاده کنید.',
+        report_whatsapp_btn: 'ارسال PDF به واتساپ',
+        report_pdf_generating: 'در حال آماده‌سازی فایل PDF...',
+        report_pdf_downloaded_wa: 'فایل PDF دانلود شد؛ لطفاً آن را در واتساپ پیوست کنید.',
+        report_pdf_fallback_print: 'کتابخانه PDF در دسترس نیست؛ لطفاً در پنجره چاپ گزینه Save as PDF را انتخاب کنید.',
         report_page_word: 'صفحه',
         report_of_word: 'از',
         report_col_seq: 'ردیف',
@@ -3456,10 +3458,10 @@
         report_date_from_short: 'من',
         report_date_to_short: 'إلى',
         report_print_btn: 'طباعة الكشف',
-        report_whatsapp_btn: 'إرسال صورة إلى الواتساب',
-        report_img_generating: 'جاري تجهيز صورة الكشف...',
-        report_img_downloaded_wa: 'تم تنزيل صورة الكشف؛ أرفقها الآن في محادثة الواتساب.',
-        report_img_fallback_print: 'تعذر إنشاء صورة الكشف تلقائياً؛ يمكنك استخدام الطباعة.',
+        report_whatsapp_btn: 'إرسال PDF إلى الواتساب',
+        report_pdf_generating: 'جاري تجهيز ملف PDF...',
+        report_pdf_downloaded_wa: 'تم تنزيل ملف PDF؛ أرفقه الآن في محادثة الواتساب.',
+        report_pdf_fallback_print: 'مكتبة PDF غير متوفرة حالياً؛ اختر Save as PDF من نافذة الطباعة.',
         report_page_word: 'صفحة',
         report_of_word: 'من',
         report_col_seq: 'ت',
@@ -6755,15 +6757,6 @@
       return lines.join('\n');
     }
 
-    function buildAdminReportImageFilename(ctx, pageNum, totalPages) {
-      var prefix = ctx.isMeals ? 'meals-report' : 'housing-report';
-      var rawCompany = ctx.rawCompanyForFilename || 'all-companies';
-      var safeCompany = rawCompany.replace(/[\\/:*?"<>|\s]+/g, '_').replace(/^_+|_+$/g, '') || 'report';
-      var dateStamp = new Date().toISOString().slice(0, 10);
-      var suffix = (totalPages && totalPages > 1) ? ('-p' + pageNum) : '';
-      return prefix + '-' + safeCompany + '-' + dateStamp + suffix + '.png';
-    }
-
     function buildAdminReportWhatsAppCaption(ctx, title) {
       var totals = computeAdminReportTotals(ctx.rows, ctx.mode);
       var lines = [
@@ -7097,30 +7090,34 @@
       });
     }
 
-    function canvasToPngBlob(canvas) {
-      return new Promise(function(resolve, reject) {
-        if (typeof canvas.toBlob === 'function') {
-          canvas.toBlob(function(blob) {
-            if (blob && blob.size > 0) {
-              resolve(blob);
-            } else {
-              reject(new Error('Empty canvas blob'));
-            }
-          }, 'image/png');
-          return;
-        }
-        try {
-          var dataUrl = canvas.toDataURL('image/png');
-          var parts = dataUrl.split(',');
-          var binStr = atob(parts[1]);
-          var len = binStr.length;
-          var bytes = new Uint8Array(len);
-          for (var i = 0; i < len; i++) bytes[i] = binStr.charCodeAt(i);
-          resolve(new Blob([bytes], { type: 'image/png' }));
-        } catch (err) {
-          reject(err);
-        }
+    function buildAdminReportPdfFilename(ctx) {
+      var prefix = ctx.isMeals ? 'meals-report' : 'housing-report';
+      var rawCompany = ctx.rawCompanyForFilename || 'all-companies';
+      var safeCompany = rawCompany.replace(/[\\/:*?"<>|\s]+/g, '_').replace(/^_+|_+$/g, '') || 'report';
+      var dateStamp = new Date().toISOString().slice(0, 10);
+      return prefix + '-' + safeCompany + '-' + dateStamp + '.pdf';
+    }
+
+    function buildPdfBlobFromCanvases(JsPdfCtor, canvases) {
+      var doc = new JsPdfCtor({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true });
+      var pageW = 297;
+      var pageH = 210;
+      var margin = 7;
+      var availW = pageW - margin * 2;
+      var availH = pageH - margin * 2;
+
+      canvases.forEach(function(canvas, idx) {
+        if (idx > 0) doc.addPage('a4', 'landscape');
+        var ratio = Math.min(availW / canvas.width, availH / canvas.height);
+        var drawW = canvas.width * ratio;
+        var drawH = canvas.height * ratio;
+        var drawX = (pageW - drawW) / 2;
+        var drawY = margin;
+        var dataUrl = canvas.toDataURL('image/png');
+        doc.addImage(dataUrl, 'PNG', drawX, drawY, drawW, drawH, undefined, 'FAST');
       });
+
+      return doc.output('blob');
     }
 
     function downloadReportBlob(blob, filename) {
@@ -7144,14 +7141,24 @@
         return;
       }
 
+      var JsPdfCtor = (typeof window !== 'undefined' && window.jspdf && window.jspdf.jsPDF)
+        ? window.jspdf.jsPDF
+        : (typeof jsPDF !== 'undefined' ? jsPDF : null);
+      if (!JsPdfCtor) {
+        showToast(t('report_pdf_fallback_print'), 'info');
+        printAdminReport();
+        return;
+      }
+
       var title = ctx.isMeals ? t('report_meals_title') : t('report_housing_title');
+      var filename = buildAdminReportPdfFilename(ctx);
       var caption = buildAdminReportWhatsAppCaption(ctx, title);
       var btn = document.getElementById('btn-whatsapp-admin-report');
       var btnLabel = btn ? btn.querySelector('span') : null;
       var prevLabel = btnLabel ? btnLabel.textContent : '';
 
       if (btn) btn.disabled = true;
-      if (btnLabel) btnLabel.textContent = t('report_img_generating');
+      if (btnLabel) btnLabel.textContent = t('report_pdf_generating');
 
       try {
         if (document.fonts) {
@@ -7170,21 +7177,15 @@
         }
 
         var canvases = renderAdminReportCanvases(ctx, title);
-        var totalPages = canvases.length;
-        var blobs = await Promise.all(canvases.map(canvasToPngBlob));
-        var filenames = blobs.map(function(_, idx) {
-          return buildAdminReportImageFilename(ctx, idx + 1, totalPages);
-        });
+        var pdfBlob = buildPdfBlobFromCanvases(JsPdfCtor, canvases);
 
         var sharedNatively = false;
         if (typeof File !== 'undefined' && typeof navigator !== 'undefined' &&
             typeof navigator.share === 'function' && typeof navigator.canShare === 'function') {
-          var imgFiles = blobs.map(function(b, idx) {
-            return new File([b], filenames[idx], { type: 'image/png' });
-          });
-          if (navigator.canShare({ files: imgFiles })) {
+          var pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' });
+          if (navigator.canShare({ files: [pdfFile] })) {
             try {
-              await navigator.share({ files: imgFiles, title: title, text: caption });
+              await navigator.share({ files: [pdfFile], title: title, text: caption });
               sharedNatively = true;
             } catch (shareErr) {
               if (shareErr && shareErr.name === 'AbortError') {
@@ -7195,22 +7196,13 @@
         }
 
         if (!sharedNatively) {
-          if (blobs.length === 1 && typeof ClipboardItem !== 'undefined' && navigator && navigator.clipboard && typeof navigator.clipboard.write === 'function') {
-            try {
-              await navigator.clipboard.write([new ClipboardItem({ 'image/png': blobs[0] })]);
-            } catch (_) {}
-          }
-          blobs.forEach(function(blob, idx) {
-            setTimeout(function() {
-              downloadReportBlob(blob, filenames[idx]);
-            }, idx * 180);
-          });
-          showToast(t('report_img_downloaded_wa'), 'success');
+          downloadReportBlob(pdfBlob, filename);
+          showToast(t('report_pdf_downloaded_wa'), 'success');
           window.open('https://wa.me/?text=' + encodeURIComponent(caption), '_blank', 'noopener');
         }
       } catch (err) {
-        console.error('Report image export failed:', err);
-        showToast(t('report_img_fallback_print'), 'error');
+        console.error('Report PDF export failed:', err);
+        showToast(t('report_pdf_fallback_print'), 'error');
       } finally {
         if (btn) btn.disabled = false;
         if (btnLabel) btnLabel.textContent = prevLabel || t('report_whatsapp_btn');
