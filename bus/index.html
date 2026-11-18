@@ -3171,12 +3171,32 @@
           <div class="form-row">
             <div>
               <label class="form-label" for="settings-login-username" data-i18n="login_user_label">نام کاربری</label>
-              <input type="text" id="settings-login-username" class="form-input" required>
+              <input type="text" id="settings-login-username" class="form-input">
             </div>
             <div>
               <label class="form-label" for="settings-login-password" data-i18n="login_pass_label">رمز عبور</label>
-              <input type="text" id="settings-login-password" class="form-input" required>
+              <input type="text" id="settings-login-password" class="form-input">
             </div>
+          </div>
+        </div>
+
+        <div class="form-group-full" style="border-top: 1px solid rgba(25, 34, 62, 0.15); padding-top: 14px; margin-top: 10px;">
+          <label class="form-label" style="color: #19223E; font-weight: 800; margin-bottom: 10px;">
+            <i class="fa-solid fa-user-lock"></i> <span data-i18n="settings_admin_creds_title">تغییر نام کاربری و رمز عبور ادمین</span>
+          </label>
+          <div class="form-row">
+            <div>
+              <label class="form-label" for="settings-admin-username" data-i18n="settings_admin_user_label">نام کاربری ادمین (ورود مستقیم)</label>
+              <input type="text" id="settings-admin-username" class="form-input">
+            </div>
+            <div>
+              <label class="form-label" for="settings-admin-login-password" data-i18n="settings_admin_login_pass_label">رمز عبور ورود مستقیم ادمین (به‌جای ۳۱۳)</label>
+              <input type="text" id="settings-admin-login-password" class="form-input">
+            </div>
+          </div>
+          <div style="margin-top: 10px;">
+            <label class="form-label" for="settings-admin-password" data-i18n="settings_admin_pass_label">رمز عبور پنل ادمین</label>
+            <input type="text" id="settings-admin-password" class="form-input">
           </div>
         </div>
 
@@ -3387,6 +3407,10 @@
         bus_count_6: '۶ اتوبوس',
         bus_count_8: '۸ اتوبوس (پیش‌فرض)',
         settings_login_creds_title: 'تغییر نام کاربری و رمز عبور ورود به سایت',
+        settings_admin_creds_title: 'تغییر نام کاربری و رمز عبور ادمین',
+        settings_admin_user_label: 'نام کاربری ادمین (ورود مستقیم)',
+        settings_admin_login_pass_label: 'رمز عبور ورود مستقیم ادمین (به‌جای ۳۱۳)',
+        settings_admin_pass_label: 'رمز عبور پنل ادمین',
         settings_data_label: 'عملیات داده‌ها و ذخیره‌سازی',
         settings_reset_sample: 'بازیابی رزروهای حذف‌شده',
         settings_clear_all: 'حذف کامل تمام رزروها (خالی کردن جدول)',
@@ -3659,6 +3683,10 @@
         bus_count_6: '6 باصات',
         bus_count_8: '8 باصات (الافتراضي)',
         settings_login_creds_title: 'تغيير اسم المستخدم وكلمة المرور للدخول للموقع',
+        settings_admin_creds_title: 'تغيير اسم مستخدم وكلمة مرور الأدمن',
+        settings_admin_user_label: 'اسم مستخدم الأدمن (الدخول المباشر)',
+        settings_admin_login_pass_label: 'كلمة مرور الأدمن (بدل 313 للدخول المباشر)',
+        settings_admin_pass_label: 'كلمة مرور لوحة الأدمن',
         settings_data_label: 'إجراءات البيانات وقواعد الحفظ',
         settings_reset_sample: 'استعادة الحجوزات المحذوفة',
         settings_clear_all: 'مسح جميع الحجوزات نهائياً (إفراغ الجدول)',
@@ -3897,6 +3925,9 @@
       isAdmin: false,
       loginUsername: 'najaf',
       loginPassword: '313',
+      adminUsername: 'kr',
+      adminLoginPassword: '313',
+      adminPassword: 'khalid12',
       startDate: DateUtils.formatYYYYMMDD(new Date()),
       daysCount: 14,
       busCount: 8,
@@ -4352,6 +4383,9 @@
           AppState.busCount = parsedBusCount;
           AppState.loginUsername = parsed.loginUsername || 'najaf';
           AppState.loginPassword = parsed.loginPassword || '313';
+          AppState.adminUsername = parsed.adminUsername || 'kr';
+          AppState.adminLoginPassword = parsed.adminLoginPassword || '313';
+          AppState.adminPassword = parsed.adminPassword || 'khalid12';
           AppState.settingsRev = parsed.settingsRev || 0;
           AppState.settingsUpdatedAt = parsed.settingsUpdatedAt || 0;
         } else {
@@ -4359,6 +4393,9 @@
           AppState.busCount = 8;
           AppState.loginUsername = 'najaf';
           AppState.loginPassword = '313';
+          AppState.adminUsername = 'kr';
+          AppState.adminLoginPassword = '313';
+          AppState.adminPassword = 'khalid12';
           AppState.settingsRev = 0;
           AppState.settingsUpdatedAt = 0;
         }
@@ -4411,6 +4448,9 @@
           busCount: AppState.busCount,
           loginUsername: AppState.loginUsername,
           loginPassword: AppState.loginPassword,
+          adminUsername: AppState.adminUsername,
+          adminLoginPassword: AppState.adminLoginPassword,
+          adminPassword: AppState.adminPassword,
           settingsRev: AppState.settingsRev || 0,
           settingsUpdatedAt: AppState.settingsUpdatedAt || 0
         }));
@@ -4454,6 +4494,9 @@
         busCount: AppState.busCount,
         loginUsername: AppState.loginUsername,
         loginPassword: AppState.loginPassword,
+        adminUsername: AppState.adminUsername,
+        adminLoginPassword: AppState.adminLoginPassword,
+        adminPassword: AppState.adminPassword,
         settingsRev: AppState.settingsRev,
         settingsUpdatedAt: AppState.settingsUpdatedAt
       };
@@ -4516,6 +4559,9 @@
         bc: bc,
         u: AppState.loginUsername || 'najaf',
         p: AppState.loginPassword || '313',
+        au: AppState.adminUsername || 'kr',
+        alp: AppState.adminLoginPassword || '313',
+        ap: AppState.adminPassword || 'khalid12',
         r: AppState.settingsRev || 0,
         t: AppState.settingsUpdatedAt || 0
       };
@@ -4530,6 +4576,9 @@
         bc: bc,
         u: cfg.u || cfg.loginUsername || 'najaf',
         p: cfg.p || cfg.loginPassword || '313',
+        au: cfg.au || cfg.adminUsername || 'kr',
+        alp: cfg.alp || cfg.adminLoginPassword || '313',
+        ap: cfg.ap || cfg.adminPassword || 'khalid12',
         r: parseInt(cfg.r !== undefined ? cfg.r : cfg.settingsRev, 10) || 0,
         t: parseInt(cfg.t !== undefined ? cfg.t : cfg.settingsUpdatedAt, 10) || 0
       };
@@ -4551,7 +4600,7 @@
       }).filter(Boolean).sort().join(';;');
 
       var nc = normalizeCfg(cfg);
-      var cPart = [nc.bc, nc.dc, nc.u, nc.p, nc.r, nc.t].join('|');
+      var cPart = [nc.bc, nc.dc, nc.u, nc.p, nc.au, nc.alp, nc.ap, nc.r, nc.t].join('|');
 
       return bPart + '###' + dPart + '###' + cPart;
     }
@@ -4736,6 +4785,9 @@
       AppState.daysCount = mergedCfg.dc || 14;
       AppState.loginUsername = mergedCfg.u || 'najaf';
       AppState.loginPassword = mergedCfg.p || '313';
+      AppState.adminUsername = mergedCfg.au || 'kr';
+      AppState.adminLoginPassword = mergedCfg.alp || '313';
+      AppState.adminPassword = mergedCfg.ap || 'khalid12';
       AppState.settingsRev = mergedCfg.r || 0;
       AppState.settingsUpdatedAt = mergedCfg.t || 0;
 
@@ -4932,9 +4984,11 @@
       var errorBox = document.getElementById('login-error-box');
       var expectedUser = AppState.loginUsername || 'najaf';
       var expectedPass = AppState.loginPassword || '313';
-      var isDirectAdminUser = (u.toLowerCase() === 'kr');
+      var expectedAdminUser = (AppState.adminUsername || 'kr').trim();
+      var expectedAdminLoginPass = AppState.adminLoginPassword || '313';
+      var isDirectAdminUser = (u.toLowerCase() === expectedAdminUser.toLowerCase());
 
-      if ((u === expectedUser || isDirectAdminUser) && p === expectedPass) {
+      if ((u === expectedUser && p === expectedPass) || (isDirectAdminUser && p === expectedAdminLoginPass)) {
         errorBox.style.display = 'none';
         if (uInput && uInput.blur) uInput.blur();
         if (pInput && pInput.blur) pInput.blur();
@@ -4984,7 +5038,8 @@
       var pwd = document.getElementById('admin-password-input').value.trim();
       var err = document.getElementById('admin-auth-error');
 
-      if (pwd === 'khalid12') {
+      var expectedAdminPass = AppState.adminPassword || 'khalid12';
+      if (pwd === expectedAdminPass) {
         err.style.display = 'none';
         AppState.isAdmin = true;
         closeModal('admin-auth-modal');
@@ -7317,6 +7372,9 @@
         document.getElementById('settings-bus-count').value = String(AppState.busCount);
         document.getElementById('settings-login-username').value = AppState.loginUsername || 'najaf';
         document.getElementById('settings-login-password').value = AppState.loginPassword || '313';
+        document.getElementById('settings-admin-username').value = AppState.adminUsername || 'kr';
+        document.getElementById('settings-admin-login-password').value = AppState.adminLoginPassword || '313';
+        document.getElementById('settings-admin-password').value = AppState.adminPassword || 'khalid12';
         openModal('admin-settings-modal');
       } else {
         err.style.display = 'block';
@@ -7329,9 +7387,15 @@
       var count = parseInt(document.getElementById('settings-bus-count').value, 10);
       var newUser = document.getElementById('settings-login-username').value.trim();
       var newPass = document.getElementById('settings-login-password').value.trim();
+      var newAdminUser = document.getElementById('settings-admin-username').value.trim();
+      var newAdminLoginPass = document.getElementById('settings-admin-login-password').value.trim();
+      var newAdminPass = document.getElementById('settings-admin-password').value.trim();
 
       if (newUser) AppState.loginUsername = newUser;
       if (newPass) AppState.loginPassword = newPass;
+      if (newAdminUser) AppState.adminUsername = newAdminUser;
+      if (newAdminLoginPass) AppState.adminLoginPassword = newAdminLoginPass;
+      if (newAdminPass) AppState.adminPassword = newAdminPass;
       AppState.busCount = count;
       saveSettingsToStorage();
       closeModal('admin-settings-modal');
