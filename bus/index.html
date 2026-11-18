@@ -1945,16 +1945,16 @@
         background: #FFFFFF !important;
       }
 
-      /* Meta columns: compact fixed widths so all 9 buses fit across the page */
+      /* Meta columns: compact fixed widths so all 8 buses fit across the page */
       .col-sticky-1, .col-sticky-2, .col-sticky-3, .col-sticky-4 {
         background: #F3F4F6 !important;
         border-right: 1px solid #555555 !important;
         border-left: 1px solid #555555 !important;
       }
-      .col-sticky-1 { width: 7% !important; }
-      .col-sticky-2 { width: 7% !important; }
-      .col-sticky-3 { width: 4.5% !important; }
-      .col-sticky-4 { width: 4% !important; }
+      .col-sticky-1 { width: 7.5% !important; }
+      .col-sticky-2 { width: 7.5% !important; }
+      .col-sticky-3 { width: 5% !important; }
+      .col-sticky-4 { width: 4.5% !important; }
 
       .schedule-table tbody tr.is-today { background: #FFFFFF !important; }
       .schedule-table tbody tr.is-today .col-sticky-1 { border-right: 1px solid #555555 !important; }
@@ -2619,7 +2619,7 @@
           </div>
           <div class="stat-info">
             <h3 data-i18n="stat_total_title">کل اتوبوس‌ها</h3>
-            <div class="stat-number" id="stat-total-buses">9 اتوبوس</div>
+            <div class="stat-number" id="stat-total-buses">8 اتوبوس</div>
             <div class="stat-sub" data-i18n="stat_total_sub">ظرفیت کامل ناوگان هتل</div>
           </div>
         </div>
@@ -3156,12 +3156,11 @@
       </div>
       <div class="modal-body">
         <div class="form-group-full">
-          <label class="form-label" for="settings-bus-count" data-i18n="settings_bus_count_label">تعداد اتوبوس‌های فعال در سامانه (۱ تا ۹)</label>
+          <label class="form-label" for="settings-bus-count" data-i18n="settings_bus_count_label">تعداد اتوبوس‌های فعال در سامانه (۱ تا ۸)</label>
           <select id="settings-bus-count" class="form-select">
             <option value="4" data-i18n="bus_count_4">۴ اتوبوس</option>
             <option value="6" data-i18n="bus_count_6">۶ اتوبوس</option>
-            <option value="8" data-i18n="bus_count_8">۸ اتوبوس</option>
-            <option value="9" selected data-i18n="bus_count_9">۹ اتوبوس (پیش‌فرض)</option>
+            <option value="8" selected data-i18n="bus_count_8">۸ اتوبوس (پیش‌فرض)</option>
           </select>
         </div>
 
@@ -3383,11 +3382,10 @@
         settings_auth_label: 'رمز عبور تنظیمات',
         settings_auth_ph: 'رمز عبور را وارد کنید',
         settings_auth_submit: 'تأیید و ورود به تنظیمات',
-        settings_bus_count_label: 'تعداد اتوبوس‌های فعال در سامانه (۱ تا ۹)',
+        settings_bus_count_label: 'تعداد اتوبوس‌های فعال در سامانه (۱ تا ۸)',
         bus_count_4: '۴ اتوبوس',
         bus_count_6: '۶ اتوبوس',
-        bus_count_8: '۸ اتوبوس',
-        bus_count_9: '۹ اتوبوس (پیش‌فرض)',
+        bus_count_8: '۸ اتوبوس (پیش‌فرض)',
         settings_login_creds_title: 'تغییر نام کاربری و رمز عبور ورود به سایت',
         settings_data_label: 'عملیات داده‌ها و ذخیره‌سازی',
         settings_reset_sample: 'بازیابی رزروهای حذف‌شده',
@@ -3656,11 +3654,10 @@
         settings_auth_label: 'كلمة مرور الإعدادات',
         settings_auth_ph: 'أدخل كلمة المرور',
         settings_auth_submit: 'تأكيد والدخول للإعدادات',
-        settings_bus_count_label: 'عدد الباصات الفعالة في المنظومة (1 إلى 9)',
+        settings_bus_count_label: 'عدد الباصات الفعالة في المنظومة (1 إلى 8)',
         bus_count_4: '4 باصات',
         bus_count_6: '6 باصات',
-        bus_count_8: '8 باصات',
-        bus_count_9: '9 باصات (الافتراضي)',
+        bus_count_8: '8 باصات (الافتراضي)',
         settings_login_creds_title: 'تغيير اسم المستخدم وكلمة المرور للدخول للموقع',
         settings_data_label: 'إجراءات البيانات وقواعد الحفظ',
         settings_reset_sample: 'استعادة الحجوزات المحذوفة',
@@ -3902,9 +3899,8 @@
       loginPassword: '313',
       startDate: DateUtils.formatYYYYMMDD(new Date()),
       daysCount: 14,
-      busCount: 9,
-      busNames: ['اتوبوس 1', 'اتوبوس 2', 'اتوبوس 3', 'اتوبوس 4', 'اتوبوس 5', 'اتوبوس 6', 'اتوبوس 7', 'اتوبوس 8', 'اتوبوس 9'],
-      bus9Migrated: false,
+      busCount: 8,
+      busNames: ['اتوبوس 1', 'اتوبوس 2', 'اتوبوس 3', 'اتوبوس 4', 'اتوبوس 5', 'اتوبوس 6', 'اتوبوس 7', 'اتوبوس 8'],
       searchQuery: '',
       statusFilter: 'ALL',
       bookings: [],
@@ -4351,20 +4347,16 @@
         if (rawSettings) {
           var parsed = JSON.parse(rawSettings);
           AppState.daysCount = parsed.daysCount || 14;
-          var parsedBusCount = parseInt(parsed.busCount, 10) || 9;
-          if (!parsed.bus9Migrated && parsedBusCount === 8) {
-            parsedBusCount = 9;
-          }
+          var parsedBusCount = parseInt(parsed.busCount, 10) || 8;
+          if (parsedBusCount > 8) parsedBusCount = 8;
           AppState.busCount = parsedBusCount;
-          AppState.bus9Migrated = !!parsed.bus9Migrated;
           AppState.loginUsername = parsed.loginUsername || 'najaf';
           AppState.loginPassword = parsed.loginPassword || '313';
           AppState.settingsRev = parsed.settingsRev || 0;
           AppState.settingsUpdatedAt = parsed.settingsUpdatedAt || 0;
         } else {
           AppState.daysCount = 14;
-          AppState.busCount = 9;
-          AppState.bus9Migrated = false;
+          AppState.busCount = 8;
           AppState.loginUsername = 'najaf';
           AppState.loginPassword = '313';
           AppState.settingsRev = 0;
@@ -4417,7 +4409,6 @@
           startDate: AppState.startDate,
           daysCount: AppState.daysCount,
           busCount: AppState.busCount,
-          bus9Migrated: !!AppState.bus9Migrated,
           loginUsername: AppState.loginUsername,
           loginPassword: AppState.loginPassword,
           settingsRev: AppState.settingsRev || 0,
@@ -4461,7 +4452,6 @@
         startDate: AppState.startDate,
         daysCount: AppState.daysCount,
         busCount: AppState.busCount,
-        bus9Migrated: !!AppState.bus9Migrated,
         loginUsername: AppState.loginUsername,
         loginPassword: AppState.loginPassword,
         settingsRev: AppState.settingsRev,
@@ -4519,10 +4509,11 @@
     }
 
     function getLocalCfg() {
+      var bc = parseInt(AppState.busCount, 10) || 8;
+      if (bc > 8) bc = 8;
       return {
         dc: AppState.daysCount || 14,
-        bc: AppState.busCount || 9,
-        bc9: AppState.bus9Migrated ? 1 : 0,
+        bc: bc,
         u: AppState.loginUsername || 'najaf',
         p: AppState.loginPassword || '313',
         r: AppState.settingsRev || 0,
@@ -4532,15 +4523,11 @@
 
     function normalizeCfg(cfg) {
       if (!cfg || typeof cfg !== 'object') return getLocalCfg();
-      var bc = parseInt(cfg.bc || cfg.busCount, 10) || 9;
-      var bc9 = cfg.bc9 ? 1 : 0;
-      if (!bc9 && bc === 8) {
-        bc = 9;
-      }
+      var bc = parseInt(cfg.bc || cfg.busCount, 10) || 8;
+      if (bc > 8) bc = 8;
       return {
         dc: parseInt(cfg.dc || cfg.daysCount, 10) || 14,
         bc: bc,
-        bc9: bc9,
         u: cfg.u || cfg.loginUsername || 'najaf',
         p: cfg.p || cfg.loginPassword || '313',
         r: parseInt(cfg.r !== undefined ? cfg.r : cfg.settingsRev, 10) || 0,
@@ -4564,7 +4551,7 @@
       }).filter(Boolean).sort().join(';;');
 
       var nc = normalizeCfg(cfg);
-      var cPart = [nc.bc, nc.bc9, nc.dc, nc.u, nc.p, nc.r, nc.t].join('|');
+      var cPart = [nc.bc, nc.dc, nc.u, nc.p, nc.r, nc.t].join('|');
 
       return bPart + '###' + dPart + '###' + cPart;
     }
@@ -4745,8 +4732,7 @@
       // Apply merged state to AppState
       AppState.bookings = mergedBookings;
       AppState.deletedBookings = mergedDeleted;
-      AppState.busCount = mergedCfg.bc || 9;
-      AppState.bus9Migrated = !!mergedCfg.bc9;
+      AppState.busCount = mergedCfg.bc || 8;
       AppState.daysCount = mergedCfg.dc || 14;
       AppState.loginUsername = mergedCfg.u || 'najaf';
       AppState.loginPassword = mergedCfg.p || '313';
@@ -7347,7 +7333,6 @@
       if (newUser) AppState.loginUsername = newUser;
       if (newPass) AppState.loginPassword = newPass;
       AppState.busCount = count;
-      AppState.bus9Migrated = true;
       saveSettingsToStorage();
       closeModal('admin-settings-modal');
       renderTable();
@@ -7470,10 +7455,7 @@
               return nb;
             }).filter(Boolean);
             if (imported.settings) {
-              if (imported.settings.busCount) {
-                AppState.busCount = imported.settings.busCount;
-                AppState.bus9Migrated = true;
-              }
+              if (imported.settings.busCount) AppState.busCount = Math.min(8, parseInt(imported.settings.busCount, 10) || 8);
               if (imported.settings.daysCount) AppState.daysCount = imported.settings.daysCount;
               if (imported.settings.startDate) AppState.startDate = imported.settings.startDate;
             }
