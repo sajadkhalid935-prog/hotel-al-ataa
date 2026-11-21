@@ -3080,6 +3080,10 @@
             <i class="fa-solid fa-print"></i>
             <span data-i18n="report_print_btn">طباعة الكشف</span>
           </button>
+          <button type="button" class="btn-danger" id="btn-delete-report-company" onclick="deleteSelectedReportCompany()">
+            <i class="fa-solid fa-trash-can"></i>
+            <span data-i18n="report_delete_company_btn">حذف الشركة المحددة</span>
+          </button>
         </div>
       </div>
     </div>
@@ -3283,6 +3287,10 @@
         report_date_from_short: 'از',
         report_date_to_short: 'تا',
         report_print_btn: 'چاپ گزارش',
+        report_delete_company_btn: 'حذف شرکت انتخاب‌شده',
+        report_select_company_to_delete: 'لطفاً ابتدا نام شرکت مورد نظر را از لیست بالا انتخاب کنید',
+        report_confirm_delete_company: function(name, count) { return 'هشدار: آیا از حذف دائمی شرکت «' + name + '» و تمامی رزروهای مربوط به آن (' + count + ' رزرو) از جدول مطمئن هستید؟'; },
+        report_company_deleted_toast: function(name, count) { return 'شرکت «' + name + '» و ' + count + ' رزرو مربوط به آن با موفقیت حذف شد'; },
         report_whatsapp_btn: 'ارسال PDF به واتساپ',
         report_pdf_generating: 'در حال آماده‌سازی فایل PDF...',
         report_pdf_downloaded_wa: 'فایل PDF دانلود شد؛ لطفاً آن را در واتساپ پیوست کنید.',
@@ -3561,6 +3569,10 @@
         report_date_from_short: 'من',
         report_date_to_short: 'إلى',
         report_print_btn: 'طباعة الكشف',
+        report_delete_company_btn: 'حذف الشركة المحددة',
+        report_select_company_to_delete: 'يرجى اختيار اسم الشركة من القائمة أعلاه أولاً',
+        report_confirm_delete_company: function(name, count) { return 'تحذير: هل أنت متأكد من حذف الشركة «' + name + '» وجميع الحجوزات المرتبطة بها (' + count + ' حجز) نهائياً من الجدول؟'; },
+        report_company_deleted_toast: function(name, count) { return 'تم حذف الشركة «' + name + '» وعدد ' + count + ' من حجوزاتها بنجاح'; },
         report_whatsapp_btn: 'إرسال PDF إلى الواتساب',
         report_pdf_generating: 'جاري تجهيز ملف PDF...',
         report_pdf_downloaded_wa: 'تم تنزيل ملف PDF؛ أرفقه الآن في محادثة الواتساب.',
@@ -6646,20 +6658,20 @@
       renderAdminReportTable();
     }
 
+    function matchesReportCompanySelection(booking, selectedCompany) {
+      var iraqiCo = String(booking.iraqiCompany || '').trim();
+      var iranianCo = String(booking.company || '').trim();
+      if (!selectedCompany || selectedCompany === '__ALL__') return true;
+      if (selectedCompany === '__NONE__') return iraqiCo === '';
+      if (selectedCompany.indexOf('irq:') === 0) return iraqiCo === selectedCompany.slice(4);
+      if (selectedCompany.indexOf('irn:') === 0) return iranianCo === selectedCompany.slice(4);
+      return iraqiCo === selectedCompany || iranianCo === selectedCompany;
+    }
+
     function getFilteredReportBookings(selectedCompany, mode, fromDate, toDate) {
       return AppState.bookings.filter(function(b) {
         if (b.pendingCreate) return false;
-        var iraqiCo = String(b.iraqiCompany || '').trim();
-        var iranianCo = String(b.company || '').trim();
-        if (selectedCompany === '__NONE__') {
-          if (iraqiCo !== '') return false;
-        } else if (selectedCompany && selectedCompany.indexOf('irq:') === 0) {
-          if (iraqiCo !== selectedCompany.slice(4)) return false;
-        } else if (selectedCompany && selectedCompany.indexOf('irn:') === 0) {
-          if (iranianCo !== selectedCompany.slice(4)) return false;
-        } else if (selectedCompany !== '__ALL__') {
-          if (iraqiCo !== selectedCompany && iranianCo !== selectedCompany) return false;
-        }
+        if (!matchesReportCompanySelection(b, selectedCompany)) return false;
         var bDate = String(b.startDate || '');
         if (fromDate && bDate < fromDate) return false;
         if (toDate && bDate > toDate) return false;
@@ -6752,6 +6764,11 @@
       document.getElementById('report-tab-housing').classList.toggle('active', !isMeals);
       document.getElementById('report-tab-meals').classList.toggle('active', isMeals);
       updateAdminReportDateButtonState();
+      var delCompanyBtn = document.getElementById('btn-delete-report-company');
+      if (delCompanyBtn) {
+        var canDeleteSelection = Boolean(ctx.selectedCompany && ctx.selectedCompany !== '__ALL__');
+        delCompanyBtn.style.opacity = canDeleteSelection ? '1' : '0.6';
+      }
       var bannerText = ctx.companyFieldLabel + ': ' + ctx.companyLabel;
       if (ctx.dateRangeText) bannerText += ' | ' + t('report_date_range_btn') + ': ' + ctx.dateRangeText;
       document.getElementById('admin-report-company-banner').textContent = bannerText;
@@ -6838,6 +6855,67 @@
       if (!AppState.isAdmin) return;
       _adminReportMode = (mode === 'meals') ? 'meals' : 'housing';
       renderAdminReportTable();
+    }
+
+    function deleteSelectedReportCompany() {
+      if (!AppState.isAdmin) {
+        showToast(t('err_delete_admin_only'), 'error');
+        return;
+      }
+      var select = document.getElementById('report-iraqi-company-select');
+      var selectedCompany = select ? select.value : '__ALL__';
+      if (!selectedCompany || selectedCompany === '__ALL__') {
+        showToast(t('report_select_company_to_delete'), 'info');
+        if (select) select.focus();
+        return;
+      }
+
+      var matchingBookings = AppState.bookings.filter(function(b) {
+        return !b.pendingCreate && matchesReportCompanySelection(b, selectedCompany);
+      });
+      if (matchingBookings.length === 0) {
+        if (select) select.value = '__ALL__';
+        populateReportCompanyOptions();
+        renderAdminReportTable();
+        return;
+      }
+
+      var companyLabel = selectedCompany === '__NONE__'
+        ? t('report_no_company')
+        : ((selectedCompany.indexOf('irq:') === 0 || selectedCompany.indexOf('irn:') === 0) ? selectedCompany.slice(4) : selectedCompany);
+
+      if (!confirm(t('report_confirm_delete_company')(companyLabel, matchingBookings.length))) {
+        return;
+      }
+
+      AppState.syncVersion = (AppState.syncVersion || 2) + 1;
+      var delRev = AppState.syncVersion;
+      var delTs = Date.now();
+      var deleteIds = Object.create(null);
+
+      matchingBookings.forEach(function(b) {
+        deleteIds[b.id] = true;
+        AppState.deletedBookings = AppState.deletedBookings.filter(function(d) {
+          var dId = (typeof d === 'string') ? d : (d && d.id ? d.id : '');
+          return dId !== b.id;
+        });
+        AppState.deletedBookings.push(Object.assign({}, b, {
+          id: b.id,
+          rev: delRev,
+          deletedAt: delTs
+        }));
+      });
+
+      AppState.bookings = AppState.bookings.filter(function(b) { return !deleteIds[b.id]; });
+      saveDeletedBookingsToStorage();
+      saveBookingsToStorage();
+
+      if (select) select.value = '__ALL__';
+      populateReportCompanyOptions();
+      renderAdminReportTable();
+      updateAdminPendingCounter();
+      renderTable();
+      showToast(t('report_company_deleted_toast')(companyLabel, matchingBookings.length), 'info');
     }
 
     function printAdminReport() {
