@@ -785,7 +785,7 @@
       table-layout: fixed;
       border-collapse: separate;
       border-spacing: 0;
-      min-width: 1460px;
+      min-width: 1600px;
       text-align: center;
     }
 
@@ -1945,7 +1945,7 @@
         background: #FFFFFF !important;
       }
 
-      /* Meta columns: compact fixed widths so all 8 buses fit across the page */
+      /* Meta columns: compact fixed widths so all buses fit across the page */
       .col-sticky-1, .col-sticky-2, .col-sticky-3, .col-sticky-4 {
         background: #F3F4F6 !important;
         border-right: 1px solid #555555 !important;
@@ -2393,7 +2393,7 @@
       body.pc-layout-active .schedule-section,
       body.pc-layout-active .legend-section,
       body.pc-layout-active footer.main-footer {
-        min-width: 1520px;
+        min-width: 1660px;
       }
     }
 
@@ -2619,7 +2619,7 @@
           </div>
           <div class="stat-info">
             <h3 data-i18n="stat_total_title">کل اتوبوس‌ها</h3>
-            <div class="stat-number" id="stat-total-buses">8 اتوبوس</div>
+            <div class="stat-number" id="stat-total-buses">9 اتوبوس</div>
             <div class="stat-sub" data-i18n="stat_total_sub">ظرفیت کامل ناوگان هتل</div>
           </div>
         </div>
@@ -3160,11 +3160,12 @@
       </div>
       <div class="modal-body">
         <div class="form-group-full">
-          <label class="form-label" for="settings-bus-count" data-i18n="settings_bus_count_label">تعداد اتوبوس‌های فعال در سامانه (۱ تا ۸)</label>
+          <label class="form-label" for="settings-bus-count" data-i18n="settings_bus_count_label">تعداد اتوبوس‌های فعال در سامانه (۱ تا ۹)</label>
           <select id="settings-bus-count" class="form-select">
             <option value="4" data-i18n="bus_count_4">۴ اتوبوس</option>
             <option value="6" data-i18n="bus_count_6">۶ اتوبوس</option>
-            <option value="8" selected data-i18n="bus_count_8">۸ اتوبوس (پیش‌فرض)</option>
+            <option value="8" data-i18n="bus_count_8">۸ اتوبوس</option>
+            <option value="9" selected data-i18n="bus_count_9">۹ اتوبوس (پیش‌فرض)</option>
           </select>
         </div>
 
@@ -3410,10 +3411,11 @@
         settings_auth_label: 'رمز عبور تنظیمات',
         settings_auth_ph: 'رمز عبور را وارد کنید',
         settings_auth_submit: 'تأیید و ورود به تنظیمات',
-        settings_bus_count_label: 'تعداد اتوبوس‌های فعال در سامانه (۱ تا ۸)',
+        settings_bus_count_label: 'تعداد اتوبوس‌های فعال در سامانه (۱ تا ۹)',
         bus_count_4: '۴ اتوبوس',
         bus_count_6: '۶ اتوبوس',
-        bus_count_8: '۸ اتوبوس (پیش‌فرض)',
+        bus_count_8: '۸ اتوبوس',
+        bus_count_9: '۹ اتوبوس (پیش‌فرض)',
         settings_login_creds_title: 'تغییر نام کاربری و رمز عبور ورود به سایت',
         settings_admin_creds_title: 'تغییر نام کاربری و رمز عبور ادمین',
         settings_admin_user_label: 'نام کاربری ادمین (ورود مستقیم)',
@@ -3690,10 +3692,11 @@
         settings_auth_label: 'كلمة مرور الإعدادات',
         settings_auth_ph: 'أدخل كلمة المرور',
         settings_auth_submit: 'تأكيد والدخول للإعدادات',
-        settings_bus_count_label: 'عدد الباصات الفعالة في المنظومة (1 إلى 8)',
+        settings_bus_count_label: 'عدد الباصات الفعالة في المنظومة (1 إلى 9)',
         bus_count_4: '4 باصات',
         bus_count_6: '6 باصات',
-        bus_count_8: '8 باصات (الافتراضي)',
+        bus_count_8: '8 باصات',
+        bus_count_9: '9 باصات (الافتراضي)',
         settings_login_creds_title: 'تغيير اسم المستخدم وكلمة المرور للدخول للموقع',
         settings_admin_creds_title: 'تغيير اسم مستخدم وكلمة مرور الأدمن',
         settings_admin_user_label: 'اسم مستخدم الأدمن (الدخول المباشر)',
@@ -3942,8 +3945,8 @@
       adminPassword: 'khalid12',
       startDate: DateUtils.formatYYYYMMDD(new Date()),
       daysCount: 14,
-      busCount: 8,
-      busNames: ['اتوبوس 1', 'اتوبوس 2', 'اتوبوس 3', 'اتوبوس 4', 'اتوبوس 5', 'اتوبوس 6', 'اتوبوس 7', 'اتوبوس 8'],
+      busCount: 9,
+      busNames: ['اتوبوس 1', 'اتوبوس 2', 'اتوبوس 3', 'اتوبوس 4', 'اتوبوس 5', 'اتوبوس 6', 'اتوبوس 7', 'اتوبوس 8', 'اتوبوس 9'],
       searchQuery: '',
       statusFilter: 'ALL',
       bookings: [],
@@ -4390,8 +4393,9 @@
         if (rawSettings) {
           var parsed = JSON.parse(rawSettings);
           AppState.daysCount = parsed.daysCount || 14;
-          var parsedBusCount = parseInt(parsed.busCount, 10) || 8;
-          if (parsedBusCount > 8) parsedBusCount = 8;
+          var parsedBusCount = parseInt(parsed.busCount, 10) || 9;
+          if (parsedBusCount === 8 && !parsed.bus9Migrated) parsedBusCount = 9;
+          if (parsedBusCount > 9) parsedBusCount = 9;
           AppState.busCount = parsedBusCount;
           AppState.loginUsername = parsed.loginUsername || 'najaf';
           AppState.loginPassword = parsed.loginPassword || '313';
@@ -4402,7 +4406,7 @@
           AppState.settingsUpdatedAt = parsed.settingsUpdatedAt || 0;
         } else {
           AppState.daysCount = 14;
-          AppState.busCount = 8;
+          AppState.busCount = 9;
           AppState.loginUsername = 'najaf';
           AppState.loginPassword = '313';
           AppState.adminUsername = 'kr';
@@ -4458,6 +4462,7 @@
           startDate: AppState.startDate,
           daysCount: AppState.daysCount,
           busCount: AppState.busCount,
+          bus9Migrated: true,
           loginUsername: AppState.loginUsername,
           loginPassword: AppState.loginPassword,
           adminUsername: AppState.adminUsername,
@@ -4504,6 +4509,7 @@
         startDate: AppState.startDate,
         daysCount: AppState.daysCount,
         busCount: AppState.busCount,
+        bus9Migrated: true,
         loginUsername: AppState.loginUsername,
         loginPassword: AppState.loginPassword,
         adminUsername: AppState.adminUsername,
@@ -4564,11 +4570,12 @@
     }
 
     function getLocalCfg() {
-      var bc = parseInt(AppState.busCount, 10) || 8;
-      if (bc > 8) bc = 8;
+      var bc = parseInt(AppState.busCount, 10) || 9;
+      if (bc > 9) bc = 9;
       return {
         dc: AppState.daysCount || 14,
         bc: bc,
+        b9: 1,
         u: AppState.loginUsername || 'najaf',
         p: AppState.loginPassword || '313',
         au: AppState.adminUsername || 'kr',
@@ -4581,11 +4588,13 @@
 
     function normalizeCfg(cfg) {
       if (!cfg || typeof cfg !== 'object') return getLocalCfg();
-      var bc = parseInt(cfg.bc || cfg.busCount, 10) || 8;
-      if (bc > 8) bc = 8;
+      var bc = parseInt(cfg.bc || cfg.busCount, 10) || 9;
+      if (bc === 8 && !cfg.b9) bc = 9;
+      if (bc > 9) bc = 9;
       return {
         dc: parseInt(cfg.dc || cfg.daysCount, 10) || 14,
         bc: bc,
+        b9: 1,
         u: cfg.u || cfg.loginUsername || 'najaf',
         p: cfg.p || cfg.loginPassword || '313',
         au: cfg.au || cfg.adminUsername || 'kr',
@@ -4793,7 +4802,7 @@
       // Apply merged state to AppState
       AppState.bookings = mergedBookings;
       AppState.deletedBookings = mergedDeleted;
-      AppState.busCount = mergedCfg.bc || 8;
+      AppState.busCount = mergedCfg.bc || 9;
       AppState.daysCount = mergedCfg.dc || 14;
       AppState.loginUsername = mergedCfg.u || 'najaf';
       AppState.loginPassword = mergedCfg.p || '313';
@@ -7597,7 +7606,7 @@
               return nb;
             }).filter(Boolean);
             if (imported.settings) {
-              if (imported.settings.busCount) AppState.busCount = Math.min(8, parseInt(imported.settings.busCount, 10) || 8);
+              if (imported.settings.busCount) AppState.busCount = Math.min(9, parseInt(imported.settings.busCount, 10) || 9);
               if (imported.settings.daysCount) AppState.daysCount = imported.settings.daysCount;
               if (imported.settings.startDate) AppState.startDate = imported.settings.startDate;
             }
